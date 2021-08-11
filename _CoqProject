@@ -1,0 +1,24 @@
+-R . "FLL"
+
+# Miscellaneous and Utilities 
+Misc/Hybrid.v
+Misc/Permutations.v
+Misc/UtilsTactics.v
+Misc/Utils.v
+
+# Specification Logic
+# Focused First-order MMLL
+SL/Syntax.v
+SL/Sequent.v
+SL/FLLTacticsPre.v
+SL/StructuralRules.v
+SL/FLLTactics.v
+SL/InvNegativePhase.v
+SL/InvPositivePhase.v
+SL/CutElimination.v
+
+
+## Object Logics: Applications
+# OL/Examples.v
+# Encoding inference systems and cut-coherent conditions
+OL/CutCoherence/OLSyntax.v
