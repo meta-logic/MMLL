@@ -4,9 +4,9 @@ The tactics defined in this module solves some of the repetitive goals
 generated when the system is used. In particular those related
    to well-formedness conditions on formulas
  *)
-Require Export FLL.Misc.Utils.
-Require Export FLL.SL.Sequent.
-Require Import FLL.Misc.Permutations.
+Require Export MMLL.Misc.Utils.
+Require Export MMLL.SL.Sequent.
+Require Import MMLL.Misc.Permutations.
 
 Export ListNotations.
 Export LLNotations.

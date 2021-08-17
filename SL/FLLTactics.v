@@ -9,8 +9,8 @@ with an apostrophe. For instance, [solveLL] for the system [seqN] and
 [solveLL'] for the system [seq].
  *)
 
-Require Export FLL.SL.StructuralRules.
-Require Export FLL.SL.FLLTacticsPre.
+Require Export MMLL.SL.StructuralRules.
+Require Export MMLL.SL.FLLTacticsPre.
 
 Export ListNotations.
 Export LLNotations.

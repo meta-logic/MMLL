@@ -7,8 +7,8 @@ Require Export Permutation.
 Require Export Coq.Lists.List.
 Require Export Coq.Arith.Arith.
 Require Export Coq.Init.Nat.
-Require Export FLL.Misc.Permutations. 
-Require Export FLL.Misc.Utils.
+Require Export MMLL.Misc.Permutations. 
+Require Export MMLL.Misc.Utils.
 
 Export ListNotations.
 

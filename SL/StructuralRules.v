@@ -4,9 +4,9 @@ This file proves some structural properties as exchange (for the
 classical and linear context) as well as weakening and contraction in
 the classical context. *)
 
-Require Export FLL.Misc.Utils. 
-Require Export FLL.Misc.Permutations. 
-Require Export FLL.SL.FLLTacticsPre.
+Require Export MMLL.Misc.Utils. 
+Require Export MMLL.Misc.Permutations. 
+Require Export MMLL.SL.FLLTacticsPre.
 Require Import Coq.Program.Equality.
 
 Export ListNotations.

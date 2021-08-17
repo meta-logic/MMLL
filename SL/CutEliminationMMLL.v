@@ -9,13 +9,13 @@ It is assumed that the theory only produces well formed LL formulas
  *)
 
 
-Require Export FLL.Misc.Hybrid.
-Require Export FLL.SL.FLLTactics.
+Require Export MMLL.Misc.Hybrid.
+Require Export MMLL.SL.FLLTactics.
 Require Import Lia.
-Require Import FLL.Misc.Permutations.
+Require Import MMLL.Misc.Permutations.
 Require Import FunInd.
 Require Import Coq.Program.Equality.
-Require Export FLL.SL.InvPositivePhase.
+Require Export MMLL.SL.InvPositivePhase.
 
 Export ListNotations.
 Export LLNotations.

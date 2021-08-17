@@ -4,10 +4,10 @@ This file proves that exchange is admissible also in the list L in
 [seq Gamma Delta (> L)]. For that, some invertibility lemmas are
 needed.
  *)
-Require Export FLL.Misc.Hybrid.
-Require Export FLL.SL.FLLTactics.
+Require Export MMLL.Misc.Hybrid.
+Require Export MMLL.SL.FLLTactics.
 Require Import Lia.
-Require Import FLL.Misc.Permutations.
+Require Import MMLL.Misc.Permutations.
 Require Import FunInd.
 Require Import Coq.Program.Equality.
 

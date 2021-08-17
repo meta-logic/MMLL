@@ -5,9 +5,9 @@ MMLL formula (ruling out exotic terms). Proofs usually proceed by
 induction on the fact that a term satisfies this property.
  *)
 
-Require Export FLL.Misc.UtilsTactics.
-Require Export FLL.Misc.Permutations.
-Require Export FLL.Misc.Hybrid.
+Require Export MMLL.Misc.UtilsTactics.
+Require Export MMLL.Misc.Permutations.
+Require Export MMLL.Misc.Hybrid.
 
 Require Export Coq.Classes.SetoidDec.
 

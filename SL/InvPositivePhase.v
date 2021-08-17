@@ -4,12 +4,12 @@ This file proves some invertibility lemmas showing that positive rules
 can be switched.
  *)
 
-Require Export FLL.Misc.Hybrid.
-Require Export FLL.SL.FLLTactics.
-Require Import FLL.Misc.Permutations.
+Require Export MMLL.Misc.Hybrid.
+Require Export MMLL.SL.FLLTactics.
+Require Import MMLL.Misc.Permutations.
 Require Import FunInd.
 Require Import Coq.Program.Equality.
-Require Export FLL.SL.InvNegativePhase.
+Require Export MMLL.SL.InvNegativePhase.
 
 Export ListNotations.
 Export LLNotations.
