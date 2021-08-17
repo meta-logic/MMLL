@@ -7,8 +7,8 @@ Require Export Permutation.
 Require Export Coq.Lists.List.
 Require Export Coq.Arith.Arith.
 Require Export Coq.Init.Nat.
-Require Export MMLL.Misc.Permutations. 
-
+Require Export FLL.Misc.Permutations. 
+Require Export FLL.Misc.Utils.
 
 Export ListNotations.
 
@@ -22,13 +22,17 @@ Set Implicit Arguments.
   end : core.
 
   
+ 
 Ltac clear_junk :=
 repeat
  match goal with
  | [ H: ?a = ?a |- _ ] => clear H
  | [ H: (?a,?b) = (?a,?b) |- _ ] => clear H
  | [ H1: ?A, H2: ?A |- _ ] => clear H1
+ | [ H: Remove ?F (?F :: ?L) ?L |- _ ] => clear H
+
  | [ H: In ?F (?F :: _) |- _ ] => clear H
+ | [ H: In ?F (_++[?F]) |- _ ] => clear H
  | [ H: In ?F (_++?F :: _)|- _ ] => clear H
  | [ H: Permutation ?A ?A |- _] => clear H 
  end.
@@ -49,18 +53,18 @@ repeat
  | [  |- context[S _ - 1] ] => simpl;rewrite Nat.sub_0_r
  | [  |- context[fst (_, _)] ] => simpl
  | [  |- context[snd (_, _)] ] => simpl
-
+ 
  | [H : exists (x : _), _ |- _ ] => destruct H
  | [H : _ /\ _ |- _ ] => decompose [and or] H;clear H
  | [H : _ \/ _ |- _ ] => decompose [and or] H;clear H
  | [ |- _ /\ _ ] => split
 end;auto.
-
-
+    
 Ltac strivial := 
 try
   match goal with
  | [H1: ?f ?a = true, H2: ?f ?a = false |- _] => rewrite H1 in H2; discriminate H2
+ 
  | [  |- ?a = ?a ] => reflexivity 
  | [H: False |- _] => contradiction
  | [H1: ?F , H2 : ~ ?F |- _ ] => contradiction
@@ -78,8 +82,17 @@ try
  | [H : ?A /\ ?B |- ?A ] => firstorder 
  | [H : ?A /\ ?B |- ?B ] => firstorder  
  | [H : ?A |- ?A \/ ?B ] => firstorder 
- | [H : ?B |- ?A \/ ?B] => firstorder   
+ | [H : ?B |- ?A \/ ?B] => firstorder 
+ 
+ | [ |- Remove ?F (?L++_) (?L++_)] => apply Remove_app_head 
+ | [ |- Remove ?F (_++?L) (_++?L)] => apply Remove_app_tail 
+ | [ H: ?a <> ?a |- _ ] => try solve [timeout 2 firstorder]
+
+ | [ H1: forall x, ?P x -> ?L = ?R, H2: ?P ?X |- _ ] => rewrite (H1 X H2) in x
+ | [ H1: ?P ?X -> ?P ?Y, H2: ?P ?X |- ?P ?Y ] => apply H1;auto
+ | [ H1: _ ?P ?X -> _ ?P ?Y, H2: _ ?P ?X, H3: ?P ?F  |- _ ?P (?F::?Y) ] => simpl;apply H1;auto
  end;auto.
+
   
 Ltac clean_goal :=
 try
@@ -87,7 +100,7 @@ repeat
  match goal with
  | [ H: ?a = ?b |- _ ] => solve [inversion H]
  | [ H: [?a] = [?b] |- _ ] => inversion H;subst;clear H
- | [ H: (_,_) = (_,_) |- _ ] => inversion H;clear H;subst
+ | [ H: (_,_) = (_,_) |- _ ] => inversion H;clear H
 
  (* About Permutations *)
  | [ H: Permutation nil ?L |- _] => apply Permutation_nil in H
@@ -101,20 +114,22 @@ repeat
 (*  | [ H: In _ [_] |- _ ] => 
         let newH := fresh "H" in inversion H as [newH | newH];[subst| inversion newH]    *) 
  | [ H: ?A ++ ?B = nil |- _ ] => 
-        apply app_eq_nil in H; destruct H;subst
+        apply app_eq_nil in H; destruct H
  | [ H: nil =  ?A ++ ?B |- _ ] => 
-      symmetry in H; apply app_eq_nil in H; destruct H;subst
+      symmetry in H; apply app_eq_nil in H; destruct H
  | [ H: ?A ++ ?B = [_] |- _ ] => 
-        apply app_eq_unit in H; decompose [and or] H;clear H;subst
+        apply app_eq_unit in H; decompose [and or] H;clear H
  | [ H: [_] = ?A ++ ?B |- _ ] => 
-        symmetry in H; apply app_eq_unit in H; decompose [and or] H;clear H;subst
-end.
+        symmetry in H; apply app_eq_unit in H; decompose [and or] H;clear H
+        
+ | [ H: Remove _ [_] _ |- _ ] =>  apply RemoveUnique in H 
+end;subst.
 
- 
 
-
- Ltac sauto := subst; simplifier; try solve [strivial]; clean_goal; subst; try solve [strivial]; clear_junk; auto.
- 
+Ltac sauto := subst; (* after an inversion *) 
+              simplifier; clean_goal;
+              try solve [strivial]; 
+              clear_junk; auto.
 
 (* Ltac rwd H1 H2 := rewrite H1 in H2; discriminate.
 Ltac find_eqn :=
@@ -124,6 +139,22 @@ Ltac find_eqn :=
    |- _ ⇒ rewrite (H1 X H2) in x
   end.
  *) 
+ 
+
+  (** ** Aditional results on Forall/map *)
+Section ForAllMap. 
+  
+Lemma ForallIn :  forall {A : Type} {F : A} {L : list A} (f : A -> Prop), 
+      Forall f L -> In F L -> f F. 
+  Proof.
+    intros.
+    generalize (Forall_forall f L );intro.
+    destruct H1.
+    apply H1 with (x:= F) in H ;auto.
+  Qed.
+  
+  
+End ForAllMap .
   
   
 Ltac solveForall :=  
@@ -145,8 +176,17 @@ try
    | [ H1 : Forall ?f ?M, H2 : Permutation ?M (?N++?F::?L) |- Forall ?f [?F]  ] => rewrite H2 in H1; solveForall
    | [ H1 : Forall ?f ?M, H2 : Permutation (?N++?F::?L) ?M |- Forall ?f [?F]  ] => rewrite <- H2 in H1; solveForall
  
+   | [ H1 : Forall ?f ?M, H2 : Permutation ?M (?N++(_ ?F _)::?L) |- ?f ?F  ] => rewrite H2 in H1; solveForall
+   | [ H1 : Forall ?f ?M, H2 : Permutation ?M (?N++(_ _ ?F)::?L) |- ?f ?F  ] => rewrite H2 in H1; solveForall
+  
+   | [ H1 : Forall ?f ?M, H2 : Permutation (?N++(_ ?F _)::?L) ?M |- ?f ?F  ] => rewrite <- H2 in H1; solveForall
+   | [ H1 : Forall ?f ?M, H2 : Permutation (?N++(_ _ ?F)::?L) ?M |- ?f ?F  ] => rewrite <- H2 in H1; solveForall
+   
 
    | [ H : Forall ?f (?F :: ?M) |- ?f ?F ] => eapply @Forall_inv with (l:=M) (a:=F);auto
+   | [ H : Forall ?f ((_ ?F _) :: ?M) |- ?f ?F ] => eapply @Forall_inv with (l:=M) (a:=F);auto
+   | [ H : Forall ?f ((_ _ ?F) :: ?M) |- ?f ?F ] => eapply @Forall_inv with (l:=M) (a:=F);auto
+  
    | [ H : Forall ?f (?F :: ?M) |- Forall ?f ?M ] => apply Forall_inv_tail in H;auto 
    | [ H1 : Forall ?f ?M, H2 : Forall ?f ?N |- Forall ?f (?M++?N) ] => apply Forall_app;split;auto 
    | [ H: Forall ?f (?M++?N) |-  Forall ?f ?M  /\ Forall ?f ?N ] => apply Forall_app;auto 
@@ -155,7 +195,8 @@ try
    | [ H: Forall ?f (?M++?N++?L) |-  Forall ?f ?L ] => rewrite app_assoc in H;solveForall
    | [ H: Forall ?f (?M++?N++?L) |-  Forall ?f ?N ] => rewrite Permutation_app_swap_app in H;solveForall
    | [ H: Forall ?f (?M++?F::?L) |-  ?f ?F ] => apply Forall_elt in H;auto
-     | [ H: Forall ?f (?M++?F::?L) |-  Forall ?f [?F] ] => apply Forall_elt in H;auto
+   | [ H: Forall ?f (?M++?F::?L) |-  Forall ?f [?F] ] => apply Forall_elt in H;auto
+   | [ H: Forall ?f (?M++?F::?L) |-  Forall ?f ?L ] => rewrite Permutation_cons_append in H;solveForall
 
   
    | H: Forall ?f ?M  |- Forall ?f (_ :: ?M) => apply Forall_cons; auto  
@@ -164,6 +205,15 @@ try
    |  |- Forall ?f (_ :: ?M) => apply Forall_cons; solveForall 
    
     end;auto.
+    
+
+(* Definition plusT L := map (fun x => 2+x) L.
+
+Lemma asas M N: plusT (M++N) = plusT M ++ plusT N.
+rewrite map_app. *)
+
+
+  
 
  Ltac solveFoldFALL1 isP :=  
 try
@@ -183,6 +233,7 @@ try
    | [ H: ?isPL (?M++?N++?L) |-  ?isPL ?N ] => autounfold;autounfold in H
    | [ H: ?isPL (?M++?F::?L) |-  isP ?F ] => autounfold in H
    | [ H: ?isPL (?M++?F::?L) |-  ?isPL [?F] ] => autounfold;autounfold in H
+   | [ H: ?isPL (?M++?F::?L) |-  ?isPL ?L ] => autounfold;autounfold in H
 
   
    | H: ?isPL ?M  |- ?isPL (_ :: ?M) => autounfold;autounfold in H
@@ -233,6 +284,7 @@ try
    | [ H: ?isPL _ (?M++?N++?L) |-  ?isPL _ ?N ] => autounfold;autounfold in H
    | [ H: ?isPL _ (?M++?F::?L) |-  isP ?F ] => autounfold in H
      | [ H: ?isPL _ (?M++?F::?L) |-  ?isPL _ [?F] ] => autounfold;autounfold in H
+ | [ H: ?isPL _ (?M++?F::?L) |-  ?isPL _ ?L ] => autounfold;autounfold in H
 
   
    | H: ?isPL _ ?M  |- ?isPL _ (_ :: ?M) => autounfold;autounfold in H

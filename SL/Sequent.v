@@ -8,8 +8,8 @@ This file specifies a one-sided focused system for MMLL The system is
  *)
 
 
-Require Export MMLL.Misc.Utils. 
-Require Export MMLL.SL.Syntax.
+Require Export FLL.Misc.Utils. 
+Require Export FLL.SL.Syntax.
 
 Export ListNotations.
 Set Implicit Arguments.

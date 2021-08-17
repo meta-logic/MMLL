@@ -4,10 +4,10 @@ This file proves that exchange is admissible also in the list L in
 [seq Gamma Delta (> L)]. For that, some invertibility lemmas are
 needed.
  *)
-Require Export MMLL.Misc.Hybrid.
-Require Export MMLL.SL.FLLTactics.
+Require Export FLL.Misc.Hybrid.
+Require Export FLL.SL.FLLTactics.
 Require Import Lia.
-Require Import MMLL.Misc.Permutations.
+Require Import FLL.Misc.Permutations.
 Require Import FunInd.
 Require Import Coq.Program.Equality.
 
@@ -358,8 +358,7 @@ Section InvNPhase .
              eapply IH with (L' := F::G::L') in H7;auto.
              inversion H;subst.
              inversion H5;subst.
-             change (F :: G :: L') with ([F] ++ [G] ++ L').
-             apply ForallApp;auto.
+             SLSolve.
              simpl. lia.
            +++ (* with *)
              eapply IH with (m:= complexityL (F::L)) (L:= F ::L) (L' := F :: L') in H8;auto.
@@ -367,13 +366,12 @@ Section InvNPhase .
              simpl. lia.
              inversion H;subst.
              inversion H5;subst.
-             change (G :: L') with ([G] ++ L').
-             apply ForallApp;auto.
+             SLSolve.
              simpl. lia.
              inversion H;subst.
              inversion H5;subst.
              change (F :: L') with ([F] ++ L').
-             apply ForallApp;auto.           
+             apply Forall_app;auto.           
            +++  (* quest *)
              eapply IH with (m:= complexityL L) (L' :=L') in H7;auto.
              lia.
@@ -394,7 +392,7 @@ Section InvNPhase .
              inversion H;subst.
              inversion H7;subst.
              change (FX x  :: L') with ([FX x ] ++ L').
-             apply ForallApp;auto.
+             apply Forall_app;auto.
              
         ++
           destruct Heq as [L1 [L2 [L1' [L2' Heq]]]].
@@ -403,27 +401,16 @@ Section InvNPhase .
           inversion H0;subst.
           
           +++ (* top *)
-            eapply EquivAuxTop with (M:= l' :: L1'). 
-            inversion H;subst;auto.
-            change (l' :: L1') with ([l'] ++ L1').
-            apply ForallApp;auto.
-            eapply ForallAppInv1. exact H5.
-            
+            eapply EquivAuxTop with (M:= l' :: L1').
+            rewrite app_comm_cons in H.  SLFormulaSolve.
           +++ (* bottom *)
             eapply IH with (m:= complexityL (L1 ++ l' :: L2))(L:=L1 ++ l' :: L2) (L' := [l'] ++ L1' ++ L2') in H6 .
             simpl in H6. 
             apply EquivAuxBot with (M:= l' :: L1');auto.
             simpl in Heqw. inversion Heqw. auto.
             inversion H;subst;auto.
-            
-            apply ForallApp;auto.
-            apply Forall_forall;intros.
-            rewrite Forall_forall in H5.
-            apply H5.
-            apply in_or_app.
-            apply in_app_or in H2.
-            destruct H2;try intuition.
-
+              rewrite app_comm_cons in H.  SLFormulaSolve.
+          
             rewrite Permutation_midle.
             apply Permutation_cons;auto. 
             auto.
@@ -435,22 +422,19 @@ Section InvNPhase .
             apply seqtoSeqN in H6. destruct H6.
             eapply EquivAuxPar with (M:= l' :: L1');simpl;simpl in H2;eauto using seqNtoSeq.
             simpl in Heqw. inversion Heqw. simpl.  lia.
-            
-            
-            inversion H;subst;auto.
-
-            apply ForallApp;auto.
-            
-            
-            apply ForallApp;auto.
-            apply ForallAppInv1 in H5;auto.
-            apply ForallAppInv2 in H5;auto.
+              inversion H;subst;auto.
+              rewrite app_comm_cons in H.  SLFormulaSolve.
+          
+            apply Forall_app in H5;auto.
             inversion H5;subst;auto.
-            apply ForallApp;auto.
-            inversion H7;subst;auto.
-            simpl.
-            rewrite Permutation_midle. rewrite Permutation_midle.
-            rewrite Permutation_midle. rewrite Heq2. perm.
+            inversion H3;subst;auto.
+            inversion H9...
+             apply Forall_app in H5;auto.
+            inversion H5;subst;auto.
+            inversion H3;subst;auto.
+            inversion H9...
+            rewrite Permutation_midle. 
+            rewrite Heq2. perm.
             auto.
 
 
@@ -464,37 +448,23 @@ Section InvNPhase .
             
             apply EquivAuxWith with (M := l' :: L1'); simpl;auto.
             inversion Heqw. simpl. lia.
-            
-            inversion H;subst;auto.
-
-            apply ForallApp;auto.
-            
-            
-            apply ForallApp;auto.
-            apply ForallAppInv1 in H5;auto.
-            apply ForallAppInv2 in H5;auto.
+              inversion H;subst;auto.
+              rewrite app_comm_cons in H.  SLFormulaSolve.
+          
+            apply Forall_app in H5;auto.
             inversion H5;subst;auto.
-            apply ForallApp;auto.
-            inversion H6;subst;auto.
-            
-            simpl.
+            inversion H3;subst;auto.
+            inversion H10...
             
             rewrite Permutation_midle. rewrite Heq2. perm.
             inversion Heqw. simpl. lia.
-            
-            inversion H;subst;auto.
-
-            apply ForallApp;auto.
-            
-            
-            apply ForallApp;auto.
-            apply ForallAppInv1 in H5;auto.
-            apply ForallAppInv2 in H5;auto.
+              inversion H;subst;auto.
+              rewrite app_comm_cons in H.  SLFormulaSolve.
+          
+            apply Forall_app in H5;auto.
             inversion H5;subst;auto.
-            apply ForallApp;auto.
-            inversion H6;subst;auto.
-            
-            
+            inversion H3;subst;auto.
+            inversion H10...
             simpl.
             
             rewrite Permutation_midle. rewrite Heq2. perm.
@@ -507,18 +477,9 @@ Section InvNPhase .
             eauto using seqNtoSeq.
             
             inversion Heqw. simpl. lia.
-            
-            inversion H;subst;auto.
-
-            apply ForallApp;auto.
-            
-            
-            apply ForallApp;auto.
-            apply ForallAppInv1 in H5;auto.
-            apply ForallAppInv2 in H5;auto.
-            inversion H5;subst;auto.
-            
-            
+              inversion H;subst;auto.
+              rewrite app_comm_cons in H.  SLFormulaSolve.
+          
             rewrite Permutation_midle. rewrite Heq2. perm.
 
           +++ (* copy *)
@@ -529,17 +490,8 @@ Section InvNPhase .
             inversion Heqw.
             assert (complexity l > 0) by (apply Complexity0).
             lia.
-            inversion H;subst;auto.
-
-            apply ForallApp;auto.
-            
-            
-            apply ForallApp;auto.
-            apply ForallAppInv1 in H5;auto.
-            apply ForallAppInv2 in H5;auto.
-            inversion H5;subst;auto.
-            
-            
+              inversion H;subst;auto.
+              rewrite app_comm_cons in H.  SLFormulaSolve.
             rewrite Permutation_midle. rewrite Heq2. perm.
           +++ (* forall *)
             
@@ -556,19 +508,12 @@ Section InvNPhase .
             
             inversion H;subst;auto.
             change ((l' :: L1') ++ [FX x] ++ L2') with ([l'] ++ L1' ++ [FX x] ++ L2').
-            apply ForallApp;auto.
-            
-            
-            apply ForallApp;auto.
-            apply ForallAppInv1 in H5;auto.
-            
-            apply ForallAppInv2 in H5;auto.
-            inversion H5;subst.
-            inversion H6;subst.
-
-            apply ForallApp;auto.
-            
-            
+              inversion H;subst;auto.
+              rewrite app_comm_cons in H.  SLFormulaSolve.
+            apply Forall_app in H5;auto.
+            inversion H5;subst;auto.
+            inversion H3;subst;auto.
+            inversion H12...
             rewrite Permutation_midle. rewrite Heq2. perm.
 
             assert(forall B  L L' M   FX, 
@@ -578,10 +523,9 @@ Section InvNPhase .
             
             apply H3 in H2;auto.
             inversion H;subst.
-            change (l' :: L1') with ([l'] ++ L1').
-            apply ForallApp;auto.   
-            apply ForallAppInv1 in H9;auto. 
-            
+              inversion H;subst;auto.
+              rewrite app_comm_cons in H.  SLFormulaSolve.
+          
   Qed.
 
   Theorem EquivUpArrow2 : forall B L L' M ,

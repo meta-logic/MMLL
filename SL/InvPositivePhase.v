@@ -4,12 +4,12 @@ This file proves some invertibility lemmas showing that positive rules
 can be switched.
  *)
 
-Require Export MMLL.Misc.Hybrid.
-Require Export MMLL.SL.FLLTactics.
-Require Import MMLL.Misc.Permutations.
+Require Export FLL.Misc.Hybrid.
+Require Export FLL.SL.FLLTactics.
+Require Import FLL.Misc.Permutations.
 Require Import FunInd.
 Require Import Coq.Program.Equality.
-Require Export MMLL.SL.InvNegativePhase.
+Require Export FLL.SL.InvNegativePhase.
 
 Export ListNotations.
 Export LLNotations.
@@ -37,13 +37,12 @@ Section Absoroption.
           rewrite H3 in H4;simpl in H4.
           apply Permutation_cons_inv in H4.
           tensor x N B D.
-          rewrite H3 in H8. 
-          rewrite cxtDestruct in H8.
-          rewrite <- H5 in H8.
+          LLrewrite H3 in H8.
+          LLSplit in H8. 
           CleanContext.
-          rewrite <- app_comm_cons in H8.
-          rewrite cxtDestruct.
+          LLSplit...
           rewrite <- H5.
+          rewrite <- H5 in H8.
           CleanContext.
           
       }
@@ -58,7 +57,6 @@ Section Absoroption.
         rewrite cxtDestruct in H9.
         rewrite <- H6 in H9.
         CleanContext.
-        rewrite <- app_comm_cons in H9.
         rewrite cxtDestruct.
         rewrite <- H6.
         CleanContext.
@@ -156,11 +154,11 @@ Lemma AbsorptionCSet : forall th n C Gamma Delta X,
   induction C;simpl;intros...
   destruct a as [i F].
   apply AbsorptionC. 
-  solveSet. solveSet.
+  SLSolve. SLSolve.
   rewrite Permutation_cons_append.
   rewrite app_assoc_reverse.
   eapply IHC.
-  solveSet. solveSet.
+  SLSolve. SLSolve.
   LLExact H1...
   perm.
   Qed. 
@@ -185,9 +183,9 @@ Lemma AbsorptionCSet : forall th n C Gamma Delta X,
   rewrite app_comm_cons.
   destruct a as [i F].
   apply AbsorptionL.
-  solveSet.
+  SLSolve.
   apply IHC.
-  solveSet.
+  SLSolve.
   LLExact H0...
   perm.
   Qed. 
@@ -741,10 +739,10 @@ Section InvPosPhase.
     destruct a as [b F].
     rewrite H1.
     eapply AbsorptionClassic' with (i:=b) (F:=F)...
-    solveSet.
-    solveSet.
+    SLSolve.
+    SLSolve.
     
-    eapply IHC with (B':= (b, F) :: B')... solveSet. solveSet.
+    eapply IHC with (B':= (b, F) :: B')... SLSolve. SLSolve.
     perm.
     rewrite app_assoc_reverse.
     rewrite <- H1. exact H2.
@@ -1003,8 +1001,8 @@ Section AbsorptionLinear.
     destruct a as [b F].
     rewrite H0.
     eapply AbsorptionLinear with (i:=b)...
-    solveSet. solveSet.
-    eapply IHC... solveSet. solveSet.
+    SLSolve. SLSolve.
+    eapply IHC... SLSolve. SLSolve.
     rewrite app_assoc_reverse.
     exact H1.
     Qed.
@@ -1605,7 +1603,6 @@ Section AbsorptionLinear.
           inversion H4...
 
           decide1 F0  (l2++[G op F])...
-          apply Remove_app_tail;auto.
           assert(Permutation (F op G :: l2) (l2++[F op G])).
           perm.
           rewrite H1 in H5.
@@ -1624,7 +1621,7 @@ Section AbsorptionLinear.
     Qed.
 
     (* =============================================== *)
-    (* MAIN INVERTIBILITY THEOREM (FLIPPING F and G    *)
+    (* MAIN INVERTIBILITY THEOREM (FLIPPING F and G)   *)
     (* =============================================== *)   
     Theorem InvPlusComm: forall B L F G  M, 
      |-- B  ;M ; UP (L++[G]) -> |-- B ; (F op G)::M ; UP L .
@@ -1715,7 +1712,6 @@ Section AbsorptionLinear.
       destruct MN...
 
       inversion HD1...
-      CleanContext.
       inversion FP.
      
      Qed.
@@ -1789,7 +1785,7 @@ Section AbsorptionLinear.
             decide1 (G**F) x.
             apply Remove_app_in'.
             tensor N M D B0.
-            rewrite H5... rewrite H7...
+            rewrite H5... rewrite H6...
             rewrite Permutation_app_comm... 
           ++  
             decide2u i F0 ...
@@ -1847,17 +1843,17 @@ Section AbsorptionLinear.
         apply EquivAuxQuest...
         assert(HUp : RUpTensor(n' + n)) by (apply IH;lia) ...
         eapply HUp with(n0:=n') (m:=n) (B:=B++[(i, F0)]) (D:=D++[(i, F0)])... 
-        simplF. rewrite H1...
-        simplF. rewrite H2...
-        simplF. rewrite H3...
+        simplSignature. rewrite H1...
+        simplSignature. rewrite H2...
+        simplSignature. rewrite H3...
         eapply weakeningGenN_rev;auto.
         LLExact H10.
         apply EquivAuxQuest...
         assert(HUp : RUpTensor(n' + n)) by (apply IH;lia) ...
         eapply HUp with(n0:=n') (m:=n) (B:=B) (D:=D++[(i, F0)])...
-          simplF. rewrite H1...
-        simplF. rewrite H2...
-        simplF. rewrite H3...
+          simplSignature. rewrite H1...
+        simplSignature. rewrite H2...
+        simplSignature. rewrite H3...
         LLExact H10.
       +
         apply EquivAuxStore...
@@ -1913,12 +1909,11 @@ Lemma InvTensorConsNil' (nm : nat) (IH : forall m : nat, m <= nm -> RIndTensor m
         CleanContext.
         rewrite H2...
         CleanContext.
-        rewrite H3... LLExact H10.  
+         LLExact H10.  
         eapply weakeningGenN_rev;auto.
         assert(HUp : RUpTensor(n + m')) by (apply IH;lia) ...
         eapply HUp with (n0:=n) (m:=m') (B:=B++[(i, F0)]) (D:=D)... 
         CleanContext.
-        rewrite H1...  
         CleanContext.
         rewrite e...
         CleanContext.
@@ -2053,9 +2048,9 @@ Lemma InvTensorConsNil' (nm : nat) (IH : forall m : nat, m <= nm -> RIndTensor m
             rewrite <- Permutation_cons_append.
             rewrite (Permutation_app_comm M1).   
             eapply HDw with (m:= n) (n1:= n0) (B:=D) (D:=B);try(lia)...
-            simplF.
+            simplSignature.
             rewrite H4...
-             simplF.
+             simplSignature.
             rewrite H3...
         LLExact H11. 
       ++ assert(IH2 : RIndTensor(n + S n0)) by(  apply H1;auto);
@@ -2065,7 +2060,7 @@ Lemma InvTensorConsNil' (nm : nat) (IH : forall m : nat, m <= nm -> RIndTensor m
             rewrite H5.
              apply Remove_Permute in H10.
              rewrite H10.
-             simplF.
+             simplSignature.
             decide2l i F0 (getU BD ++ getL B ++ getL B')...
              do 2 rewrite app_assoc.
              apply Remove_app_in.
@@ -2074,10 +2069,10 @@ Lemma InvTensorConsNil' (nm : nat) (IH : forall m : nat, m <= nm -> RIndTensor m
             rewrite <- Permutation_cons_append.
             rewrite (Permutation_app_comm M1).   
             eapply HDw with (m:= n) (n1:= n0) (B:=B') (D:=B);try(lia)...
-            simplF. 
+            simplSignature. 
             rewrite H4... rewrite H10.
-            simplF... 
-            simplF.
+            simplSignature... 
+            simplSignature.
             rewrite H3... 
             LLExact H11.
            firstorder.
@@ -2244,9 +2239,9 @@ rewrite H5 in *. clear H5. inversion H9...
             rewrite (Permutation_app_comm L').  
           eapply  HDw with (n1:= n) (m:= S (S n0)) (B:=B') (D:=B);try lia...
           rewrite P2. rewrite H4.
-          simplF...
+          simplSignature...
           rewrite P1. 
-          simplF...
+          simplSignature...
           
     
           firstorder.
@@ -2266,7 +2261,7 @@ rewrite H5 in *. clear H5. inversion H9...
        rewrite P3.
        apply Remove_Permute in H4.
        rewrite H4.
-       simplF.
+       simplSignature.
              
        decide2l i F0 (getU BD ++ getL B' ++ getL D)...
        apply Remove_app_in.
@@ -2277,9 +2272,9 @@ rewrite H5 in *. clear H5. inversion H9...
             
        eapply  HDw with (n:= n0) (m0:=S m) (B:=B') (D:=D);try lia... 
        rewrite P1. rewrite H4. 
-       simplF...
+       simplSignature...
        rewrite P2. 
-       simplF...
+       simplSignature...
        firstorder.
        Qed.
      (* =============================================== *)
@@ -2415,12 +2410,12 @@ rewrite H5 in *. clear H5. inversion H9...
           tensor (F ** G::x ++ M') N (getU BD++(getL B0++getL D)) (getU BD++getL D0)...
           rewrite <- H1. perm.
           eapply HDown with (m0:=m) (n:=n1) (B:=B0) (D:=D) ;try lia...
-          simplF.
+          simplSignature.
           rewrite P1;auto.
           rewrite H2...
-          simplF.
+          simplSignature.
           rewrite P2...
-          simplF... 
+          simplSignature... 
           rewrite <- H0;auto.
           apply seqNtoSeq in H9;auto.
           rewrite P1.
@@ -2444,10 +2439,10 @@ rewrite H5 in *. clear H5. inversion H9...
           rewrite <- cxtDestruct;auto.
         
           eapply HDown with (m0:=m) (n:=n1) (B:=D0) (D:=D) ;try lia...
-          simplF.
+          simplSignature.
           rewrite P1...
-          simplF...
-          simplF... 
+          simplSignature...
+          simplSignature... 
           rewrite <- H0;auto.
       +
         assert(HRI: RIndTensor (S m +n1)) by (apply IH ; lia).
@@ -2558,7 +2553,6 @@ rewrite H5 in *. clear H5. inversion H9...
       CleanContext.
       rewrite <- H2.
       CleanContext.
-      CleanContext.
     Qed.
   
     Theorem InvTensorL2 : forall i BD B D D' L L' F G M M', u i = false -> mt i = true ->
@@ -2584,7 +2578,6 @@ rewrite H5 in *. clear H5. inversion H9...
       intro Hc. inversion Hc.
       rewrite <- Permutation_cons_append.
       eapply InvTensor with (B:=B) (D:=D');CleanContext.
-      CleanContext.
     Qed.
     
     Theorem InvTensorT : forall BD B D L L' F G M M', 

@@ -5,9 +5,9 @@ MMLL formula (ruling out exotic terms). Proofs usually proceed by
 induction on the fact that a term satisfies this property.
  *)
 
-Require Export MMLL.Misc.Utils.
-Require Export MMLL.Misc.Permutations.
-Require Export MMLL.Misc.Hybrid.
+Require Export FLL.Misc.UtilsTactics.
+Require Export FLL.Misc.Permutations.
+Require Export FLL.Misc.Hybrid.
 
 Require Export Coq.Classes.SetoidDec.
 
@@ -103,6 +103,10 @@ Proof. apply @PreOrder_Reflexive;eauto. exact lt_pre. Qed.
 Instance Lt_Transitive `{Signature} : Transitive lt.
 Proof.  apply @PreOrder_Transitive;eauto. exact lt_pre. Qed.
 
+Class UnbSignature `{Signature}:=
+  { 
+    allU: forall x, u x = true; }.
+
 
 Section LLSyntax.
  
@@ -113,7 +117,7 @@ Section LLSyntax.
   exact loc.
   Qed.
   
-  Hint Resolve SubExpInhabitant : core.
+ Hint Resolve SubExpInhabitant : core.
   
   Lemma uDec : forall x, {u x = true} + {u x = false}.
   Proof.
@@ -160,6 +164,26 @@ Section LLSyntax.
   intros.
   intro...
   Qed.
+  
+  Lemma locNo4 i : m4 i = true -> i <> loc.
+  Proof with subst;solveSubExp.
+  intros.
+  intro...
+  Qed.
+  
+  Lemma locTDiff i : mt i = false -> i <> loc.
+  Proof with subst;solveSubExp.
+  intros.
+  intro...
+  Qed.
+  
+  
+  Lemma locUDiff i : u i = false -> i <> loc.
+  Proof with subst;solveSubExp.
+  intros.
+  intro...
+  Qed.
+  
     
   Lemma locDec a: {loc = a} + {loc <> a}.
   Proof.
@@ -259,6 +283,18 @@ Section LLSyntax.
       apply @PreOrder_Transitive with (R:=lt) (y:=y);auto.
       exact lt_pre.
   Qed. 
+  
+  Lemma T_in_plust a : mt(plust a) = true.
+  Proof.
+    intros.
+    destruct (mtDec a). 
+    * apply plustpropT in e as H'.
+      rewrite H';auto.
+    * apply plustpropF in e as H'.
+      decompose [and] H';clear H'.  
+      eapply @eq_trans with (y:=true);auto.
+  Qed. 
+  
   
   (** Connectives of the logic *)
   Inductive oo : Set :=
@@ -441,6 +477,7 @@ Section LLSyntax.
       unfold isFormulaL.
       rewrite <- H;auto.
     Qed.
+ 
   
   Lemma isFormulaIn : forall F L, 
       isFormulaL L -> In F L -> isFormula F. 
@@ -448,7 +485,6 @@ Section LLSyntax.
     intros. eapply @ForallIn with (F:=F) in H;auto.
   Qed.
 
- 
   (** Arrows for the focused system
       - [UP] : negative phase
       - [DW] : positive phase 
@@ -593,47 +629,6 @@ Local Hint Constructors IsPositiveAtom IsNegativeAtom : core.
     inversion H1.
   Qed.
   
-  Lemma LexpPosConc : forall M F, isNotAsyncL M ->
-                                  ~ asynchronous F ->
-                                  isNotAsyncL (M ++ [F]).
-    intros.
-    apply ForallAppComm.
-    apply ForallApp;auto.
-  Qed.
-
-
-  Lemma PosAtomConc : forall M F,  isNotAsyncL M ->
-                                   IsPositiveAtom F ->
-                                   isNotAsyncL (M ++ [F]).
-    intros.
-    apply ForallAppComm.
-    apply ForallApp;auto.
-    inversion H0;subst;auto.
-    constructor;auto.
-    intro Hn;inversion Hn.
-  Qed.
-  
-  Lemma NegAtomConc : forall M F,  isNotAsyncL M ->
-                                   IsNegativeAtom F ->
-                                   isNotAsyncL (M ++ [F]).
-    intros.
-    apply ForallAppComm.
-    apply ForallApp;auto.
-    inversion H0;subst;auto.
-    constructor;auto.
-    intro Hn;inversion Hn.
-  Qed.
-  
-  Lemma PosConc : forall M F,  isNotAsyncL M ->
-                               positiveFormula F ->
-                               isNotAsyncL (M ++ [F]).
-    intros.
-    apply ForallAppComm.
-    apply ForallApp;auto.
-    constructor;auto.
-    intro Hn;inversion Hn;subst;inversion H0.
-  Qed.
-  
   
   End LLSyntax.
   
@@ -768,7 +763,7 @@ Section SubExpSets.
   | [] => []
   | (x,F) :: l0 => if u x then (x,F) :: (getU l0) else getU l0
   end.
-
+  
  Fixpoint getL (l : list TypedFormula) :=
   match l with
   | [] => []
@@ -792,10 +787,11 @@ match goal with
          change (Forall (fun k : subexp * oo => m4 (fst k) = false /\ lt i (fst k)) K) with (SetK i K)
  | [  |- context[Forall (fun k : subexp * oo => m4 (fst k) = true /\ lt ?i (fst k)) ?K ] ] =>  
          change (Forall (fun k : subexp * oo => m4 (fst k) = true /\ lt i (fst k)) K) with (SetK4 i K)
- | [  |- context[map (fun x => (loc,_)) ?K]] => fold (Loc K)   
- | [  |- context[map (fun x => (plust _,_)) ?K]] => fold (PlusT K)  
- | [  |- context[Forall isFormula ?L] ] => fold (isFormulaL L)
-
+ | [  |- context[map (fun x => (loc,_)) ?K]] => change (map (fun x => (loc,_)) K) with (Loc K) 
+ | [  |- context[map (fun x => (plust _,_)) ?K]] => change (map (fun x => (plust _,_)) K) with (PlusT K)
+ | [  |- context[Forall isFormula ?L] ] => change (Forall isFormula L) with (isFormulaL L)
+ | [  |- context[map snd ?L] ] => change (map snd L) with (second L)
+ | [ H : context[map snd ?L] |- _ ] => fold (second L) in H
   
  | [ H : context[Forall (fun k : subexp * oo => mt (fst k) = true) ?K]  |- _ ] => fold (SetT K) in H
  | [ H : context[Forall (fun k : subexp * oo => u (fst k) = true) ?K] |- _ ] => fold (SetU K) in H
@@ -814,6 +810,13 @@ Tactic Notation "srewrite" constr(H) := autounfold;
                      
 end;sfold.
 
+Tactic Notation "srewrite_reverse" constr(H) := autounfold;
+ let Hs := type of H in 
+ match Hs with
+| Permutation _ _ => symmetry in H;try rewrite H
+                     
+end;sfold.
+
 
 Tactic Notation "srewrite" constr(H1) "in" constr(H2) := 
 autounfold in H2;
@@ -823,17 +826,75 @@ autounfold in H2;
                      
 end;sfold.
 
-  
- Ltac solveSignature := try
+Tactic Notation "srewrite_reverse" constr(H1) "in" constr(H2) := 
+autounfold in H2;
+ let Hs := type of H1 in 
+ match Hs with
+| Permutation _ _ => symmetry in H1; try rewrite H1 in H2
+                     
+end;sfold.
+
+ Ltac simplSignature1 := 
+  repeat 
+    multimatch goal with
+  (* Basic simplifcation *)
+  | [  |- context[length []] ] => simpl
+  | [ H: context[length []]  |- _ ] => simpl in H
+  | [  |- context[Loc []] ] => simpl
+  | [ H:  context[Loc []] |- _ ] => simpl in H
+  | [  |- context[PlusT []] ] => simpl
+  | [ H:  context[PlusT []] |- _ ] => simpl in H
+  | [  |- context[second []] ] => simpl
+  | [ H:  context[second []] |- _ ] => simpl in H
+
+ | [ H: context[if u loc then _ else _] |- _ ] => rewrite locu in H
+ | [ H: context[if mt loc then _ else _] |- _ ] => rewrite locT in H
+ | [ H: context[if md loc then _ else _] |- _ ] => rewrite locD in H
+ | [ H: context[if m4 loc then _ else _] |- _ ] => rewrite loc4 in H
+ | [ H: context[if mk loc then _ else _] |- _ ] => rewrite locK in H
+ | [ |- context[if u loc then _ else _]  ] => rewrite locu 
+ | [ |- context[if mt loc then _ else _] ] => rewrite locT 
+ | [ |- context[if md loc then _ else _] ] => rewrite locD 
+ | [ |- context[if m4 loc then _ else _] ] => rewrite loc4 
+ | [ |- context[if mk loc then _ else _] ] => rewrite locK 
+
+  | [ H1: u (fst ?F) = _, H2: context[getU (?F :: _)] |- _ ] => 
+     destruct F;simpl in H1;simpl in H2; rewrite H1 in H2 
+  | [ H1: u (fst ?F) = _, H2: context[getL (?F :: _)] |- _ ] => 
+     destruct F;simpl in H1;simpl in H2; rewrite H1 in H2      
+  | [ H: u (fst ?F) = _ |- context[getU (?F :: _)] ] => 
+     destruct F;simpl;simpl in H; rewrite H 
+  | [ H: u (fst ?F) = _ |- context[getL (?F :: _)] ] => 
+     destruct F;simpl;simpl in H; rewrite H 
+ | [ H1: ?s ?a = _, H2: context[if ?s ?a then _ else _] |- _ ] => rewrite H1 in H2 
+ | [ H: ?s ?a = _|- context[if ?s ?a then _ else _] ] => rewrite H 
+
+(* About second *)
+ | [ H: context[second(_++_)] |- _ ] => rewrite secondApp in H 
+ | [ |- context[second(_++_)] ] => rewrite secondApp
+ 
+ | [  |- context[_ (_::_)] ] => simpl
+  | [ H: context[_ (_::_)] |- _ ] => simpl in H 
+
+  end.
+ 
+ 
+ Ltac solveSignature1 := try
   match goal with
+  | [ H: UnbSignature |- u ?i = true ] => apply allU 
   | [ H: md ?i = true |- ?i <> loc ] => apply locNoD;auto 
- | [ |- lt ?i ?i] => apply @PreOrder_Reflexive; exact lt_pre
-   | [ |- u loc = true ] => apply locu 
+  | [ H: m4 ?i = true |- ?i <> loc ] => apply locNo4;auto 
+  | [ H: mt ?i = false |- ?i <> loc ] => apply locTDiff;auto 
+  | [ H: u ?i = false |- ?i <> loc ] => apply locUDiff;auto 
+
+  | [ |- lt ?i ?i] => apply @PreOrder_Reflexive; exact lt_pre
+  | [ |- u loc = true ] => apply locu 
   | [ |- mt loc = true ] => apply locT 
   | [ |- m4 loc = false ] => apply loc4 
   | [ |- mk loc = true ] => apply locK 
   | [ |- md loc = false ] => apply locD
-
+  
+  | [ |- mt (plust _) = true ] => apply T_in_plust
   | [ |- subexp ] => exact loc
     
   | [H: u loc = false |- _] => rewrite locu in H; discriminate H   
@@ -841,9 +902,9 @@ end;sfold.
   | [H: mt loc = false |- _] => rewrite locT in H; discriminate H  
   | [H: m4 loc = true |- _] => rewrite loc4 in H; discriminate H  
   | [H: md loc = true |- _] => rewrite locD in H; discriminate H  
-  
+
   | [H1: ?a <> loc, H2: lt ?a loc |- _] => apply locAlone in H1;assert(False); [apply H1;left;auto|];contradiction
-  | [H1: ?a <> loc, H2: lt loc ?a |- _] => apply locAlone in H1;a
+  | [H1: ?a <> loc, H2: lt loc ?a |- _] => apply locAlone in H1;assert(False); [apply H1;right;auto|];contradiction
     
    | [H: SetT (?F::?K) |- mt (fst ?F) = true] => inversion H;subst;auto
    | [H: SetU (?F::?K) |- u (fst ?F) = true] => inversion H;subst;auto
@@ -861,9 +922,34 @@ end;sfold.
    | [H: SetK4 ?i ((?s, _)::?K) |- m4 ?s = true] => inversion H;subst;intuition
    
   end.
+  
+ 
+Global Hint Constructors isFormula : core.
 
-Ltac solveSet :=
-try solve [solveSignature];
+ Lemma isFormulaInS1 (OLS:OLSig) (SI:Signature): forall (i:subexp) F L, 
+      isFormulaL (second L) -> In (i,F) L -> isFormula F. 
+  Proof.
+    intros. 
+    apply InPermutation in H0;sauto.
+    eapply @ForallIn with (F:=F) in H;auto.
+    eapply @Permutation_map with (f:=snd) in H0.
+    rewrite H0.
+    simpl;sauto.
+  Qed.
+
+Lemma isFormulaInS2 (OLS:OLSig) (SI:Signature): forall (i:subexp) F L L', 
+      isFormulaL (second L) -> Permutation L ((i,F)::L') -> isFormula F. 
+  Proof.
+    intros. 
+    eapply @ForallIn with (F:=F) in H;auto.
+    eapply @Permutation_map with (f:=snd) in H0.
+    rewrite H0.
+    simpl;sauto.
+  Qed.
+
+Ltac solveSignature2 :=
+simplSignature1;
+try solve [solveSignature1];
 try
 match goal with
  | [ |- SetK ?i ?K] => solveFoldFALL2 (fun k :subexp*oo => m4 (fst k) = false /\ lt i (fst k) )
@@ -871,21 +957,21 @@ match goal with
  | [ |- SetT ?K] => solveFoldFALL1 (fun k :subexp*oo => mt (fst k) = true)
  | [ |- SetU ?K] => solveFoldFALL1 (fun k :subexp*oo => u (fst k) = true)
  | [ |- SetL ?K] => solveFoldFALL1 (fun k :subexp*oo => u (fst k) = false)
- | [ |- isFormulaL ?K] => solveFoldFALL1 isFormula
  end;try sfold.  
+
 
 Section Properties.
   Context `{SI : Signature}.
   Context `{OLS: OLSig}.
        
   Lemma locSetK1 F: SetK loc [(loc, F)].
-  Proof with sauto;solveSet.
+  Proof with sauto;solveSignature2.
   constructor... 
   Qed.
 
    
   Lemma locSetK2 i F: i <> loc -> ~ SetK i [(loc, F)].
-  Proof with sauto;solveSet.
+  Proof with sauto;solveSignature2.
   intros. intro.
   inversion H0...
   Qed.
@@ -921,11 +1007,22 @@ Section Properties.
   rewrite IHK1; auto.
    Qed.
  
+  Lemma PlusTApp K1 K2: PlusT (K1 ++ K2) = PlusT K1 ++ PlusT K2.
+  Proof.
+    induction K1;auto.
+  destruct a;simpl;auto.
+  rewrite IHK1; auto.
+   Qed.
  
  Lemma locApp' K1 K2 : Permutation (Loc (K1 ++ K2)) (Loc K1 ++ Loc K2).
   Proof.
   rewrite locApp;auto.
   Qed.
+ 
+ Lemma PlusTApp' K1 K2: Permutation (PlusT (K1 ++ K2)) (PlusT K1 ++ PlusT K2).
+  Proof.
+   rewrite PlusTApp;auto.
+   Qed.
    
    Lemma SetU_then_empty K : SetU K -> getL K =[].
    Proof with sauto.
@@ -1000,7 +1097,7 @@ autounfold in *. solveForall.
   exact H0. exact H2. }
   sauto.
   Qed.
- 
+  
     Lemma SetTKClosure i K  : mt i = true -> SetK i K -> SetT K. 
   Proof with sauto.
   unfold SetK; unfold SetT.
@@ -1083,9 +1180,6 @@ autounfold in *. solveForall.
   exact H. exact H2.
   Qed.
 
-
-  
-
  Theorem cxtDestruct K: Permutation K (getU K++getL K).
  Proof with subst;auto.
  induction K;auto.
@@ -1093,6 +1187,18 @@ autounfold in *. solveForall.
  destruct (uDec a); simpl; rewrite e.
  constructor;auto.
  apply Permutation_cons_app;auto.
+ Qed.
+ 
+  Theorem cxtDestructSecond K: Permutation (second K) (second (getU K++getL K)).
+ Proof with subst;auto.
+ induction K;auto.
+ destruct a as [a F].
+ destruct (uDec a); simpl; rewrite e.
+ constructor;auto.
+ rewrite secondApp.
+ simpl.
+ apply Permutation_cons_app;auto.
+ rewrite <- secondApp;auto.
  Qed.
 
  Theorem cxtDestruct' K: exists K1 K2, Permutation K (getU K++getL K1 ++ getL K2) /\ Permutation (getL K) (getL K1 ++ getL K2).
@@ -1103,12 +1209,13 @@ autounfold in *. solveForall.
  simpl;auto.
  destruct a as [a F].
  destruct (uDec a); simpl;
- rewrite e;simpl...
+ rewrite e;simpl.
  exists x. exists x0.
- constructor;auto. 
+ constructor;auto.
  exists ((a,F)::x).
- exists x0;
- simpl; rewrite e;simpl...
+  exists x0.
+  simpl; rewrite e;simpl.
+  constructor;auto.
  apply Permutation_cons_app;auto.
  Qed.
  
@@ -1256,13 +1363,29 @@ Lemma lIngetL i F B :  u i = false -> In (i, F) B -> In (i, F) (getL B).
   destruct(uDec s); simpl in *;
   rewrite e in *...
   simpl in H0...
-  firstorder. 
+  firstorder.
  Qed.
+
+Lemma lIngetU i F B :  u i = true -> In (i, F) B -> In (i, F) (getU B).
+ Proof with sauto.
+  intros.
+  rewrite cxtDestruct in H0.
+  apply in_app_or in H0.
+  destruct H0;auto.
+  induction B...
+  destruct a.
+  destruct(uDec s); simpl in *;
+  rewrite e in *...
+  simpl in H0...
+  firstorder.
+  inversion H0...
+ Qed.
+
 
   Theorem getUtoSetU K: SetU (getU K).
  Proof with subst;auto.
  induction K... 
- simpl;solveSet.
+ simpl;solveSignature2.
  destruct a as [a F].
  simpl.
  destruct (uDec a); simpl;
@@ -1293,7 +1416,7 @@ Lemma lIngetL i F B :  u i = false -> In (i, F) B -> In (i, F) (getL B).
   Theorem getLtoSetL K: SetL (getL K).
  Proof with subst;auto.
  induction K...
- simpl;solveSet.
+ simpl;solveSignature2.
  destruct a as [a F].
  simpl.
  destruct (uDec a); simpl;
@@ -1341,7 +1464,7 @@ Proof with sauto.
  Qed.
  
  Theorem Unb_Lin_Disj' K: exists K1 K2, SetU K1 /\ SetL K2 /\ Permutation K (K1++K2).
- Proof with subst;try solveSet;auto .
+ Proof with subst;try solveSignature2;auto .
  induction K;auto.
  do 2 eexists [];simpl...
  destruct IHK.
@@ -1352,8 +1475,6 @@ Proof with sauto.
  eexists ((a,F)::x).
  eexists x0.
  split... 
- split... 
- rewrite H3... 
  eexists x.
  eexists ((a,F)::x0).
  split... 
@@ -1371,7 +1492,7 @@ Proof with sauto.
   inversion H...
  
   apply IHK in H3;auto.
-  solveSet.
+  solveSignature2.
   split;auto.
   apply @PreOrder_Transitive with (R:=lt) (y:=(plust a));auto.
   exact lt_pre.
@@ -1401,7 +1522,7 @@ Proof with sauto.
   inversion H...
  
   apply IHK in H3;auto.
-  solveSet.
+  solveSignature2.
   split;auto.
   apply @PreOrder_Transitive with (R:=lt) (y:=(plust a));auto.
   exact lt_pre.
@@ -1429,7 +1550,6 @@ Proof with sauto.
     inversion H...
     apply Forall_cons...  
     apply plust_keepingu in H2;auto.
-    apply IHK... 
   Qed.
 
  Lemma PlusTSetU K: SetU (PlusT K) -> SetU K.
@@ -1439,7 +1559,6 @@ Proof with sauto.
     apply  Forall_inv in H...
     apply plust_keepingu';auto.
     apply  Forall_inv_tail in H...
-    apply IHK... 
   Qed.
   
   Lemma SetUDec K :  {SetU K} + {~ SetU K}.
@@ -1628,6 +1747,20 @@ Proof with sauto.
     rewrite e...
 Qed.
 
+Lemma  getUPlusTgetL' K : getL (PlusT (getL K)) = PlusT (getL K).
+Proof with sauto.
+  induction K;intros...
+  destruct a as [b F].
+  destruct (uDec b)...
+  * simpl...
+    rewrite e...
+  * simpl...
+    rewrite e.
+    simpl.
+    rewrite (plust_keepingu _ e).
+    rewrite IHK...    
+Qed.
+
  Lemma getLELoc K: getL (Loc K) = [].
   Proof with sauto.
   induction K...
@@ -1674,7 +1807,46 @@ Qed.
     simpl. rewrite H;auto.
  Qed. 
  
+  Lemma isFormulaL_getU B :  
+      isFormulaL (second B) -> isFormulaL (second (getU B)). 
+  Proof.
+    induction B;intros;sauto. 
+    destruct a as [a F]. 
+    destruct(uDec a);simpl;sauto.
+    - rewrite e.
+      simpl in *.
+      inversion H;sauto.
+      firstorder.
+    - rewrite e.
+      simpl in *.
+      inversion H;sauto.
+  Qed.    
+    
+    Lemma isFormulaL_getL B :  
+      isFormulaL (second B) -> isFormulaL (second (getL B)). 
+  Proof.
+    induction B;intros;sauto. 
+    destruct a as [a F]. 
+    destruct(uDec a);simpl;sauto.
+    - rewrite e.
+      simpl in *.
+      inversion H;sauto.
+   - rewrite e.
+      simpl in *.
+      inversion H;sauto.
+      firstorder.
+  Qed.
   
+  Lemma isFormulaLSplitUL B :  
+      isFormulaL (second (getU B)) ->  isFormulaL (second (getL B)) -> isFormulaL (second B). 
+  Proof.
+    intros.
+    rewrite cxtDestructSecond.
+    rewrite secondApp.
+    apply Forall_app;auto.
+  Qed.   
+  
+      
  Lemma isFormulaL_PlusT B :  
       isFormulaL (second B) -> isFormulaL (second (PlusT B)). 
   Proof.
@@ -1689,7 +1861,7 @@ Qed.
       isFormulaL (second B) -> isFormulaL (second (Loc B)). 
   Proof.
     induction B;simpl;unfold isFormulaL;intros;auto.
-    apply ForallCons.
+    constructor...
     apply Forall_inv in H;auto.
     apply Forall_inv_tail in H.
     apply IHB;auto.
@@ -1700,7 +1872,7 @@ Qed.
      Permutation (getU B) (getU D ++ Y) ->
      isFormulaL (second B) -> isFormulaL (second D). 
   Proof.
-    autounfold;intros.
+    autounfold;unfold second;intros.
     rewrite cxtDestruct in H1.
     rewrite H in H1.
     rewrite H0 in H1.
@@ -1714,8 +1886,9 @@ Qed.
     rewrite cxtDestruct.
     fold (second (getU D ++ getL D)). 
     repeat rewrite secondApp.
-    apply ForallApp;auto.
+    apply Forall_app;auto.
     Qed.
+   
     
    Lemma subexpInLoc  C: forall (i:subexp) (F:oo), In (i, F) (Loc C) -> i = loc.
   Proof with subst;auto.
@@ -1748,7 +1921,7 @@ Qed.
     apply locAlone in H.
     apply H. left;auto.
   * apply IHK;auto.
-    solveSet. 
+    solveSignature2. 
  Qed. 
 
   Lemma SetK4Loc i K  : i <> loc -> SetK4 i K -> In loc (first K) -> False. 
@@ -1761,7 +1934,7 @@ Qed.
     apply locAlone in H.
     apply H. left;auto.
   * apply IHK;auto.
-    solveSet. 
+    solveSignature2. 
   Qed.
 
   
@@ -1835,14 +2008,14 @@ Lemma unboundedEmpty K : getU K = [] -> getU K = [] /\ Permutation (getL K) K /\
   Proof with sauto.
   intros.
   rewrite cxtDestruct in H;split;
-  solveSet.
+  solveSignature2.
   Qed.
   
    Lemma SetKDestruct i K : SetK i K -> SetK i (getU K) /\ SetK i (getL K).
   Proof with sauto.
   intros.
   rewrite cxtDestruct in H;split;
-  solveSet.
+  solveSignature2.
   Qed.
 
    Lemma linearInUnb a A K : u a = false -> SetU K -> In (a, A) K -> False.
@@ -1954,6 +2127,78 @@ Proof with sauto.
   rewrite map_app.
   apply in_or_app;auto.
   Qed.  
+
+  Lemma isFormulaSecond1 BD X Y B Z U:
+  isFormulaL (second (X++getU BD++Y)) -> 
+  Permutation (X++getU BD++Y) (Z++B++U) ->
+  isFormulaL (second B).
+   Proof with sauto.
+   intros.
+   assert(isFormulaL (second (Z ++ B ++ U))).
+   symmetry in H0.
+   srewrite H0...
+   rewrite !secondApp in H1.
+   apply Forall_app in H1...
+   apply Forall_app in H3...
+ Qed.  
+
+ Lemma isFormulaSecond2 BD X Y B Z U:
+  isFormulaL (second (X++getL BD++Y)) -> 
+  Permutation (X++getL BD++Y) (Z++B++U) ->
+  isFormulaL (second B).
+   Proof with sauto.
+   intros.
+   assert(isFormulaL (second (Z ++ B ++ U))).
+   symmetry in H0.
+   srewrite H0...
+   rewrite !secondApp in H1.
+   apply Forall_app in H1...
+   apply Forall_app in H3...
+ Qed.
+ 
+
+
+  Lemma isFormulaSecondSplit1 BD X Y B D:
+  isFormulaL (second (BD++X++Y)) -> 
+  Permutation (getU BD++X) (getU B) ->
+  Permutation (getL BD++Y) (getL B ++ getL D) -> isFormulaL (second B).
+   Proof with sauto.
+  intros.
+   rewrite !secondApp in H.
+  assert(isFormulaL (second BD)).
+  apply Forall_app in H...
+  assert(isFormulaL (second X)).
+  apply Forall_app in H...
+  apply Forall_app in H4...
+  assert(isFormulaL (second Y)).
+  apply Forall_app in H...
+  apply Forall_app in H5...
+  assert(Permutation ([] ++ getU BD ++ X) ([] ++getU B ++ [])).
+  sauto.
+  eapply isFormulaSecond1 in H5...
+  assert(Permutation ([] ++ getL BD ++ Y) ([] ++getL B ++ getL D)).
+  sauto.
+  eapply isFormulaSecond2 in H6...
+  apply isFormulaLSplitUL...
+  
+  rewrite !secondApp...
+  apply Forall_app...
+  apply isFormulaL_getL...
+  rewrite !secondApp...
+  apply Forall_app...
+  apply isFormulaL_getU...
+ Qed. 
+ 
+  Lemma isFormulaSecondSplit2 BD X Y B D:
+  isFormulaL (second (BD++X++Y)) -> 
+  Permutation (getU BD++X) (getU D) ->
+  Permutation (getL BD++Y) (getL B ++ getL D) -> isFormulaL (second D).
+   Proof with sauto.
+  intros.
+  eapply isFormulaSecondSplit1 with (X:=X) (Y:=Y) (BD:=BD) (D:=B);auto.
+  rewrite H1... perm.
+  Qed.
+ 
  
      Theorem destructClassicSetK4 a C4 C4' CN CN': 
     SetK4 a C4 -> SetK4 a C4' ->
@@ -1980,7 +2225,7 @@ Proof with sauto.
       
       checkPermutationCases H1.
       - eapply IHC4 with (CN:=a::CN) (CN':=CN') in H0;
-        [sauto | solveSet | 
+        [sauto | solveSignature2 | 
          rewrite H2;symmetry;rewrite <- app_comm_cons;
          apply Permutation_cons_app;auto].
          checkPermutationCases H4.
@@ -2007,7 +2252,7 @@ Proof with sauto.
            rewrite H4. perm. 
       - 
         eapply IHC4 with (CN:=CN) (CN':=x) in H0;
-        [sauto | solveSet | symmetry;auto].
+        [sauto | solveSignature2 | symmetry;auto].
         eexists x0.
         eexists (a::x1).
         eexists x2.
@@ -2042,7 +2287,7 @@ Proof with sauto.
     *
       checkPermutationCases H1.
       - eapply IHCK with (CN:=a::CN) (CN':=CN') in H0;
-        [sauto | solveSet | 
+        [sauto | solveSignature2 | 
          rewrite H2;symmetry;rewrite <- app_comm_cons;
          apply Permutation_cons_app;auto].
          checkPermutationCases H4.
@@ -2069,7 +2314,7 @@ Proof with sauto.
            rewrite H4. perm. 
       - 
         eapply IHCK with (CN:=CN) (CN':=x) in H0;
-        [sauto | solveSet | symmetry;auto].
+        [sauto | solveSignature2 | symmetry;auto].
         eexists x0.
         eexists (a::x1).
         eexists x2.
@@ -2152,9 +2397,9 @@ Proof with sauto.
          rewrite H5...
          rewrite H4.
          rewrite H8...
-         solveSet.
+         solveSignature2.
          rewrite H4 in H2.
-         solveSet.
+         solveSignature2.
          rewrite <- H6 in H5.
          symmetry in H5.
          apply IHCK in H5...
@@ -2169,7 +2414,7 @@ Proof with sauto.
          rewrite H5... perm.
          rewrite H4.
          rewrite H12...
-         solveSet.
+         solveSignature2.
     *
       simpl in H3.
       revert dependent C4'.
@@ -2192,9 +2437,9 @@ Proof with sauto.
          rewrite H6...
          rewrite H4.
          rewrite H8...
-         solveSet.
+         solveSignature2.
          rewrite H4 in H0.
-         solveSet.
+         solveSignature2.
          
          checkPermutationCases H4.
          rewrite H4 in H2.
@@ -2216,7 +2461,7 @@ Proof with sauto.
          rewrite H7... perm.
          rewrite H4.
          rewrite H12...
-         solveSet.
+         solveSignature2.
       -  assert(Permutation  (a0 :: C4 ++ (a1 :: CK) ++ CN)  (a1 :: C4 ++ (a0 :: CK) ++ CN)) by perm.
          rewrite H4 in H3. clear H4. 
           checkPermutationCases H3.
@@ -2228,9 +2473,9 @@ Proof with sauto.
          rewrite H4 in H0.
          inversion H0...
          inversion H1...
-         solveSet.
+         solveSignature2.
          rewrite H4 in H0.
-         solveSet.
+         solveSignature2.
          checkPermutationCases H4.
         
          
@@ -2250,9 +2495,9 @@ Proof with sauto.
          rewrite H5...
          rewrite H4.
          rewrite H8...
-         solveSet.
+         solveSignature2.
          rewrite H4 in H2.
-         solveSet.
+         solveSignature2.
          symmetry in H5.
          assert(Permutation (C4 ++ a0 :: CK ++ CN) (a0 ::  C4 ++ CK ++ CN)) by perm.
             rewrite H3 in H5.
@@ -2269,7 +2514,7 @@ Proof with sauto.
          rewrite H5... perm.
          rewrite H4.
          rewrite H12...
-         solveSet.
+         solveSignature2.
   Qed.
   
    Theorem destructClassicSetU' a C4 C4' CK CK' CN CN': 
@@ -2289,10 +2534,10 @@ Proof with sauto.
      eexists x3.
      eexists x4.
      eexists x5.
-       2:{ rewrite cxtDestruct in H. solveSet. }
-      2:{ rewrite cxtDestruct in H0. solveSet. }
-     2:{ rewrite cxtDestruct in H1. solveSet. }
-    2:{ rewrite cxtDestruct in H2. solveSet. }
+       2:{ rewrite cxtDestruct in H. solveSignature2. }
+      2:{ rewrite cxtDestruct in H0. solveSignature2. }
+     2:{ rewrite cxtDestruct in H1. solveSignature2. }
+    2:{ rewrite cxtDestruct in H2. solveSignature2. }
     repeat rewrite <- getUApp.
     rewrite (@setUtoGetU (x++x0)).
      rewrite (@setUtoGetU (x++x1)).
@@ -2323,10 +2568,10 @@ Proof with sauto.
   intros. apply destructClassicSet with (a:=a) in H3...
   
   
-  3:{ rewrite cxtDestruct in H. solveSet. }
-  3:{ rewrite cxtDestruct in H0. solveSet. }
-  3:{ rewrite cxtDestruct in H1. solveSet. }
-  3:{ rewrite cxtDestruct in H2. solveSet. }
+  3:{ rewrite cxtDestruct in H. solveSignature2. }
+  3:{ rewrite cxtDestruct in H0. solveSignature2. }
+  3:{ rewrite cxtDestruct in H1. solveSignature2. }
+  3:{ rewrite cxtDestruct in H2. solveSignature2. }
  
   apply getUPermU  in H3.
   apply getUPermU in H10.
@@ -2358,8 +2603,38 @@ Proof with sauto.
   exists x. exists x0.
   exists x1. exists x2...
   Qed.
+ 
+  Lemma simplUnb BD B D:          
+  Permutation (getU BD) (getU B) ->
+  Permutation (getU BD) (getU D) ->
+  Permutation (getL BD) (getL B ++ getL D) ->
+  SetU B -> Permutation BD D.
+  Proof.   
+  intros.
+  rewrite (SetU_then_empty H2) in H1.
+  rewrite (cxtDestruct BD).
+  rewrite H0.
+  rewrite H1.
+  simpl. 
+  rewrite <- cxtDestruct;auto.
+  Qed.
   
+  Lemma simplUnb' BD B D:          
+  Permutation (getU BD) (getU B) ->
+  Permutation (getU BD) (getU D) ->
+  Permutation (getL BD) (getL B ++ getL D) ->
+  SetU D -> Permutation BD B.
+  Proof.   
+  intros.
+  rewrite (SetU_then_empty H2) in H1.
+  rewrite (cxtDestruct BD).
+  rewrite H.
+  rewrite H1;sauto.
+  rewrite <- cxtDestruct;auto.
+  Qed.
+      
 End Properties.
 
 Global Hint Resolve SubExpInhabitant : core.
 Global Hint Constructors IsPositiveAtom : core.
+

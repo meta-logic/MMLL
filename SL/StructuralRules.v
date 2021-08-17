@@ -4,9 +4,9 @@ This file proves some structural properties as exchange (for the
 classical and linear context) as well as weakening and contraction in
 the classical context. *)
 
-Require Export MMLL.Misc.Utils. 
-Require Export MMLL.Misc.Permutations. 
-Require Export MMLL.SL.FLLTacticsPre.
+Require Export FLL.Misc.Utils. 
+Require Export FLL.Misc.Permutations. 
+Require Export FLL.SL.FLLTacticsPre.
 Require Import Coq.Program.Equality.
 
 Export ListNotations.
@@ -49,7 +49,9 @@ Section FLLBasicTheory.
      seqN th' m CC LC X)).
      intros...
      eapply H with (th:=th)...
-     inversion H1; subst; eauto using Hyp.
+     inversion H1; subst. 
+     
+     1-20: eauto using Hyp.
      apply tri_bang...
      eapply H with (th:=th)...
      createWorld i.
@@ -359,25 +361,28 @@ Qed.
     revert dependent CK;
     revert dependent n.
     induction C4;intros...
-    * simpl in *...
+    * simpl in *.
       revert dependent L;
       revert dependent D;
       revert dependent O;
       revert dependent B;
       revert dependent CN;
       revert dependent n.
-      induction CK;intros...
+      induction CK;intros;sauto.
       - apply (exchangeCCNK4 (symmetry H2))... 
       - destruct n.
         inversion H3. 
-        apply (exchangeCCNK4 (symmetry H2))...
-        destruct a0 as [b F].
-        destruct(uDec b).
-        + copyUK b F (CK++CN).
-          eapply IHCK with (CN:=CN);try solveSet...
+         destruct a0 as [b F].
+         destruct(uDec b).
+       
+        + apply (exchangeCCNK4 (symmetry H2))...
+           copyUK b F (CK++CN).   
+          eapply IHCK with (CN:=CN)... 
+          solveSignature.
           rewrite app_assoc_reverse...
-        + copyLK b F (CK++CN).
-          eapply IHCK with (CN:=CN);try solveSet...
+        + apply (exchangeCCNK4 (symmetry H2))...
+          copyLK b F (CK++CN).
+          eapply IHCK with (CN:=CN);try SLSolve...
           eapply exchangeCCNKK4 .
           2:{ simpl in H3. rewrite app_assoc_reverse. exact H3. }
           perm.
@@ -394,7 +399,7 @@ Qed.
         apply (exchangeCCNK4 (symmetry H2))...
         destruct a0 as [b F].
         copyK4 b F (C4++CN).
-        eapply IHC4 with (CN:=CN) (CK:=[]);try solveSet...
+        eapply IHC4 with (CN:=CN) (CK:=[]);try SLSolve...
         rewrite app_assoc_reverse...
       - simpl in H3...
         destruct n.
@@ -403,7 +408,7 @@ Qed.
         destruct a0 as [b0 F0].
         destruct a1 as [b1 F1]...
         copyK4 b0 F0 (C4++((b1, F1) :: CK) ++ CN). 
-        eapply IHC4 with (CN:= CN) (CK:=(b1, F1)::CK); try solve [solveSet]...
+        eapply IHC4 with (CN:= CN) (CK:=(b1, F1)::CK); try solve [SLSolve]...
         rewrite app_assoc_reverse...
  Qed.
     
@@ -490,8 +495,8 @@ Proof with sauto.
         eexists x1. 
         split;[| 
         split;[simpl; lia | 
-        split;[simpl; solveSet | 
-        split;[solveSet |
+        split;[simpl; SLSolve | 
+        split;[SLSolve |
         split]]]]...
         rewrite H6.
         rewrite <- app_assoc. 
@@ -511,8 +516,8 @@ Proof with sauto.
       
         split;[| 
         split;[| 
-        split;[solveSet | 
-        split;[simpl;solveSet |
+        split;[SLSolve | 
+        split;[simpl;SLSolve |
         split]]]]...
         rewrite H7.
         rewrite H3. perm.
@@ -535,8 +540,8 @@ Proof with sauto.
       
         split;[| 
         split;[| 
-        split;[solveSet | 
-        split;[simpl;solveSet |
+        split;[SLSolve | 
+        split;[simpl;SLSolve |
         split]]]]...
         rewrite H7.
         rewrite H3. perm.
@@ -599,7 +604,6 @@ Proof with sauto.
       - exists []. 
         exists B.
         CleanContext.
-        CleanContext.
       Qed.  
 
  Lemma InvSubExpPhaseU n a B D O L: 
@@ -620,11 +624,7 @@ Proof with sauto.
     eexists x0.
     eexists x1.
     simpl in H8. 
-    CleanContext.
-    eapply exchangeCCN.
-    2:{ exact H8. }
-    rewrite setUtoGetU...
-    rewrite setUPlusTgetU...
+    CleanContext. SLSolve.
  Qed.
 
 Lemma InvSubExpPhaseSU n a B D O L: 
@@ -638,20 +638,14 @@ Lemma InvSubExpPhaseSU n a B D O L:
     CleanContext.
       assert(SetU (x ++ x0 ++ x1)). 
     { rewrite <- H2... }
-      assert(SetU (x0 ++ x1)) by solveSet. 
-     assert(SetU x) by solveSet.
-     assert(SetU x1) by solveSet.
-     assert(SetU x0) by solveSet.
+      assert(SetU (x0 ++ x1)) by SLSolve. 
+     assert(SetU x) by SLSolve.
+     assert(SetU x1) by SLSolve.
+     assert(SetU x0) by SLSolve.
     eexists x.
     eexists x0.
     eexists x1.
-    CleanContext.
-    rewrite (SetU_then_empty H11) in H8...
-    simpl in H8...
-    eapply exchangeCCN.
-    2:{ exact H8. }
-    rewrite setUtoGetU...
-    rewrite setUPlusTgetU...
+    CleanContext. SLSolve. 
  Qed.
 
   Lemma InvSubExpPhaseK4 n a B D O L: 
@@ -673,11 +667,12 @@ Lemma InvSubExpPhaseSU n a B D O L:
     CleanContext.
    Qed.  
 
+
   Lemma InvSubExpPhaseUK4 n a B D O L: 
   u a = true -> m4 a =  true -> a <> loc -> tri_bangK4 theory n B a D O (> L) ->
    exists C4 CN, Permutation B (C4++CN) /\ 
         SetK4 a C4 /\ n >= length C4 + 1 /\  SetU CN /\  SetU C4 /\ 
-    n - length C4 - 1 |-F- D++PlusT (getU C4) ; O ;(> L).
+    n - length C4 - 1 |-F- D++PlusT C4 ; O ;(> L).
  Proof with sauto.
     intros.
     eapply InvSubExpPhaseK4 in H2;auto.
@@ -685,7 +680,6 @@ Lemma InvSubExpPhaseSU n a B D O L:
     exists x.
     exists x0.
     CleanContext.
-    rewrite setUtoGetU;auto.
      eapply SetUK4Closure with (i:=a);auto.
    Qed.
    
@@ -703,11 +697,11 @@ Lemma InvSubExpPhaseSU n a B D O L:
     exists x.
     exists x0.
     CleanContext.
-    solveSet.
+    SLSolve.
     eapply exchangeCCN.
     2:{ exact H8. }
     rewrite setUtoGetU...
-    solveSet.
+    SLSolve.
    Qed. 
    
      
@@ -742,10 +736,10 @@ Lemma InvSubExpPhaseSU n a B D O L:
      destruct a0 as [b F].
      destruct(uDec b);CleanContext.
         + copyUK b F (CK++CN).
-          eapply IHCK with (CN:=CN);try solveSet...
+          eapply IHCK with (CN:=CN);try SLSolve...
           rewrite app_assoc_reverse...
         + copyLK b F (CK++CN).
-          eapply IHCK with (CN:=CN);try solveSet...
+          eapply IHCK with (CN:=CN);try SLSolve...
           simpl in H3. rewrite app_assoc_reverse. exact H3.
      *
     revert dependent L.
@@ -758,9 +752,8 @@ Lemma InvSubExpPhaseSU n a B D O L:
     symmetry in H2.
     apply (exchangeCCK4 H2)...
     destruct a0 as [b F].
-    eapply @tri_copyK4' with (b:=b) (F:=F) (B':= C4++CN);try solveSet...
-    apply Remove_app_tail... 
-    eapply IHC4 with (CN:=CN) (CK:=[]);CleanContext;try solveSet...
+    eapply @tri_copyK4' with (b:=b) (F:=F) (B':= C4++CN);try SLSolve...
+    eapply IHC4 with (CN:=CN) (CK:=[]);CleanContext;try SLSolve...
     simpl in H3. 
     rewrite app_assoc_reverse.
     eapply exchangeCCKK4.
@@ -773,8 +766,8 @@ Lemma InvSubExpPhaseSU n a B D O L:
      destruct a0 as [b0 F0];
          destruct a1 as [b1 F1].
 
-     eapply @tri_copyK4' with (b:=b0) (F:=F0) (B':= C4++((b1, F1) :: CK) ++ CN);CleanContext;try solve [solveSet]...
-     eapply IHC4 with (CN:= CN) (CK:=(b1, F1)::CK);try solve[solveSet]...
+     eapply @tri_copyK4' with (b:=b0) (F:=F0) (B':= C4++((b1, F1) :: CK) ++ CN);CleanContext;try solve [SLSolve]...
+     eapply IHC4 with (CN:= CN) (CK:=(b1, F1)::CK);try solve[SLSolve]...
      eapply exchangeCCKK4.
      2:{ exact H3. }
      simpl. perm.
@@ -867,11 +860,7 @@ Proof with sauto.
     eexists x0.
     eexists x1.
     simpl in H7. 
-    CleanContext.
-     eapply exchangeCC.
-    2:{ exact H7. }
-    rewrite setUtoGetU...
-    rewrite setUPlusTgetU...
+    CleanContext. SLSolve.
  Qed.
 
 
@@ -888,27 +877,20 @@ Proof with sauto.
       assert(SetU (x ++ x0 ++ x1)). 
     { rewrite <- H2... } 
       assert(SetU x). 
-      solveSet. 
+      SLSolve. 
       assert(SetU (x0++x1)). 
-      solveSet. 
+      SLSolve. 
       assert(SetU x0). 
-      solveSet. 
+      SLSolve. 
       assert(SetU x1). 
-      solveSet. 
+      SLSolve. 
     rewrite (SetU_then_empty H9) in H7...
     assert(Permutation (PlusT x) (PlusT (getU x))).
     rewrite (cxtDestruct x). 
     CleanContext.
-    rewrite (SetU_then_empty H6)...
-    assert(|-f- D ++ PlusT (getU x) ++ Loc (getU x0); O; (> L)).
-    CleanContext. 
-    eapply exchangeCC.
-    2:{ sauto. exact H7. }
-    rewrite H5...
-    eexists x.
-    eexists x0.
-    eexists x1.
-    CleanContext.
+    assert(|-f- D ++ PlusT (getU x) ++ Loc (getU x0); O; (> L))...
+    CleanContext. SLSolve.
+    firstorder.
  Qed.
 
   Lemma InvSubExpPhaseK4'  a B D O L: 
@@ -934,7 +916,7 @@ Proof with sauto.
  u a = true -> m4 a =  true -> a <> loc -> tri_bangK4' theory B a D O (> L) ->
    exists C4 CN, Permutation B (C4++CN) /\ 
         SetK4 a C4 /\ SetU CN /\  SetU C4 /\ 
-    |-f- D++PlusT (getU C4) ; O ;(> L).
+    |-f- D++PlusT C4 ; O ;(> L).
  Proof with sauto.
     intros.
     eapply InvSubExpPhaseK4' in H2;auto.
@@ -942,7 +924,6 @@ Proof with sauto.
     exists x.
     exists x0.
     CleanContext.
-    rewrite setUtoGetU;auto.
      eapply SetUK4Closure with (i:=a);auto.
    Qed.
   
@@ -962,7 +943,7 @@ Proof with sauto.
     simpl in H9.
     exists x.
     exists x1.
-    CleanContext.
+    CleanContext. SLSolve.
     intro...
     rewrite loc4 in H0...
   Qed.
@@ -976,7 +957,7 @@ Proof with sauto.
  inversion H2.
  apply InvSubExpPhaseU in H7...
  rewrite H2.
- solveSet...
+ SLSolve...
  Qed.
     
  Theorem BangUnb' i BD M P: 
@@ -987,7 +968,7 @@ Proof with sauto.
  inversion H2.
  apply InvSubExpPhaseU' in H6...
  rewrite H2.
- solveSet...
+ SLSolve...
  Qed.
  
           
@@ -1051,12 +1032,12 @@ Lemma seqNtoSeq : forall n B C X,
         CleanContext.
         createWorld i.
         eapply GenK4'...
-        solveSet.
+        SLSolve.
         finishExp.
           
         eapply H with (m:=n - length (x ++ x0) - 1)... 
         lia.
-        solveSet.
+        SLSolve.
   Qed. 
  
  
@@ -1194,17 +1175,14 @@ Lemma seqNtoSeq : forall n B C X,
          eapply H ... } 
      - inversion H1...
        { copyK4 b F0 (B'++[F])...
-         apply Remove_app_tail...
          eapply H... } 
        {  
          copyUK b F0 (B'++[F])...
-         apply Remove_app_tail...
          eapply H... }
        {  
          copyLK b F0 (B'++[F])...
-         apply Remove_app_tail...
          eapply H... }         
-       {  finishExp... }      
+       {  finishExp... SLSolve. }      
       - 
         assert(HX : forall m : nat,
                m <= n ->
@@ -1221,8 +1199,7 @@ Lemma seqNtoSeq : forall n B C X,
         CleanContext.
         CleanContext.
         CleanContext.
-        rewrite perm_swap.
-        eauto using HX .
+        eapply exchangeCCN with (CC:=F::(i0,F0)::CC)...
         eauto using HX .
         
         decide2u i0 F0...
@@ -1266,13 +1243,12 @@ Lemma seqNtoSeq : forall n B C X,
       apply InvSubExpPhase in H3...
       createWorld i.
       eapply GenK4Rel with (C4:=x) (CK:=x0) (CN:=F::x1);auto...
-      solveSet.
+      SLSolve.
       rewrite H3. perm. 
-      solveSet. 
+      SLSolve. 
        }
       all: eauto using Permutation_in...
-      rewrite perm_swap.
-      eauto using Permutation_in...
+        eapply exchangeCCN with (CC:=F::(i,F0)::CC)...
    Qed.    
      
     Theorem weakeningGenN CC LC  CC' X n:
@@ -1282,8 +1258,8 @@ Lemma seqNtoSeq : forall n B C X,
       induction CC';simpl;intros;auto.
       destruct a.
       apply weakeningN ;auto.
-      solveSet.
-      apply IHCC'. solveSet.
+      SLSolve.
+      apply IHCC'. SLSolve.
     Qed.
 
     Theorem weakeningGenN_rev CC LC CC' X n:
@@ -1312,12 +1288,9 @@ Lemma seqNtoSeq : forall n B C X,
    revert dependent F.
    induction H0;intros...
    * eapply @tri_copyK4' with (b:=b) (F:=F) (B':=B'++ [F0])... 
-     apply Remove_app_tail...
    * eapply @tri_copyUK' with (b:=b) (F:=F) (B':=B'++ [F0])... 
-     apply Remove_app_tail...
    * eapply @tri_copyLK' with (b:=b) (F:=F) (B':=B'++ [F0])... 
-     apply Remove_app_tail...
-   * finishExp. 
+   * finishExp. SLSolve.
    Qed.  
    
   
@@ -1373,7 +1346,7 @@ Lemma seqNtoSeq : forall n B C X,
    
     Theorem weakeningGen CC LC CC' X:
     SetU CC' -> |-f- CC ; LC ; X -> |-f- CC' ++ CC ; LC ; X.
-    Proof with auto;solveSet. 
+    Proof with auto;try SLSolve. 
       induction CC';simpl;intros;auto.
       apply weakening...
       apply IHCC'...
@@ -1469,10 +1442,10 @@ Lemma seqNtoSeq : forall n B C X,
     assumption. 
     
     assert(a <> loc).
-    intro...
-    
+    intro... 
+    SLSolve.
     apply tri_bang...
-    
+     
     eapply GenK4Rel with (C4:=x) (CK:=x0) (CN:=x1)...
   Qed.
   
@@ -1486,7 +1459,6 @@ Lemma seqNtoSeq : forall n B C X,
   Proof with sauto. 
     intros.
     eapply @WeakTheoryN with (th:= EmptyTheory)...
-    solveSet.
     intros.
     inversion H0.
   Qed.
@@ -1608,7 +1580,6 @@ Lemma seqNtoSeq : forall n B C X,
     Proof with sauto.
       intros.
       tensor [atom A] (@nil oo) (getU B) B...
-      CleanContext.
     Qed.  
     
     Theorem FocusTopOplus1: forall F B D,
@@ -1645,20 +1616,20 @@ Lemma seqNtoSeq : forall n B C X,
    exists x.
    split;auto.
    apply getLPerm_SetL in H1.
-   assert(u (fst F) = false) by solveSet. 
+   assert(u (fst F) = false) by SLSolve. 
    sauto.
    Qed.   
 
 
   Theorem contractionN  : forall n CC LC F X,
        u (fst F) = true -> seqN theory n (F :: CC) LC X -> In F CC -> seqN theory n CC LC X. 
-  Proof with sauto;solveLL.
+  Proof with CleanContext;solveLL.
   induction n using strongind;intros. 
   * inversion H0...
     checkPermutationCases H4.
     apply InPermutation in H1...
     rewrite H7 in H2.
-    rewrite H1 in H2. solveSet.
+    rewrite H1 in H2. SLSolve.
     init2 i x.
    * inversion H1...
     checkPermutationCases H5.
@@ -1666,20 +1637,18 @@ Lemma seqNtoSeq : forall n B C X,
     destruct H2.
     init2 i x. rewrite H8 in H3.
     rewrite H2 in H3.
-    solveSet.
-    init2 i x. 
-   assert(In F D). 
+    SLSolve.
+    init2 i x.
+   assert(In (s, o) D). 
     rewrite cxtDestruct.
     apply in_or_app.
     left. rewrite <- H6.
-     destruct F as [a F]. simpl in *.
-     rewrite H0. firstorder.
-    assert(In F B). 
+    firstorder.
+    assert(In (s, o) B). 
     rewrite cxtDestruct.
     apply in_or_app.
     left. rewrite <- H5.
-     destruct F as [a F]. simpl in *.
-     rewrite H0. firstorder.
+     firstorder.
     apply InPermutation in H3.
      destruct H3.
     apply InPermutation in H10.
@@ -1688,31 +1657,33 @@ Lemma seqNtoSeq : forall n B C X,
     tensor M N x0 x...
   
     rewrite H10 in H5.
-    simplF. apply Permutation_cons_inv in H5;auto.
+    simplSignature. 
+    apply Permutation_cons_inv in H5;auto.
     rewrite H3 in H6.
-    simplF. apply Permutation_cons_inv in H6;auto.
+    simplSignature. 
+    apply Permutation_cons_inv in H6;auto.
     rewrite H10 in H7. rewrite H3 in H7.
-    simplF;auto.
+    simplSignature;auto.
     
-    eapply H with (F:=F)...
+    eapply H with (F:=(s, o))...
     rewrite <- H10...
     assert( Permutation (getU CC) (getU x0)).
     rewrite H10 in H5.
-    simplF. apply Permutation_cons_inv in H5;auto.
-    assert(In F (getU CC)).
-    destruct F.
+    simplSignature. 
+    apply Permutation_cons_inv in H5;auto.
+    assert(In (s, o) (getU CC)).
     apply uIngetU...
     rewrite H11 in H12.
     rewrite cxtDestruct.
     apply in_or_app.
     left...
-     eapply H with (F:=F)...
+     eapply H with (F:=(s, o))...
     rewrite <- H3...
     assert( Permutation (getU CC) (getU x)).
     rewrite H3 in H6.
-    simplF. apply Permutation_cons_inv in H6;auto.
-    assert(In F (getU CC)).
-    destruct F.
+    simplSignature. 
+    apply Permutation_cons_inv in H6;auto.
+    assert(In (s, o) (getU CC)).
     apply uIngetU...
     rewrite H11 in H12.
     rewrite cxtDestruct.
@@ -1721,9 +1692,8 @@ Lemma seqNtoSeq : forall n B C X,
     1-7:eauto.
     apply H with (F:=F)...
     1-3: eauto.
-    rewrite perm_swap;eauto. 
-    inversion H7...
-  
+      eapply exchangeCCN with (CC:=(i,F0)::F::CC)...
+    
     decide2u i F0...
     eapply H with (F:=(i, F0))...
     decide2u i F0...
@@ -1738,7 +1708,6 @@ Lemma seqNtoSeq : forall n B C X,
     eapply H with (F:=F)...
     
     1-5:eauto.
-    solveSet.  
     -
     apply InPermutation in H2.
     destruct H2.
@@ -1803,7 +1772,7 @@ Lemma seqNtoSeq : forall n B C X,
           srewrite H5 in H6...
      
           rewrite H10 in H9.
-          solveSet.
+          SLSolve.
           rewrite H2.
           rewrite <- H12.
           rewrite <- H13. 
@@ -1829,7 +1798,7 @@ Lemma seqNtoSeq : forall n B C X,
          ++ apply GenK4Rel with (C4:=F::x1) (CK:=CK) (CN:=x2)...
             srewrite H10 in H6...
             srewrite H5 in H9.
-            solveSet.
+            SLSolve.
             rewrite H2.
             rewrite <- H12.
             rewrite <- H13. 
@@ -1850,18 +1819,16 @@ Lemma seqNtoSeq : forall n B C X,
             assert(exists l' l'' : list (subexp * oo), CK = l' ++ F :: l'').
             
             apply Permutation_vs_cons_inv in H5;auto.
-            
-            
             CleanContext.
-            assert(Permutation (x4 ++ (s, o) :: x5) ((s, o) :: x4 ++ x5)) by perm.
-         assert( Permutation (C4 ++ x4 ++ (s, o) :: x5) ((s, o) :: C4 ++ x4 ++ x5)) by perm.
+            assert(Permutation (x4 ++ (s,o) :: x5) ((s,o) :: x4 ++ x5)) by perm.
+         assert( Permutation (C4 ++ x4 ++ (s,o) :: x5) ((s,o) :: C4 ++ x4 ++ x5)) by perm.
          rewrite H15 in H7.
           rewrite H15 in H11.
             apply GenK4Rel with (C4:=C4) (CK:= x4 ++ x5) (CN:=CN);auto.
             apply Forall_app in H8.
             CleanContext.
             inversion H17...
-            solveSet.
+            SLSolve.
             rewrite H2. 
             rewrite <- H12.
             rewrite <- H14.
@@ -1870,7 +1837,8 @@ Lemma seqNtoSeq : forall n B C X,
             rewrite H5.
             rewrite H10...
             simpl in H7...
-            eapply H with (F:=(loc, o))... 
+            eapply H with (F:=(loc, o))...
+            SLSolve. 
             CleanContext.
             eapply HeightGeqCEx.
             2:{ exact H11. }
@@ -1880,13 +1848,16 @@ Lemma seqNtoSeq : forall n B C X,
             right. 
                rewrite H3 in H5.
             apply Permutation_cons_inv in H5.
+            rewrite <- locApp.
+            setoid_rewrite <- getUApp.
+           
             rewrite H5.
             rewrite H10.
             CleanContext. }
             { 
             apply GenK4Rel with (C4:=C4) (CK:= CK) (CN:=x3);auto.
            rewrite H10 in H9.
-           solveSet.
+           SLSolve.
            rewrite H2.
            rewrite <- H12.
            rewrite H5.
@@ -1896,7 +1867,7 @@ Lemma seqNtoSeq : forall n B C X,
           { 
             apply GenK4Rel with (C4:=C4) (CK:= CK) (CN:=x2);auto.
            rewrite H5 in H9.
-           solveSet.
+           SLSolve.
            rewrite H2.
            rewrite <- H12.
            rewrite <- H14.
@@ -1911,7 +1882,7 @@ Lemma seqNtoSeq : forall n B C X,
              rewrite H5 in H9.
              rewrite H10 in H9.
              inversion H9...
-                 solveSet.
+                 SLSolve.
            rewrite <- H12.
            rewrite <- H14...
            eapply exchangeCCNK4. 
@@ -1933,6 +1904,7 @@ Lemma seqNtoSeq : forall n B C X,
       --  eapply @tri_bangD with (i:=i)...
           apply GenK4Rel with (C4:=F::x1) (CK:=CK) (CN:=CN)...
           intro...
+          solveSignature.
           apply Forall_cons... 
           rewrite H4 in H6.
           inversion H6...
@@ -1980,10 +1952,11 @@ Lemma seqNtoSeq : forall n B C X,
           eapply @tri_bangD with (i:=i)...
           apply GenK4Rel with (C4:=F::x0) (CK:=CK) (CN:=x2)...
           intro...
+          solveSignature.
           rewrite H4 in H6...
          
           rewrite H10 in H9.
-          solveSet.
+          SLSolve.
           rewrite H2.
           rewrite <- H12.
           rewrite <- H13. 
@@ -2010,10 +1983,11 @@ Lemma seqNtoSeq : forall n B C X,
           eapply @tri_bangD with (i:=i)...
           
             apply GenK4Rel with (C4:=F::x1) (CK:=CK) (CN:=x2)...
-             intro...
+            
+             intro... solveSignature.
             srewrite H10 in H6...
             srewrite H4 in H9.
-            solveSet.
+            SLSolve.
             rewrite H2.
             rewrite <- H12.
             rewrite <- H13. 
@@ -2044,11 +2018,11 @@ Lemma seqNtoSeq : forall n B C X,
            eapply @tri_bangD with (i:=i)...
          
             apply GenK4Rel with (C4:=C4) (CK:= x4 ++ x5) (CN:=CN);auto.
-            intro...
+            intro... solveSignature.
             apply Forall_app in H8.
             CleanContext.
             inversion H17...
-            solveSet.
+            SLSolve.
             rewrite H2. 
             rewrite <- H12.
             rewrite <- H14.
@@ -2058,7 +2032,8 @@ Lemma seqNtoSeq : forall n B C X,
             rewrite H10...
             simpl in H7...
             eapply H with (F:=(loc, o))...
-            CleanContext.
+            solveSignature.
+            CleanContext. 
             eapply HeightGeqCEx.
             2:{ exact H11. }
             CleanContext.
@@ -2067,6 +2042,8 @@ Lemma seqNtoSeq : forall n B C X,
             right. 
                rewrite H3 in H4.
             apply Permutation_cons_inv in H4.
+            rewrite <- locApp.
+            setoid_rewrite <- getUApp.
             rewrite H4.
             rewrite H10.
             CleanContext. }
@@ -2074,9 +2051,9 @@ Lemma seqNtoSeq : forall n B C X,
           eapply @tri_bangD with (i:=i)...
             
             apply GenK4Rel with (C4:=C4) (CK:= CK) (CN:=x3);auto.
-            intro...
+            intro... solveSignature.
            rewrite H10 in H9.
-           solveSet.
+           SLSolve.
            rewrite H2.
            rewrite <- H12.
            rewrite H4.
@@ -2087,9 +2064,9 @@ Lemma seqNtoSeq : forall n B C X,
           eapply @tri_bangD with (i:=i)...
           
             apply GenK4Rel with (C4:=C4) (CK:= CK) (CN:=x2);auto.
-            intro... 
+            intro... solveSignature. 
            rewrite H4 in H9.
-           solveSet.
+           SLSolve.
            rewrite H2.
            rewrite <- H12.
            rewrite <- H14.
@@ -2102,18 +2079,18 @@ Lemma seqNtoSeq : forall n B C X,
            exact nil. exact (UP nil). 
            
            apply GenK4Rel with (C4:=C4) (CK:= CK) (CN:=x3);auto.
-           intro... 
+           intro... solveSignature. 
              rewrite H4 in H9.
              rewrite H10 in H9.
              inversion H9...
-                 solveSet.
+                 SLSolve.
            rewrite <- H12.
            rewrite <- H14...
             eapply @tri_bangD with (i:=i)...
            eapply exchangeCCNK4. 
            2:{  exact H3. }
            rewrite H2... }
-      + intro...      
+      + intro... solveSignature.      
                
  Qed.
  
@@ -2139,7 +2116,7 @@ Proof with sauto;solveLL.
     -  
     apply GenK4Rel with (C4:=x) (CK:=CK) (CN:=CN)...
     rewrite H3 in H4.
-    solveSet.
+    SLSolve.
     rewrite H1.
     rewrite <- H10.
     rewrite H8...
@@ -2169,7 +2146,7 @@ Proof with sauto;solveLL.
     inversion H4.
     inversion H6...
     apply GenK4Rel with (C4:=C4) (CK:=CK) (CN:=x2)...
-    rewrite H8 in H7. solveSet.
+    rewrite H8 in H7. SLSolve.
     rewrite H1.
     rewrite <- H10.
     rewrite <- H11.
@@ -2189,7 +2166,7 @@ Proof with sauto;solveLL.
     apply GenK4Rel with (C4:=F::x1) (CK:= CK) (CN:=x2);auto.
     rewrite H8 in H4...
     rewrite H3 in H7.
-    solveSet.
+    SLSolve.
     rewrite H1.
     rewrite <- H10.
     rewrite <- H11...
@@ -2211,7 +2188,7 @@ Proof with sauto;solveLL.
      rewrite H13 in *.
      clear H2 H13.
      apply GenK4Rel with (C4:=C4) (CK:= x4 ++ x5) (CN:=CN);auto.
-     solveSet. 
+     SLSolve. 
      rewrite H1. 
      rewrite <- H10.
      rewrite <- H12.
@@ -2221,6 +2198,7 @@ Proof with sauto;solveLL.
      simpl in H5...
       CleanContext.
     eapply contractionN  with (F:=(loc, o))...
+    solveSignature.
     eapply HeightGeqCEx.
     2:{ exact H9. }
     CleanContext.
@@ -2237,7 +2215,7 @@ Proof with sauto;solveLL.
     right...
       apply GenK4Rel with (C4:=C4) (CK:= CK) (CN:=x3);auto.
     rewrite H11 in H7.
-    solveSet.  
+    SLSolve.  
     rewrite H1. rewrite <- H10. rewrite <- H12. rewrite H3...
    +  
   checkPermutationCases H11.
@@ -2251,8 +2229,8 @@ Proof with sauto;solveLL.
      apply Permutation_cons_inv in H11.
      
      apply GenK4Rel with (C4:=C4) (CK:=(s, o):: x4 ++ x5) (CN:=x2);auto.
-     solveSet.
-     rewrite H3 in H7. solveSet. 
+     SLSolve.
+     rewrite H3 in H7. 
      rewrite H1. 
      rewrite <- H10.
      rewrite <- H12.
@@ -2267,7 +2245,7 @@ Proof with sauto;solveLL.
     CleanContext.
     apply GenK4Rel with (C4:=C4) (CK:=CK) (CN:=x2);auto.
     rewrite H3 in H7.
-    solveSet.
+    SLSolve.
     rewrite H1.
     rewrite <- H10.
     rewrite <- H12.
@@ -2307,10 +2285,10 @@ Proof with sauto;solveLL.
       simpl in H0;auto.
       apply IHL;intros.
       apply H. firstorder.
-      solveSet.
+      SLSolve.
       eapply exchangeCC with (CC':=a :: (L ++ CC)) in H1;[|auto].
       apply contraction in H1;auto.
-      solveSet.
+      SLSolve.
       apply in_or_app.
       firstorder.
   Qed.  
@@ -2324,10 +2302,10 @@ Proof with sauto;solveLL.
       simpl in H0;auto.
       apply IHL;intros.
       apply H0. firstorder.
-      solveSet.
+      SLSolve.
       eapply exchangeCCK4 with (CC':=a :: (L ++ CC)) in H2;[|auto].
       apply contractionK4 in H2;auto.
-      solveSet.
+      SLSolve.
       apply in_or_app.
       firstorder.
   Qed.  
@@ -2407,12 +2385,12 @@ Proof with sauto;solveLL.
     rewrite <- H6 in H2.
     rewrite <- H7 in H2.
     rewrite app_assoc_reverse in H2.
-    solveSet.  simpl;auto.
+    SLSolve.  simpl;auto.
     rewrite H5...
     inversion H5...
     rewrite <- H7 in H6.
     rewrite <- H6 in H2.
-    solveSet.
+    SLSolve.
     inversion H5...
    * inversion H2...
     checkPermutationCases H5.
@@ -2421,12 +2399,12 @@ Proof with sauto;solveLL.
     rewrite <- H7 in H3.
     rewrite <- H8 in H3.
     rewrite app_assoc_reverse in H3.
-    solveSet.  simpl;auto.
+    SLSolve.  simpl;auto.
     rewrite H6...
     inversion H6...
     rewrite <- H8 in H7.
     rewrite <- H7 in H3.
-    solveSet.
+    SLSolve.
     inversion H6...
     - 
      repeat rewrite getUApp' in H5.
@@ -2441,8 +2419,7 @@ Proof with sauto;solveLL.
      rewrite locu in H5.
      rewrite locu in H6.
      rewrite locu in H7...
-     tensor M N (getU B ++ getL B0 ++ [(i, F)]) (getU B ++ getL D ++ [(i, F)])...
-     CleanContext...
+     eapply @tri_tensor with (M:=M) (N:=N) (B:=getU B ++ getL B0 ++ [(i, F)]) (D:=getU B ++ getL D ++ [(i, F)]);CleanContext.
       rewrite app_assoc.
       eapply H...
       eapply exchangeCCN. 
@@ -2511,7 +2488,7 @@ Proof with sauto;solveLL.
           eapply GenK4Rel with (C4:=(i,F)::x4) (CK:=x0) (CN:=x3)...    
           rewrite H3 in H6;auto.
           rewrite H5 in H9.
-          solveSet.
+          SLSolve.
           rewrite <- H13.
           rewrite <- H12...
           rewrite H3 in H7... 
@@ -2521,7 +2498,7 @@ Proof with sauto;solveLL.
                rewrite H3...   } 
         eapply GenK4Rel with (C4:=x) (CK:=x0) (CN:=x3)...
        rewrite H5 in H9;auto.
-       solveSet.
+       SLSolve.
              rewrite <- H13...
              rewrite H12...
              rewrite H10...
@@ -2529,20 +2506,18 @@ Proof with sauto;solveLL.
       checkPermutationCases H4.
       -- assert(SetK4 i0 [(loc, F)]).
          rewrite H4 in H6.
-         solveSet.
+         SLSolve.
          inversion H3...
          solveSubExp.
       -- checkPermutationCases H4.
          assert(SetK i0 [(loc, F)]).
          rewrite H4 in H8.
-         solveSet.
+         SLSolve.
+         
          assert(i0 <> loc).
          intro...
-         assert(False).
-         apply locAlone in H13.
-         apply H13... left.
-         inversion H3... 
-        CleanContext. 
+         solveSignature.
+         apply locSetK2 in H3... 
          checkPermutationCases H10.
          { (* m4 i = true *)
           assert( Permutation x ((i,F)::x4)). 
@@ -2550,10 +2525,10 @@ Proof with sauto;solveLL.
           (* colocar esse caso *) 
           eapply @tri_bangD with (i:=i0)... 
           eapply GenK4Rel with (C4:=(i,F)::x4) (CK:=x0) (CN:=x3)...
-          intro...     
+          SLSolve.     
           rewrite H3 in H6;auto.
           rewrite H4 in H9.
-          solveSet.
+          SLSolve.
           rewrite <- H13.
           rewrite <- H12...
           rewrite H3 in H7... 
@@ -2563,14 +2538,14 @@ Proof with sauto;solveLL.
                rewrite H3...   }
           eapply @tri_bangD with (i:=i0)...      
         eapply GenK4Rel with (C4:=x) (CK:=x0) (CN:=x3)...
-        intro... 
+        intro... solveSignature. 
        rewrite H4 in H9;auto.
-       solveSet.
+       SLSolve.
              rewrite <- H13...
              rewrite H12...
              rewrite H10...
              
-   -- intro...                        
+   -- intro... solveSignature.                        
     Qed.
  
    Lemma ContractionL : forall n B C L X, 
@@ -2589,13 +2564,13 @@ Proof with sauto;solveLL.
    eapply exchangeCCN with (CC:=(B ++ C) ++ [(b, F)])...
    perm.
    apply ContractionLoc...
-   solveSet.
-   solveSet.
+   SLSolve.
+   SLSolve.
    eapply exchangeCCN with (CC:=(B ++ [(loc, F)] ++ [(b, F)]) ++ C)...
    perm.
     apply IHC...
-        solveSet.
-    solveSet.
+        SLSolve.
+    SLSolve.
     eapply exchangeCCN.
     2:{ exact H1. }
     simpl. perm.
@@ -2647,7 +2622,39 @@ Lemma Loc_Unb' : forall  B C L X,
  inversion H;inversion H0...
 Qed. 
   
+  Lemma InvBangTN i j B P : u i = true -> mt i = true ->
+          seqN theory  j B [] (>> i ! P) -> seqN theory (j-1) B [] (> [P]).
+  Proof with sauto.
+  intros Hu Hm Hj.
+  inversion Hj...
+  inversion H0.
+  eapply InvSubExpPhaseU in H4;auto. 
+  destruct H4 as [C4 H4].
+  destruct H4 as [CK H4].
+  destruct H4 as [CN H4]...
+  rewrite H.
+  rewrite app_assoc. 
+  apply weakeningGenN_rev;auto.
+  rewrite setUtoGetU in H9;auto.
+  rewrite setUtoGetU in H9;auto.
+  apply ContractionL...
+  eapply (SetTKClosure Hm)...
+  rewrite SetTPlusT in H9.
+  eapply exchangeCCN with (CC:=(C4 ++ Loc CK) ++ CK)...
+  perm.
+  apply weakeningGenN_rev;auto.
+  eapply @HeightGeq with (n:=n - length (C4 ++ CK) - 1)...
+  lia.
+   eapply (SetTK4Closure Hm)... 
+ Qed. 
  
+  Lemma InvBangT i j B P : u i = true -> mt i = true ->
+          seqN theory j B [] (>> i ! P) -> seq theory B [] (> [P]).
+  Proof with sauto.
+  intros Hu Hm Hj.
+  apply InvBangTN in Hj...
+  apply seqNtoSeq in Hj...
+ Qed. 
              
 End GeneralResults.
 

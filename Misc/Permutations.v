@@ -201,7 +201,7 @@ Ltac perm_simplify := app_normalize; repeat (
                                          | [ |- Permutation _ _ ] => fail
                                          end).
 
-Ltac perm :=
+Ltac perm := autounfold;
   match goal with
   | [ |- Permutation _ _ ] => perm_simplify; fail "perm failed"
   | [ |- _ ] => fail "perm can't solve this system."

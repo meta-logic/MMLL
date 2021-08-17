@@ -4,20 +4,217 @@ The tactics defined in this module solves some of the repetitive goals
 generated when the system is used. In particular those related
    to well-formedness conditions on formulas
  *)
-Require Export MMLL.Misc.Utils.
-Require Export MMLL.SL.Sequent.
-Require Import MMLL.Misc.Permutations.
+Require Export FLL.Misc.Utils.
+Require Export FLL.SL.Sequent.
+Require Import FLL.Misc.Permutations.
 
 Export ListNotations.
 Export LLNotations.
 Set Implicit Arguments.
 
-(* Section MMLL. *)
+(* Section FLL. *)
 
 (** Solves some efficiency problems related to rewriting with setoids *)
 (* Remove Hints Equivalence.pointwise_equivalence : typeclass_instances. *)
 Existing Instance Equivalence.pointwise_equivalence | 11.
 
+Ltac simplSignature := simplSignature1; 
+ repeat    
+  multimatch goal with
+  | [ H: SetU ?K |- context[getL ?K] ] => rewrite (SetU_then_empty H)
+  | [ H1: SetU ?K, H2: context[getL ?K] |- _ ] => rewrite (SetU_then_empty H1) in H2
+ 
+ (* About Loc *)
+  | [  |- context[Loc(_++_)] ] => setoid_rewrite locApp
+  | [  |- context[getL (Loc _)] ] => rewrite getLELoc
+  | [  |- context[getU (Loc _)] ] => rewrite getULoc
+  | [ H: context[Loc(_++_)] |- _ ] => setoid_rewrite locApp in H 
+  | [ H: context[getL (Loc _)] |- _  ] => rewrite getLELoc in H
+  | [ H: context[getU (Loc _)] |- _  ] => rewrite getULoc in H
+
+ (* | [ H: SetU ?K |- context[Loc (getU ?K)] ] => rewrite setULocgetU;auto 
+ | [ H1: SetU ?K, H2: context[Loc (getU ?K)] |- _ ] => rewrite setULocgetU in H2;auto 
+  *) 
+ 
+ (* About PlusT *)
+ | [  |- context[PlusT(_++_)] ] => setoid_rewrite PlusTApp
+ | [  |- context[PlusT (PlusT _)] ] => rewrite PlusT_fixpoint 
+ | [ H1: SetT ?K, H2: context[PlusT ?K] |- _ ] => rewrite SetTPlusT in H2;auto 
+ | [ H: SetT ?K |- context[PlusT ?K] ] => rewrite SetTPlusT;auto 
+  
+ | [ H: context[PlusT(_++_)] |- _ ] => setoid_rewrite PlusTApp in H 
+ | [ H: context[PlusT (PlusT _)]  |- _ ] => rewrite PlusT_fixpoint in H
+ | [ H: SetU (PlusT _)  |- _ ] => apply PlusTSetU in H
+
+   
+ (* About getU and getL *)
+ | [  |- context[getU(_++_)] ] => setoid_rewrite getUApp
+ | [  |- context[getL(_++_)] ] => setoid_rewrite getLApp
+ | [  |- context[getU(getU _)] ] => rewrite getU_fixpoint
+ | [  |- context[getL(getL _)] ] => rewrite getL_fixpoint
+ | [  |- context[getU(getL _)] ] => rewrite getUgetL
+ | [  |- context[getL(getU _)] ] => rewrite getLgetU
+ | [ H: context[getU(_++_)] |- _ ] => setoid_rewrite getUApp in H
+ | [ H: context[getL(_++_)] |- _ ] => setoid_rewrite getLApp in H
+ | [ H: context[getU(getU _)] |- _ ] => rewrite getU_fixpoint in H
+ | [ H: context[getL(getL _)] |- _ ] => rewrite getL_fixpoint in H
+ | [ H: context[getU(getL _)] |- _ ] => rewrite getUgetL in H
+ | [ H: context[getL(getU _)] |- _ ] => rewrite getLgetU in H
+ 
+(*  | [ H: SetU ?K  |- context[getU ?K] ] => rewrite setUtoGetU;auto
+ | [ H1: SetU ?K, H2:context[getU ?K]  |- _ ] => rewrite setUtoGetU in H2;auto  *)
+
+ (* About getU, getL and PlusT *)
+ | [  |- context[getU (PlusT (getL _))] ] => rewrite getUgetLPlusT
+ | [  |- context[getL (PlusT (getU _))] ] => rewrite getLgetUPlusT
+ | [  |- context[getU (PlusT (getU _))] ] => rewrite getUPlusTgetU'
+ | [  |- context[getL (PlusT (getL _))] ] => rewrite getUPlusTgetL'
+ | [ H: context[getU (PlusT (getL _))]  |- _ ] => rewrite getUgetLPlusT in H
+ | [ H: context[getL (PlusT (getU _))]  |- _ ] => rewrite getLgetUPlusT in H  
+ | [ H: context[getU (PlusT (getU _))]  |- _ ] => rewrite getUPlusTgetU' in H  
+ | [ H: context[getL (PlusT (getL _))]  |- _ ] => rewrite getUPlusTgetL' in H 
+  
+ | [ H: SetU ?K |- context[getL (PlusT ?K)] ] => rewrite (getLgetUPlusT' H);auto  
+ | [ H: SetT ?K |- context[getU (PlusT ?K)] ] => rewrite <- (getUPlusT H);auto  
+ | [ H: SetT ?K |- context[getL (PlusT ?K)] ] => rewrite <- (getLPlusT H);auto
+ | [ H1: SetU ?K, H2: context[PlusT (getU ?K)] |- _ ] => rewrite (setUPlusTgetU H1) in H2;auto 
+ | [ H1: SetU ?K, H2: context[getL (PlusT ?K)] |- _ ] => rewrite (getLgetUPlusT' H1) in H2;auto  
+ | [ H1: SetT ?K, H2: context[getU (PlusT ?K)] |- _ ] => rewrite <- (getUPlusT H1) in H2;auto  
+ | [ H1: SetT ?K, H2:context[getL (PlusT ?K)]  |- _] => rewrite <- (getLPlusT H1) in H2;auto
+  | [  |- context[(second (getU ?K++getL ?K))] ] => rewrite <- cxtDestructSecond
+ | [ H:context[(second (getU ?K++getL ?K))] |- _ ] => rewrite <- cxtDestructSecond in H
+
+ 
+end. 
+
+Ltac solveSignature2 :=
+ match goal with
+  | [ |- SetU (getU _) ] => apply getUtoSetU
+  | [ |- SetU (Loc _) ] => apply SetULoc  
+  | [ |- SetT (Loc _) ] => apply SetTLoc    
+  | [ |- SetL (getL _) ] => apply getLtoSetL
+  | [ H: SetK4 ?i ?K |- SetK4 ?i (getU ?K)] => apply SetK4Destruct in H;sauto
+  | [ H: SetK4 ?i ?K |- SetK4 ?i (getL ?K)] => apply SetK4Destruct in H;sauto
+  | [ H: SetK ?i ?K |- SetK ?i (getU ?K)] => apply SetKDestruct in H;sauto
+  | [ H: SetK ?i ?K |- SetK ?i (getL ?K)] => apply SetKDestruct in H;sauto
+
+| [ H: SetK4 ?i ?K, H2: Permutation (getU ?K) (?K2 ++ _) |- SetK4 ?i ?K2] => 
+   let H' := fresh "H" in
+          apply SetK4Destruct in H; destruct H as [H H'];rewrite H2 in H;solveSignature2
+ | [ H: SetK4 ?i ?K, H2: Permutation (getU ?K) (_ ++ ?K2) |- SetK4 ?i ?K2] => 
+   let H' := fresh "H" in
+          apply SetK4Destruct in H; destruct H as [H H'];rewrite H2 in H;solveSignature2
+
+ | [ H: SetK ?i ?K, H2: Permutation (getU ?K) (?K2 ++ _) |- SetK ?i ?K2] => 
+   let H' := fresh "H" in
+          apply SetKDestruct in H; destruct H as [H H'];rewrite H2 in H;solveSignature2
+ | [ H: SetK ?i ?K, H2: Permutation (getU ?K) (_ ++ ?K2) |- SetK ?i ?K2] => 
+   let H' := fresh "H" in
+          apply SetKDestruct in H; destruct H as [H H'];rewrite H2 in H;solveSignature2
+ 
+ | [ H: SetU (PlusT ?K) |- SetU ?K ] => apply PlusTSetU;auto 
+ | [  |- SetU (PlusT _ )] => apply SetUPlusT;solveSignature2
+
+  | [H: Permutation (getU ?CN) (_ ++ ?M) |- SetU ?N] =>  apply getUPerm_SetU in H;solveSignature2
+  | [H: Permutation (getU ?CN) (?M ++ _) |- SetU ?M] =>  apply getUPerm_SetU in H;solveSignature2
+
+ | [ H: SetT ?K |- SetT (getU ?K)] => rewrite cxtDestruct in H;solveSignature2
+ | [ H: SetT ?K |- SetT (getL ?K)] => rewrite cxtDestruct in H;solveSignature2
+ 
+
+  | [ |- SetU (PlusT _) ] => apply SetUPlusT
+  | [ |- SetK4 (plust _) (PlusT _) ] => apply SetK4PlusT
+  | [ |- SetK (plust _) (PlusT _) ] => apply SetKPlusT 
+  
+ | [ H1: u ?i = false, H2: In (?i, ?F) ?B  |- In (?i, ?F) (getL ?B) ] => apply lIngetL;auto
+
+ | [ H1: u ?i = true, H2: SetK ?i ?K  |- SetU ?K  ] => eapply (SetUKClosure H1);auto
+ | [ H1: mt ?i = true, H2: SetK ?i ?K  |- SetT ?K  ] => eapply (SetTKClosure H1);auto 
+ | [ H1: u ?i = true, H2: SetK4 ?i ?K  |- SetU ?K  ] => eapply (SetUK4Closure H1);auto
+ | [ H1: mt ?i = true, H2: SetK4 ?i ?K  |- SetT ?K  ] => eapply (SetTK4Closure H1);auto 
+
+ | [ H1: u ?i = true, H2: SetK ?i ?K  |- SetU (_ ?K)  ] => eapply (SetUKClosure H1);simplSignature
+ | [ H1: mt ?i = true, H2: SetK ?i ?K  |- SetT (_ ?K)  ] => eapply (SetTKClosure H1);simplSignature 
+ | [ H1: u ?i = true, H2: SetK4 ?i ?K  |- SetU (_ ?K)  ] => eapply (SetUK4Closure H1);simplSignature
+ | [ H1: mt ?i = true, H2: SetK4 ?i ?K  |- SetT (_ ?K)  ] => eapply (SetTK4Closure H1);simplSignature 
+ | [ H: SetU ?K |- context[PlusT (getU ?K)] ] => try solve [rewrite setUPlusTgetU;auto]
+
+end.
+
+Ltac solveSignature :=
+simplSignature;
+try solve [solveSignature1];
+try solve [solveSignature2];
+try
+match goal with
+ | [ |- SetK ?i ?K] => solveFoldFALL2 (fun k :subexp*oo => m4 (fst k) = false /\ lt i (fst k) )
+ | [ |- SetK4 ?i ?K] => solveFoldFALL2  (fun k :subexp*oo => m4 (fst k) = true /\ lt i (fst k) )
+ | [ |- SetT ?K] => solveFoldFALL1 (fun k :subexp*oo => mt (fst k) = true)
+ | [ |- SetU ?K] => solveFoldFALL1 (fun k :subexp*oo => u (fst k) = true)
+ | [ |- SetL ?K] => solveFoldFALL1 (fun k :subexp*oo => u (fst k) = false)
+ end;try sfold.  
+
+Ltac solveIsFormula1 := auto;try
+  match goal with
+  | [ H1: isFormulaL (second ?L), H2: In (_,?P) ?L  |- isFormula ?P ] => apply isFormulaInS1 in H2;auto
+  | [ H1: isFormulaL (second ?L), H2: In (_,_ ?A _) ?L  |- isFormula ?A ] => apply isFormulaInS1 in H2;solveIsFormula1
+  | [ H1: isFormulaL (second ?L), H2: In (_,_ _ ?A) ?L  |- isFormula ?A ] => apply isFormulaInS1 in H2;solveIsFormula1
+  | [ H1: isFormulaL (second ?L), H2: In (_,_ ?A) ?L  |- isFormula (?A _) ] => apply isFormulaInS1 in H2;solveIsFormula1
+ 
+  | [ H1: isFormulaL (second ?L), H2: Permutation ?L ((_,?P)::_)  |- isFormula ?P ] => apply isFormulaInS2 in H2;auto
+  | [ H1: isFormulaL (second ?L), H2: Permutation ?L ((_,_ ?A _)::_)  |- isFormula ?A ] => apply isFormulaInS2 in H2;solveIsFormula1
+  | [ H1: isFormulaL (second ?L), H2: Permutation ?L ((_,_ _ ?A)::_)  |- isFormula ?A ] => apply isFormulaInS2 in H2;solveIsFormula1
+  | [ H1: isFormulaL (second ?L), H2: Permutation ?L ((_,_ ?A)::_)  |- isFormula (?A _) ] => apply isFormulaInS2 in H2;solveIsFormula1
+
+  | [ H1: forall P:oo, ?th P -> isFormula P, H2: ?th ?P  |- isFormula ?P ] => apply H1 in H2;auto
+  | [ H1: forall P:oo, ?th P -> isFormula P, H2: ?th (_ ?A _)  |- isFormula ?A ] => apply H1 in H2;solveIsFormula1
+  | [ H1: forall P:oo, ?th P -> isFormula P, H2: ?th (_ _ ?A)  |- isFormula ?A ] => apply H1 in H2;solveIsFormula1
+  | [ H1: forall P:oo, ?th P -> isFormula P, H2: ?th (_ ?A)  |- isFormula (?A _) ] => apply H1 in H2;solveIsFormula1
+ 
+  | [ H: isFormula (_ ?A _) |- isFormula ?A ] => inversion H;subst;auto
+  | [ H: isFormula (_ _ ?A) |- isFormula ?A ] => inversion H;subst;auto
+  | [ H: isFormula (_ ?A) |- isFormula (?A _) ] => inversion H;subst;eauto
+  
+  | [ H: isFormulaL ((_ ?A _)::_) |- isFormula ?A ] => inversion H;subst;auto
+  | [ H: isFormulaL ((_ _ ?A)::_) |- isFormula ?A ] => inversion H;subst;auto
+  | [ H: isFormulaL ((_ ?A)::_) |- isFormula (?A _) ] => inversion H;subst;eauto
+end.
+
+Ltac solveIsFormula2 := auto;try
+  match goal with
+
+  | [  |- isFormulaL (second (PlusT (getU _))) ] => try solve [apply isFormulaL_PlusT;apply isFormulaL_getU;auto]
+  | [  |- isFormulaL (second (PlusT (getL _))) ] => try solve [apply isFormulaL_PlusT;apply isFormulaL_getL;auto]
+  | [  |- isFormulaL (second (Loc (getU _))) ] => try solve [apply isFormulaL_Loc;apply isFormulaL_getU;auto]
+  | [  |- isFormulaL (second (Loc (getL _))) ] => try solve [apply isFormulaL_Loc;apply isFormulaL_getL;auto]
+  | [  |- isFormulaL (second (PlusT _)) ] => try solve [apply isFormulaL_PlusT;auto]
+  | [  |- isFormulaL (second (Loc _)) ] => try solve [apply isFormulaL_Loc;auto]
+  | [  |- isFormulaL (second (getU _)) ] => try solve [apply isFormulaL_getU;auto]
+  | [  |- isFormulaL (second (getL _)) ] => try solve [apply isFormulaL_getL;auto]
+  
+  | [ H1: Permutation (getL ?mBD) (getL ?mB ++ getL ?mD), 
+      H2: Permutation (getU ?mBD) (getU ?mD),
+      H3: isFormulaL (second ?mBD)
+      |- isFormulaL (second ?mD)] => eapply @isFormulaSecondSplit2 with (X:=nil) (Y:=nil) (BD:=mBD) (B:=mB);sauto
+  | [ H1: Permutation (getL ?mBD) (getL ?Bm ++ getL ?mD), 
+      H2: Permutation (getU ?mBD) (getU ?mB),
+      H3: isFormulaL (second ?mBD)
+      |- isFormulaL (second ?mB)] => eapply @isFormulaSecondSplit1 with (X:=nil) (Y:=nil) (BD:=mBD) (D:=mD);sauto
+end.
+
+
+Ltac SLFormulaSolve := auto; try solve[solveIsFormula1];
+match goal with
+ | [ |- isFormulaL ?K] => simpl;solveFoldFALL1 isFormula;solveIsFormula1
+end.
+
+Ltac SLSolve := do 2 
+ solveSignature; try
+ match goal with
+ | |- isFormulaL (second ?K) => simplSignature;solveIsFormula2;SLFormulaSolve
+ | |- isFormulaL ?K => simplSignature;SLFormulaSolve
+    end;sfold.
+ 
 Ltac solveUniform :=
   auto;
   repeat 
@@ -30,8 +227,7 @@ Ltac solveUniform :=
     end.
 
 
-
-Ltac simplF := 
+(* Ltac simplF := 
  repeat    
   match goal with
   | [ |- subexp ] => exact loc
@@ -49,6 +245,7 @@ Ltac simplF :=
   | [  |- context[second []] ] => simpl
   | [ H:  context[second []] |- _ ] => simpl in H
  
+ | [  |- context[PlusT(_++_)] ] => setoid_rewrite PlusTApp
  | [  |- context[Loc(_++_)] ] => setoid_rewrite locApp
  | [  |- context[getU(_++_)] ] => setoid_rewrite getUApp
  | [  |- context[getL(_++_)] ] => setoid_rewrite getLApp
@@ -63,6 +260,8 @@ Ltac simplF :=
  | [  |- context[getU (PlusT (getU _))] ] => rewrite getUPlusTgetU'
  | [  |- context[getL (Loc _)] ] => rewrite getLELoc
 
+ 
+ | [ H: context[PlusT(_++_)] |- _ ] => setoid_rewrite PlusTApp in H 
  | [ H: context[Loc(_++_)] |- _ ] => setoid_rewrite locApp in H 
  | [ H: context[getU(_++_)] |- _ ] => setoid_rewrite getUApp in H
  | [ H: context[getL(_++_)] |- _ ] => setoid_rewrite getLApp in H
@@ -123,7 +322,7 @@ Ltac simplF :=
  | [ H1: mt ?i = true, H2: SetK4 ?i ?K  |- SetT (_ ?K)  ] => eapply (SetTK4Closure H1);simplF 
 
 end.
-
+ *)
    
 Ltac cleanF :=
  repeat
@@ -180,27 +379,6 @@ Ltac solveF :=
   let H := fresh "H" in
   repeat
     match goal with
-  | [ H: SetU ?L |- Permutation (getL ?L) (getL ?L ++ getL ?L) ] => 
-    rewrite (SetU_then_empty H);simpl;auto
-  
-   | [ |- u loc = true ] => apply locu 
-  | [ |- mt loc = true ] => apply locT 
-  | [ |- m4 loc = false ] => apply loc4 
-  | [ |- mk loc = true ] => apply locK 
-  | [ |- md loc = false ] => apply locD
-    
-  | [ |- subexp ] => exact loc
-    
-  | [H: u loc = false |- _] => rewrite locu in H; discriminate H   
-  | [H: mk loc = false |- _] => rewrite locK in H; discriminate H  
-  | [H: mt loc = false |- _] => rewrite locT in H; discriminate H  
-  | [H: m4 loc = true |- _] => rewrite loc4 in H; discriminate H  
-  | [H: md loc = true |- _] => rewrite locD in H; discriminate H  
-
-   
-  | [H1: ?a <> loc, H2: lt ?a loc |- _] => apply locAlone in H1;assert(False); [apply H1;left;auto|];contradiction
-| [H1: ?a <> loc, H2: lt loc ?a |- _] => apply locAlone in H1;assert(False); [apply H1;right;auto|];contradiction
-
     | [ |- uniform _ ] => solve [solveUniform]
     | [ |- _ <= _ ] => lia
     | [ |- _ >= _ ] => lia
@@ -210,9 +388,7 @@ Ltac solveF :=
     | [|- ~ IsPositiveAtom _ ] => first [solve [intro H; inversion H;auto] | auto] 
     | [|- IsPositiveAtom _ ] => repeat constructor
     | [|- release _] => first [solve [constructor] | auto]  
-(*     | [|- Remove _ _ _] => constructor
-    | [H: Remove _ [?F] ?L |- _] =>  apply RemoveUnique in H;subst
- *)    | [|- asynchronous _] => first [solve [constructor] | auto]
+    | [|- asynchronous _] => first [solve [constructor] | auto]
 
     | [H: release ?F  |- _] =>
       match F with
@@ -235,13 +411,13 @@ Ltac solveF :=
       end
     | [H : ~ IsPositiveAtom (atom _ ) |- _ ] => contradict H;constructor
     | [H: (atom _ ) = (atom _ ) |- _ ] => inversion H;clear H
-    | [H: seqN _ _ _ _  (>> zero) |- _ ] => inversion H;solveF
-    | [H: seq  _ _ _  (>> zero) |- _ ] => inversion H;solveF
+    | [H: seqN _ _ _ _  (>> zero) |- _ ] => inversion H
+    | [H: seq  _ _ _  (>> zero) |- _ ] => inversion H
     | [ |- _ >= _] => subst; lia
     | [ |- _ <= _] => subst; lia
     end;auto;
   try(match goal with
-      | [ |- Permutation _ _] =>  simplF; perm
+      | [ |- Permutation _ _] => simplSignature; perm
       end).
 
 (** Splits the linear context L into L1 ++ L2 where L1 contains the first n elements of L *)
@@ -277,8 +453,8 @@ Tactic Notation "store" := match goal with
                            end.
 
 Tactic Notation "par" := match goal with
-                         | [ |- seq _ _ _ _ ] =>  apply tri_par' ;solveF
-                         | [|- seqN _ _ _ _ _] => apply tri_par ;solveF
+                         | [ |- seq _ _ _ _ ] =>  apply tri_par'
+                         | [|- seqN _ _ _ _ _] => apply tri_par
                          end.
 
 Tactic Notation "release" := match goal with
@@ -288,14 +464,14 @@ Tactic Notation "release" := match goal with
 
   
 Tactic Notation "init1"  := match goal with
-                          | [ |- seq _ _ _ _ ] =>  apply tri_init1';try solveSet;auto
-                          | [|- seqN _ _ _ _ _] => apply tri_init1;try solveSet;auto
+                          | [ |- seq _ _ _ _ ] =>  apply tri_init1';try SLSolve;auto
+                          | [|- seqN _ _ _ _ _] => apply tri_init1;try SLSolve;auto
                           end.
 
 
 Tactic Notation "init2" constr(a) constr(b) := match goal with
-                          | [ |- seq _ _ _ _ ] =>  eapply @tri_init2' with (i:=a) (C:=b);[try solveSet | auto | try perm ];auto
-                          | [|- seqN _ _ _ _ _] => eapply @tri_init2 with (i:=a) (C:=b);[try solveSet | auto | try perm ];auto
+                          | [ |- seq _ _ _ _ ] =>  eapply @tri_init2' with (i:=a) (C:=b);[try SLSolve | auto | try perm ];auto
+                          | [|- seqN _ _ _ _ _] => eapply @tri_init2 with (i:=a) (C:=b);[try SLSolve | auto | try perm ];auto
                           end.
 
 Tactic Notation "init2" constr(a) := match goal with
@@ -338,7 +514,7 @@ Ltac solvell :=
     
     | [H: seqN _ _ _ _ (>> zero) |- _ ] => inversion H;subst;solveF
           
-    | [|- seqN _ _ _ [] (>>  One)] => apply tri_one;try solveSet;auto
+    | [|- seqN _ _ _ [] (>>  One)] => apply tri_one;try SLSolve;auto
     | [H: tri_bangK4 _ 0 _ _ _ _ _ |- _ ] => inversion H 
     
     | [H: seqN _ 0 _ _ (> AAnd _ _::?L) |- _ ] => inversion H 
@@ -368,7 +544,7 @@ Ltac solvell :=
       | Top  => release;solvell
       | AAnd _ _  => release;solvell
       | Quest _ _ => release;solvell
-      | Bang loc _ => apply tri_bangL;try solveSet;solvell
+      | Bang loc _ => apply tri_bangL;try SLSolve;solvell
       | Bang _ _ => apply tri_bang;solvell
       end
     (* Negative Phase *)
@@ -426,7 +602,7 @@ Ltac solvell' :=
 
     | [H: seq _ _ _ (>> zero) |- _ ] => inversion H;subst;solveF
     
-    | [|- seq _ _ [] (>>  One)] => apply tri_one';try solveSet;auto
+    | [|- seq _ _ [] (>>  One)] => apply tri_one';try SLSolve;auto
     | [|- seq _ _ [] (>>  MAnd _ _)] => apply tri_tensor' with (M:=[]) (N:=[]); [perm|solvell'|solvell'] (* tensor with the empty context *)
      (* Change of polarity *)
     | [H: release ?F |- seq _ _ _ (>>  ?F)] => release;solvell'
@@ -439,7 +615,7 @@ Ltac solvell' :=
       | Top  => release;solvell'
       | AAnd _ _  => release;solvell'
       | Quest _ _ => release;solvell'
-      | Bang loc _ => apply tri_bangL';try solveSet;solvell'
+      | Bang loc _ => apply tri_bangL';try SLSolve;solvell'
       | Bang _ _ => apply tri_bang';solvell'
       end
     (* Negative Phase *)
@@ -487,9 +663,12 @@ Ltac dec1 n :=
 *)
 
 
-
-
 (** Notation for forward reasoning on FLL sequents *)
+Tactic Notation "decide1" := match goal with
+                                        | [ |- seq _ _ (?P::_) _ ] =>  eapply @tri_dec1' with (F:= P);solveF;solveLL
+                                        | [|- seqN _ _ _ (?P::_) _] => eapply @tri_dec1 with (F:= P);solveF;solveLL 
+                                        end;solveF.
+                      
 Tactic Notation "decide1"  constr(R) := match goal with
                                         | [ |- seq _ _ _ _ ] =>  eapply @tri_dec1' with (F:= R);solveF;solveLL
                                         | [|- seqN _ _ _ _ _] => eapply @tri_dec1 with (F:= R);solveF;solveLL 
@@ -541,18 +720,18 @@ Tactic Notation "tensor"  := match goal with
                  end.
 
 Tactic Notation "copyK4"  constr(i) constr(P) constr(B) := match goal with
-                                                       | [ |- tri_bangK4' _ _ _ _ _ _ ] => eapply @tri_copyK4' with (b:=i) (F:=P) (B':=B);try solveSet;solveF;solveLL
-                                                       | [|- tri_bangK4 _ _ _ _ _ _ _] => eapply @tri_copyK4 with (b:=i) (F:=P) (B':=B);try solveSet;solveF;solveLL
+                                                       | [ |- tri_bangK4' _ _ _ _ _ _ ] => eapply @tri_copyK4' with (b:=i) (F:=P) (B':=B);try SLSolve;solveF;solveLL
+                                                       | [|- tri_bangK4 _ _ _ _ _ _ _] => eapply @tri_copyK4 with (b:=i) (F:=P) (B':=B);try SLSolve;solveF;solveLL
                                                        end.
                                                       
 Tactic Notation "copyUK"  constr(i) constr(P) constr(B) := match goal with
-                                                       | [ |- tri_bangK4' _ _ _ _ _ _] => eapply @tri_copyUK' with (b:=i) (F:=P) (B':=B);try solveSet;solveF;solveLL
-                                                       | [|- tri_bangK4 _ _ _ _ _ _ _] => eapply @tri_copyUK with (b:=i) (F:=P) (B':=B);try solveSet;solveF;solveLL
+                                                       | [ |- tri_bangK4' _ _ _ _ _ _] => eapply @tri_copyUK' with (b:=i) (F:=P) (B':=B);try SLSolve;solveF;solveLL
+                                                       | [|- tri_bangK4 _ _ _ _ _ _ _] => eapply @tri_copyUK with (b:=i) (F:=P) (B':=B);try SLSolve;solveF;solveLL
                                                        end. 
                                                        
 Tactic Notation "copyLK"  constr(i) constr(P) constr(B) := match goal with
-                                                       | [ |- tri_bangK4' _ _ _ _ _ _] => eapply @tri_copyLK' with (b:=i) (F:=P) (B':=B);try solveSet;solveF;solveLL
-                                                       | [|- tri_bangK4 _ _ _ _ _ _ _] => eapply @tri_copyLK with (b:=i) (F:=P) (B':=B);try solveSet;solveF;solveLL
+                                                       | [ |- tri_bangK4' _ _ _ _ _ _] => eapply @tri_copyLK' with (b:=i) (F:=P) (B':=B);try SLSolve;solveF;solveLL
+                                                       | [|- tri_bangK4 _ _ _ _ _ _ _] => eapply @tri_copyLK with (b:=i) (F:=P) (B':=B);try SLSolve;solveF;solveLL
                                                        end.   
                                                                                                             
    
@@ -619,5 +798,5 @@ Ltac bipole' Rule :=
 (** Erasing some of the (unimportant) hypotheses added by the [solveF] and [solveLL] procedures *)
 
 Ltac CleanContext :=
-  sauto;simplF;cleanF;solveF.
+  sauto;do 2 simplSignature;cleanF;solveF;sauto.
 

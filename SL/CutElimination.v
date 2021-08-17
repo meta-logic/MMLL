@@ -1,47 +1,33 @@
-(** Cut Elimination for MMLL
+(** Cut Elimination for Focused Linear Logic
 
+This file proves cut-elimination for the triadic system of linear
+logic. The proof uses 5 cut-rules dealing with the negative and
+positive phase of proofs (see [CutElimBase]).
+
+It is assumed that the theory only produces well formed LL formulas
+(see [TheoryIsFormula]).
  *)
 
 
-Require Export MMLL.Misc.Hybrid.
-Require Export MMLL.SL.FLLTactics.
+Require Export FLL.Misc.Hybrid.
+Require Export FLL.SL.FLLTactics.
 Require Import Lia.
-Require Import MMLL.Misc.Permutations.
+Require Import FLL.Misc.Permutations.
 Require Import FunInd.
 Require Import Coq.Program.Equality.
-Require Export MMLL.SL.InvPositivePhase.
+Require Export FLL.SL.InvPositivePhase.
 
 Export ListNotations.
 Export LLNotations.
 Set Implicit Arguments.
 
-Class UnbSignature `{Signature}:=
-  { 
-    allU: forall x, u x = true; }.
 
 Section CutElimination.
 Context `{OLS: OLSig}.
 Context `{SI : Signature}.
 Context {USI : UnbSignature}.
 
-Lemma allSeTU B : SetU B.
-Proof with auto.
- induction B...
- apply ForallCons...
- apply allU.
-Qed.
-Local Hint Resolve allSeTU : core. 
-
-Lemma allSeTLEmpty (B : list TypedFormula) : getL B = (@nil TypedFormula).
-Proof with auto.
- rewrite (SetU_then_empty (allSeTU B));auto.
-Qed.
-
-Lemma permSeTL (B : list TypedFormula) : Permutation (getL B) (getL B ++ getL B).
-Proof with auto.
- rewrite allSeTLEmpty...
-Qed.
-Local Hint Resolve permSeTL : core. 
+Local Hint Resolve allU :core.
 
   Variable theory : oo -> Prop .
   Notation " n '|---' B ';' L ';' X " := (seqN theory n B L X) (at level 80).
@@ -55,7 +41,8 @@ Local Hint Resolve permSeTL : core.
   rewrite (cxtDestruct B).
   rewrite (cxtDestruct D).
   rewrite H.
-  do 2 rewrite allSeTLEmpty;auto.
+  rewrite allSeTLEmpty;auto.
+  rewrite allSeTLEmpty;auto.
   Qed.
       
 
@@ -82,7 +69,7 @@ Local Hint Resolve permSeTL : core.
   eapply @HeightGeq with (n:=n - length (C4 ++ CK) - 1)...
   lia.
    eapply (SetTK4Closure Hm)...
-   apply allU. 
+    
  Qed. 
  
   Lemma InvBangT i j B P : mt i = true ->
@@ -813,7 +800,7 @@ Proof with sauto;solveLL.
    rewrite <- H7.
    assert(n |--- (i, atom A) :: C; M; (> L)).
    eapply AbsorptionC... 
-   apply allU. LLExact H5.
+    LLExact H5.
    apply seqNtoSeq in H0.
    LLExact H0.
    inversion H1.
@@ -840,7 +827,7 @@ Theorem CutK4SubCase (h n j w:nat) i a L B P: CutH w h -> CutW w -> complexity P
  Proof with sauto;solveF.
  intros HC WC comP hH Hd Hyp Hj.
         apply InvSubExpPhaseU in Hyp;auto.
-        2:{ apply allU. } 
+         
         destruct Hyp as [C4 Hyp];
         destruct Hyp as [CK Hyp];
         destruct Hyp as [CN Hyp].
@@ -885,15 +872,14 @@ Theorem CutK4SubCase (h n j w:nat) i a L B P: CutH w h -> CutW w -> complexity P
           rewrite H21.
           rewrite H24.
             eapply @GenK4Rel' with (C4:=CK4++K4_2) (CK:=CK) (CN:=N)...
-          solveSet...  
+          SLSolve...  
           rewrite H19 in H6.
           rewrite H6 in H1.
-          inversion H1;solveSet...
+          inversion H1;SLSolve...
           rewrite H21.
           rewrite H17...
-          rewrite allSeTLEmpty...
-          do 2 rewrite setUtoGetU in H7; try apply allSeTU.
-          rewrite setUtoGetU; try apply allSeTU.
+          rewrite allSeTLEmpty;auto...
+          rewrite setUtoGetU...
   assert(Hp: 
  (n - length (C4 ++ CK) - 1) |--- (PlusT CK4 ++ PlusT K4_2 ++ Loc CK) ++ [(plust a,P)]; []; (> L) ->
    S n0 |--- PlusT CK4 ++ PlusT K4_2 ++ Loc CK; []; (>> (plust a) ! P ^) -> 
@@ -901,23 +887,22 @@ Theorem CutK4SubCase (h n j w:nat) i a L B P: CutH w h -> CutW w -> complexity P
          
    eapply HC with  (m:=n - length (C4 ++ CK) - 1 + S n0) (C:=(plust a) ? P) (dualC:=(plust a) ! P^)...
    CleanContext. 
-   unfold PlusT. rewrite map_app... 
    rewrite app_assoc_reverse.
    apply Hp...
    rewrite H21.
    repeat rewrite app_assoc_reverse.
-   
-   unfold PlusT. rewrite map_app...
+   CleanContext.
    rewrite app_assoc_reverse.
    rewrite Permutation_midle_app.
-   apply weakeningGenN;try apply allSeTU.
+   apply weakeningGenN...
    rewrite app_assoc.
-   rewrite <- map_app.
+   rewrite <- PlusTApp.
    LLExact H7.
    rewrite <- H19.
    rewrite H6...
-   apply weakeningGenN_rev; try apply allSeTU. 
-   LLExact Hd'. }
+   rewrite setUtoGetU...
+   
+   apply weakeningGenN_rev...   }
      checkPermutationCases H6. 
           {
            (* P in CK *)
@@ -930,7 +915,7 @@ Theorem CutK4SubCase (h n j w:nat) i a L B P: CutH w h -> CutW w -> complexity P
             inversion H0... contradiction. }
         
           apply InvSubExpPhaseU in H14;auto.  
-          2:{ apply allU. }
+          
           destruct H14 as [C4' H14].
           destruct H14 as [CK' H14].
           destruct H14 as [CN' H14].
@@ -959,10 +944,9 @@ Theorem CutK4SubCase (h n j w:nat) i a L B P: CutH w h -> CutW w -> complexity P
           simpl in *.         
           CleanContext.
           CleanContext.
-           rewrite setULocgetU in H19; try apply allSeTU.
-            rewrite setUtoGetU in H19; try apply allSeTU...
-           rewrite setULocgetU in H7; try apply allSeTU.
-            rewrite setUtoGetU in H7; try apply allSeTU...
+           rewrite setULocgetU in H19...
+           rewrite setULocgetU in H7...
+           
            
            assert(Hd': S n0 |--- PlusT C4' ++ Loc CK'; []; (>> loc ! P^)).
           { apply tri_bangL...
@@ -974,11 +958,11 @@ Theorem CutK4SubCase (h n j w:nat) i a L B P: CutH w h -> CutW w -> complexity P
         
        rewrite H. 
       eapply @GenK4Rel' with (C4:=C4'++K4_2) (CK:=x0++K_3) (CN:=N)...
-      solveSet...  
+      SLSolve...  
        rewrite H24 in  H1.
-       solveSet... 
-      solveSet...
-      solveSet.  
+       SLSolve... 
+      SLSolve...
+      SLSolve.  
        rewrite H25 in  H20.
       
  
@@ -994,47 +978,44 @@ Theorem CutK4SubCase (h n j w:nat) i a L B P: CutH w h -> CutW w -> complexity P
          
    eapply HC with  (m:=n - length (C4 ++ CK) - 1 + S n0) (C:=loc ? P) (dualC:=loc ! P^)...
    CleanContext. 
-   do 2 rewrite allSeTLEmpty...
-   rewrite setULocgetU; try apply allSeTU.
-   rewrite setUtoGetU ; try apply allSeTU...
-           
-   unfold PlusT. rewrite map_app... 
+   rewrite allSeTLEmpty;auto...
+   rewrite allSeTLEmpty;auto...
+   
+   rewrite setULocgetU...
+   rewrite setUtoGetU...
+   CleanContext.        
    rewrite app_assoc_reverse.
    apply Hp...
    LLPerm(Loc K_3++(PlusT C4' ++ PlusT K4_2 ++ Loc x0) ++ [(loc, P)]).
-   apply weakeningGenN;try apply allSeTU.
+   apply weakeningGenN...
    
    rewrite H26.
+   CleanContext.
    repeat rewrite app_assoc_reverse.
    
-   unfold PlusT. rewrite map_app...
-   rewrite app_assoc_reverse.
    rewrite Permutation_midle_app.
-   apply weakeningGenN;try apply allSeTU.
+   apply weakeningGenN...
    rewrite app_assoc.
-   rewrite <- map_app.
+   rewrite <- PlusTApp.
    LLExact H7.
    rewrite <- H24.
    rewrite H6...
    LLPerm (PlusT K4_2 ++ Loc x0 ++ PlusT C4' ++ Loc K_3).
-   apply weakeningGenN;try apply allSeTU.
+   apply weakeningGenN...
    rewrite H23.
-   unfold Loc. rewrite map_app...
+   CleanContext.
     rewrite app_assoc_reverse.
    rewrite Permutation_midle_app.
-   apply weakeningGenN;try apply allSeTU.
+   apply weakeningGenN...
    LLExact Hd'.
-   rewrite H25...
-   unfold Loc. rewrite map_app...
-   fold (Loc K_1).
-   rewrite Permutation_midle_app... }
+   rewrite H25...  }
   {
         eapply @GenK4Rel' with (C4:=C4) (CK:=CK) (CN:= x0)...
         rewrite <- H8.
         rewrite <- H9...
-        rewrite allSeTLEmpty...
-            rewrite setUtoGetU in H7; try apply allSeTU...
-        apply seqNtoSeq in H7...  } 
+        CleanContext.
+        HProof.
+         } 
  Qed.       
 
 Theorem CutDwC a j n w h P F L B:
@@ -1220,7 +1201,7 @@ Proof with sauto;solveLL.
               apply Cut...
   -- createWorld i0.
    eapply @CutK4SubCase with (n:=n) (j:=j) (h:=h) (P:=A) (a:=a) (w:=complexity A) (B:=B)...
-   intro... 
+   intro... SLSolve.
   Qed.
   
  

@@ -5,7 +5,6 @@
  -  some arithmetic results (specially dealing with [max] and [min])
  *)
 
-Require Export MMLL.Misc.UtilsTactics.
 Require Export Coq.Relations.Relations.
 Require Export Coq.Classes.Morphisms.
 Require Export Permutation.
@@ -47,7 +46,7 @@ Section Permutations.
 
 Lemma ListConsApp (a b: A) : forall L M , a :: L = M ++ [b] -> 
        (L=[]/\M=[]/\a=b) \/ exists X, M = a :: X /\ L = X++[b].
-Proof with sauto.
+Proof with subst;auto.
   induction M; intros...
   * inversion H...
   * rewrite <- app_comm_cons in H. 
@@ -59,7 +58,7 @@ Proof with sauto.
  Lemma ListConsApp' (a b: A) : forall L M1 M2 , a :: L = M1 ++ [b] ++ M2 -> 
         (L=M2/\M1=[]/\a=b) \/ 
        exists X, M1 = a :: X /\ L = X++[b]++M2.
-Proof with sauto.
+Proof with subst;auto.
   destruct M1;intros...
   * inversion H;subst...
   * rewrite <- app_comm_cons in H. 
@@ -71,7 +70,7 @@ Proof with sauto.
   Lemma ListConsApp'' (a : A) M1: forall L M2 , a :: L = M1 ++ M2 -> 
        (M1=[ ]/\M2=a::L) \/ 
        exists X, M1 = a :: X /\ L = X++M2.
-Proof with sauto.
+Proof with subst;auto.
   induction M1;intros...
   rewrite <- app_comm_cons in H. 
    inversion H;subst...
@@ -475,87 +474,6 @@ Ltac mgt0 := let H := fresh "H" in
              end.
 
 
-(** ** Aditional results on Forall/map *)
-Section ForAllMap. 
-  Lemma ForallAppInv1:
-    forall {A : Type} {M N : list A} (f : A -> Prop),
-      Forall f (M ++ N) -> Forall f M.
-   Proof. 
-    intros.
-    solveForall.
-    Qed.
-  
-  Lemma ForallAppInv2:
-    forall {A : Type} {M N : list A} (f : A -> Prop),
-      Forall f (M ++ N) -> Forall f N.
-   Proof. 
-    intros. 
-    solveForall.  
-  Qed.
-  
-  Lemma ForallApp : forall {A: Type} (M N : list A) (f : A->Prop),
-      Forall f N ->  Forall f M -> Forall f (N ++ M).
-  Proof.
-    intros.
-    solveForall.  
-  Qed.
-
-  
-  Lemma ForallAppComm:
-    forall {A : Type} {M N : list A} (f : A -> Prop),
-      Forall f (N ++ M) -> Forall f (M ++ N).
-  Proof.    
-    intros.
-     
-    eapply PermuteMap;eauto.
-    apply Permutation_app_comm.
-  Qed.
-  
-  
-  Hint Extern 1 (Permutation ?S ?U) =>
-  match goal with
-  | H: Permutation S ?T |- _ => apply (Permutation_trans H)
-  | H: Permutation ?T S  |- _ => symmetry in H; apply (Permutation_trans H)  
-  end : core.
-  
-  Example transitivity_Permutation : forall {A : Type} (f : A -> Prop){T1 T2 T3 T4 T5: list A},
-  Forall f T1 ->
-  Permutation T1 T2 ->
-  Permutation T2 T3 ->
-  Permutation T4 T3 ->
-  Permutation T3 T5 ->
-  Permutation T5 T4 ->
-  Forall f T4.
-Proof.
-  intros. 
-  eauto using PermuteMap.
-Qed.
-  
-  (* Forall_cons *)
-  Lemma ForallCons : forall {A: Type} (F:A) (M : list A) (f : A->Prop), 
-      f F ->  Forall f M -> Forall f (F :: M).
-  Proof.
-   intros.
-   apply Forall_cons;auto.
-  Qed.                
-  
-Lemma ForallIn :  forall {A : Type} {F : A} {L : list A} (f : A -> Prop), 
-      Forall f L -> In F L -> f F. 
-  Proof.
-    intros.
-    generalize (Forall_forall f L );intro.
-    destruct H1.
-    apply H1 with (x:= F) in H ;auto.
-  Qed.
-  
-  
-End ForAllMap .
-
-  Global Hint Resolve ForallApp:isFormulaIn.
-  Global Hint Resolve ForallApp:core.
-  Global Hint Resolve ForallCons:core.
-  
-  
 Section Pairs.
 
 Variable S:Type. (* SubExps *)
@@ -586,7 +504,7 @@ Lemma InFirst c B : In c B -> In (fst c) (first B).
 Proof.
  induction B;intros;auto.
  unfold second.
- inversion H;sauto;
+ inversion H;subst;auto;
  simpl;auto.
  Qed.
  
@@ -594,14 +512,14 @@ Lemma InSecond c B : In c B -> In (snd c) (second B).
 Proof.
  induction B;intros;auto.
  unfold second.
- inversion H;sauto;
+ inversion H;subst;auto;
  simpl;auto.
  Qed.
  
  Lemma InSecondInv i A B : In (i,A) B -> In A (second B). 
 Proof.
  induction B;intros;auto.
- inversion H;sauto;
+ inversion H;subst;auto;
  simpl;auto.
  Qed.
  

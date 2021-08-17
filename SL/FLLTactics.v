@@ -9,14 +9,14 @@ with an apostrophe. For instance, [solveLL] for the system [seqN] and
 [solveLL'] for the system [seq].
  *)
 
-Require Export MMLL.SL.StructuralRules.
-Require Export MMLL.SL.FLLTacticsPre.
+Require Export FLL.SL.StructuralRules.
+Require Export FLL.SL.FLLTacticsPre.
 
 Export ListNotations.
 Export LLNotations.
 Set Implicit Arguments.
 
-(* Section MMLL. *)
+(* Section FLL. *)
 
 Ltac contraction_set M := 
  eapply @contractionSet with (L:=M);intros;
@@ -46,13 +46,13 @@ Ltac llExact' H :=
   match G with
   | (seq ?T ?Gamma ?Delta ?X) =>
     match goal with
-    | [ |- seq T ?Gamma' ?Delta' X ] =>
+    | [ |- seq ?T ?Gamma' ?Delta' ?X ] =>
       apply @exchangeCC with (CC:= Gamma);auto; try perm;
       apply @exchangeLC with (LC:= Delta);auto;try perm
     end
   end;auto.
 
-Ltac LLExact H := autounfold;autounfold in H;
+Ltac LLExact H := 
   match (type of H) with
   | seq _ _ _ _  =>  llExact' H
   | seqN _ _ _ _ _ => llExact H
@@ -62,11 +62,20 @@ Ltac LLExact H := autounfold;autounfold in H;
 Ltac HProof :=
 auto; try
   match goal with
- | [ H : seqN _ ?y ?G ?M ?X |- seqN _ ?x ?G ?M ?X ] =>
+ | [ H : seqN ?th ?y ?G ?M ?X |- seqN ?th ?x ?G ?M ?X ] =>
     assert( y <= x) by lia;
     eapply @HeightGeq  with (m:=x) in H;auto
+ | [ H : seqN ?th ?y ?G ?M ?X |- seqN ?th ?x ?G' ?M' ?X ] =>
+    LLExact H
+ | [ H : seq ?th ?y ?G ?M ?X |- seq ?th ?G' ?M' ?X ] =>
+    LLExact H
  | [ H : seqN _ ?n ?G ?M ?X |-  seq _ ?G ?M ?X ] =>
     eapply seqNtoSeq in H;exact H
+ | [ H : seqN _ ?n ?G ?M ?X |-  seq _ ?G' ?M' ?X ] =>
+    eapply seqNtoSeq in H; LLExact H
+
+ | [ H : tri_bangK4 _ ?n ?B ?i ?D ?M (> ?L) |- tri_bangK4' _ ?B ?i ?D ?M (> ?L)  ] =>
+    eapply seqNtoSeq_mutual in H;[exact H;firstorder]    
   end.
 
 Ltac solveLinearLogic :=
@@ -208,6 +217,86 @@ Ltac LLPermH H LI :=
                | apply exchangeCCKK4 with (CC' := LI) in H ;[|perm]]
   end.
 
+
+Ltac LLrew1 H1 H2 :=
+ let G1:= type of H1 in
+  match G1 with
+  | Permutation ?A ?B => 
+       let G2:= type of H2 in
+         match G2 with
+         | seq _ ?A _ _  =>
+           eapply exchangeCC in H2; [| exact H1]
+         | seq _ ?B _ _  =>
+           eapply exchangeCC in H2; [| symmetry in H1; exact H1]
+         | seq _ _ ?A _  =>
+           eapply exchangeLC in H2; [| exact H1]
+         | seq _ _ ?B _  =>
+           eapply exchangeLC in H2; [| symmetry in H1; exact H1]
+         
+         | seqN _ _ ?A _ _  =>
+           eapply exchangeCCN in H2; [| exact H1]
+         | seqN _ _ ?B _ _  =>
+           eapply exchangeCCN in H2; [| symmetry in H1; exact H1]
+         | seqN _ _ _ ?A _  =>
+           eapply exchangeLCN in H2; [| exact H1]
+         | seqN _ _ _ ?B _  =>
+           eapply exchangeLCN in H2; [| symmetry in H1; exact H1]
+         
+         | _ => idtac H2 "must to be a LL sequent"    
+     end 
+  | _ => idtac H1 "must to be a permutation"    
+ end.
+
+Ltac LLrew2 H :=
+ let G:= type of H in
+  match G with
+  | Permutation ?A ?B => 
+         match goal with
+         | [ |- seq _ ?A _ _]  =>
+           eapply (exchangeCC H)
+         | [ |- seq _ ?B _ _ ] =>
+           symmetry in H;
+           eapply (exchangeCC H);
+           symmetry in H
+         | [ |- seq _ _ ?A _ ] =>
+           eapply (exchangeLC H)
+         | [ |- seq _ _ ?B _]  =>
+           symmetry in H;
+           eapply (exchangeLC H);
+           symmetry in H
+          | [ |- seqN _ _ ?A _ _]  =>
+           eapply (exchangeCCN H)
+         | [ |- seqN _ _ ?B _ _ ] =>
+           symmetry in H;
+           eapply (exchangeCCN H);
+           symmetry in H
+         | [ |- seqN _ _ _ ?A _ ] =>
+           eapply (exchangeLCN H)
+         | [ |- seqN _ _ _ ?B _]  =>
+           symmetry in H;
+           eapply (exchangeLCN H);
+           symmetry in H
+         | _ => idtac "This goal is not compatible with " H    
+     end 
+  | _ => idtac H "must to be a permutation"    
+ end.
+
+ Tactic Notation "LLrewrite" constr(H) := LLrew2 H. 
+ Tactic Notation "LLrewrite" constr(H1) "in" constr(H2) := LLrew1 H1 H2.
+
+ Tactic Notation "LLSplit" :=  
+     match goal with
+      | [ |- seq _ ?B _ _]  => LLrewrite (symmetry (cxtDestruct B))
+      | [ |- seqN _ _ ?B _ _]  => LLrewrite (symmetry (cxtDestruct B))
+     end.
+     
+  Tactic Notation "LLSplit" "in" constr(H)  :=  
+     match type of H with
+      | seq _ ?B _ _  => LLrewrite (cxtDestruct B) in H
+      | seqN _ _ ?B _ _  => LLrewrite (cxtDestruct B) in H
+     end.    
+        
+  
 Ltac LLPerm LI :=
   match goal with
   | [ |- seqN _ _ _ _ _ ] =>
@@ -287,4 +376,22 @@ Ltac finishExponential :=  match goal with
          destruct H as [c H];CleanContext |  try solve[auto | intro;subst;solveSubExp] ]
     end.
 
-  
+  Lemma allSeTU (OLS: OLSig) (SI: Signature) (SIU: UnbSignature) B : SetU B.
+Proof with auto.
+ induction B...
+ apply Forall_cons... 
+ apply allU.
+Qed.
+
+Lemma allSeTLEmpty (OLS: OLSig) (SI: Signature) (SIU: UnbSignature) (B : list TypedFormula) : getL B = (@nil TypedFormula).
+Proof with auto.
+ rewrite (SetU_then_empty (allSeTU SIU B));auto.
+Qed.
+
+Lemma permSeTL (OLS: OLSig) (SI: Signature) (SIU: UnbSignature) (B : list TypedFormula) : Permutation (getL B) (getL B ++ getL B).
+Proof with auto.
+ rewrite allSeTLEmpty...
+Qed.
+
+Global Hint Resolve allSeTU permSeTL : core. 
+
