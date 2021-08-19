@@ -103,6 +103,15 @@ Section OLSyntax.
   
   (** Well formendness conditions for lists of formulas and list of judgments *)
   Definition isOLFormulaL  L : Prop := Forall isOLFormula L.
+   Global Instance perm_IsOLFormulaL  :
+      Proper (@Permutation uexp ==> Basics.impl)
+             (isOLFormulaL ).
+    Proof.
+      unfold Proper; unfold respectful; unfold Basics.impl.
+      intros.
+      unfold isOLFormulaL.
+      rewrite <- H;auto.
+    Qed.
 
   Hint Constructors isOLTerm isOLAtom isOLConstant isOLFormula : core.
   Hint Unfold isOLFormulaL : core.
@@ -331,6 +340,10 @@ Section OLSyntax.
    Definition down : uexp -> atm := down'.
 
 End OLSyntax.
+
+Global Hint Constructors isOLTerm isOLAtom isOLConstant isOLFormula : core.
+Global Hint Unfold isOLFormulaL : core.
+  
 
 (** Notation for atoms of the form [up] and [down] *)
 Notation "'u|' A '|'" := (atom (up A)) (at level 10) .

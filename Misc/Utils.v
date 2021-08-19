@@ -24,7 +24,10 @@ Export ListNotations.
 
 Set Implicit Arguments.
 
-
+Lemma NatComp : forall x y, x >= y + 1 -> S x - y - 2 = x - y - 1.
+Proof with subst;auto. lia.
+Qed.  
+  
 (** ** Operations on lists/multisets *)
 Section MultisetOperations.
   Variable T:Type.

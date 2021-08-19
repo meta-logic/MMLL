@@ -16,7 +16,7 @@ Export LLNotations.
 Set Implicit Arguments.
 
 
-Section Absoroption.
+Section Absorption.
   Context `{SI : Signature}.
   Context `{OLS: OLSig}.
          
@@ -125,7 +125,7 @@ Section Absoroption.
         CleanContext.
         CleanContext.
         CleanContext.
-        rewrite H6... perm.
+        rewrite H6... 
           rewrite H2 in H8... 
       }
      + rewrite perm_swap...   
@@ -160,7 +160,16 @@ Lemma AbsorptionCSet : forall th n C Gamma Delta X,
   eapply IHC.
   SLSolve. SLSolve.
   LLExact H1...
-  perm.
+  Qed. 
+  
+    Lemma AbsorptionCSet' : forall th C Gamma Delta X,
+  SetT C ->  SetU C -> seq th (C++Gamma) (Delta++ (second C))  X ->
+      seq th (C ++ Gamma) Delta  X.
+  Proof with sauto.
+  intros.
+  apply seqtoSeqN in H1...
+  apply AbsorptionCSet in H1...
+  HProof.
   Qed. 
   
  Lemma AbsorptionCSet_rev : forall th  C Gamma Delta X,
@@ -187,9 +196,18 @@ Lemma AbsorptionCSet : forall th n C Gamma Delta X,
   apply IHC.
   SLSolve.
   LLExact H0...
-  perm.
   Qed. 
-  
+ 
+  Lemma AbsorptionLSet' : forall th C Gamma Delta X,
+  SetT C ->  seq th (Gamma) (Delta++ (second C))  X ->
+      seq th (C ++ Gamma) Delta  X.
+  Proof with sauto.
+  intros.
+  apply seqtoSeqN in H0...
+  apply AbsorptionLSet in H0...
+  HProof.
+  Qed. 
+   
  Lemma AbsorptionLSet_rev : forall th  C Gamma Delta X,
   SetT C ->  seq th (Gamma) (Delta++ (second C))  X ->
       seq th (Gamma++C) Delta  X.
@@ -202,7 +220,7 @@ Lemma AbsorptionCSet : forall th n C Gamma Delta X,
   Qed.
  
  
-End Absoroption.
+End Absorption.
 
 
 Section InvPosPhase.
@@ -743,7 +761,6 @@ Section InvPosPhase.
     SLSolve.
     
     eapply IHC with (B':= (b, F) :: B')... SLSolve. SLSolve.
-    perm.
     rewrite app_assoc_reverse.
     rewrite <- H1. exact H2.
     Qed.

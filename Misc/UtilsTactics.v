@@ -9,7 +9,7 @@ Require Export Coq.Arith.Arith.
 Require Export Coq.Init.Nat.
 Require Export MMLL.Misc.Permutations. 
 Require Export MMLL.Misc.Utils.
-
+Require Import Lia.
 Export ListNotations.
 
 Set Implicit Arguments.
@@ -21,7 +21,6 @@ Set Implicit Arguments.
   | H: Permutation ?T S  |- _ => symmetry in H; apply (Permutation_trans H)  
   end : core.
 
-  
  
 Ltac clear_junk :=
 repeat
@@ -91,6 +90,11 @@ try
  | [ H1: forall x, ?P x -> ?L = ?R, H2: ?P ?X |- _ ] => rewrite (H1 X H2) in x
  | [ H1: ?P ?X -> ?P ?Y, H2: ?P ?X |- ?P ?Y ] => apply H1;auto
  | [ H1: _ ?P ?X -> _ ?P ?Y, H2: _ ?P ?X, H3: ?P ?F  |- _ ?P (?F::?Y) ] => simpl;apply H1;auto
+ | [  |- _ <= _ ] => try solve[lia]
+ | |- _ >= _ => try solve[lia]
+ | |- _ < _ => try solve[lia]
+ | |- _ > _ => try solve[lia]
+ | [  |- Permutation _ _ ] => try solve[simpl;subst;perm]
  end;auto.
 
   

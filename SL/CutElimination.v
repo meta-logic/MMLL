@@ -67,9 +67,33 @@ Local Hint Resolve allU :core.
   LLPerm ((C4 ++ Loc CK) ++ CK).
   apply weakeningGenN_rev;auto.
   eapply @HeightGeq with (n:=n - length (C4 ++ CK) - 1)...
-  lia.
    eapply (SetTK4Closure Hm)...
     
+ Qed. 
+
+ Lemma InvBangTNLoc i j A B P : mt i = true -> m4 i = true ->
+       j |--- (loc,A)::B; []; (>> i ! P) -> 
+       (exists C4 CN, Permutation B (C4++CN) /\ (j - length C4 - 2) |--- C4; []; (> [P]) /\ SetK4 i C4 /\ SetT C4 ).
+  Proof with sauto.
+  intros HmT Hm4 Hj.
+  assert(i <> loc).
+  intro... SLSolve.
+  inversion Hj;subst;auto.
+  inversion H1. SLSolve.
+  eapply InvSubExpPhaseUK4 in H5;auto. 
+  destruct H5 as [C4 H5].
+  destruct H5 as [CN H5]...
+  checkPermutationCases H0.
+  rewrite H0 in H2.
+  inversion H2... SLSolve.
+  exists C4.
+  exists x.
+  split;sauto. 
+  rewrite SetTPlusT in H8.
+  eapply @HeightGeq with (n:=n - length C4 - 1)...
+  rewrite NatComp...
+  eapply (SetTK4Closure HmT)...
+  eapply (SetTK4Closure HmT)...
  Qed. 
  
   Lemma InvBangT i j B P : mt i = true ->

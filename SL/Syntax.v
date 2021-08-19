@@ -2196,7 +2196,7 @@ Proof with sauto.
    Proof with sauto.
   intros.
   eapply isFormulaSecondSplit1 with (X:=X) (Y:=Y) (BD:=BD) (D:=B);auto.
-  rewrite H1... perm.
+  rewrite H1...
   Qed.
  
  
@@ -2376,7 +2376,7 @@ Proof with sauto.
       eexists []. 
       eexists C4'.
       eexists CN'...
-      rewrite H3... perm. 
+      rewrite H3...  
       simpl in H3.
       checkPermutationCases H3.
       - rewrite H4 in H0.
@@ -2411,7 +2411,7 @@ Proof with sauto.
          eexists [].
          eexists x6.
          eexists x7...
-         rewrite H5... perm.
+         rewrite H5... 
          rewrite H4.
          rewrite H12...
          solveSignature2.
@@ -2458,7 +2458,7 @@ Proof with sauto.
          exists (a0::x5).
          eexists x6.
          eexists x7...
-         rewrite H7... perm.
+         rewrite H7... 
          rewrite H4.
          rewrite H12...
          solveSignature2.
@@ -2511,7 +2511,7 @@ Proof with sauto.
          exists x5.
          exists x6.
          exists x7...
-         rewrite H5... perm.
+         rewrite H5...
          rewrite H4.
          rewrite H12...
          solveSignature2.

@@ -88,7 +88,6 @@ Section InvNPhase .
             end] .
     eapply H with (M:= o x:: M) (m:= complexityL (o x:: M));simpl in *; inversion HeqSizeM;solveF;FLLInversionAll;auto.
     generalize (ComplexityUniformEq H6 properX (proper_VAR con 0));intro...
-    lia.
   Qed.
   
   
@@ -118,7 +117,6 @@ Section InvNPhase .
          eapply H with (m:= complexityL M);simpl in *; inversion HeqSizeM; solveF
       end.
     generalize (ComplexityUniformEq H5 properX (proper_VAR con 0));intro...
-    lia.
   Qed.
   
   Theorem EquivAuxStore :
@@ -171,7 +169,7 @@ Section InvNPhase .
       -- rewrite app_comm_cons.
          eapply H0 with (m:= complexityL (o x :: M))...
          inversion HeqSizeM;simpl;try lia.       
-         generalize (ComplexityUniformEq H6 properX (proper_VAR con 0));intro... lia.  rewrite <- app_comm_cons...
+         generalize (ComplexityUniformEq H6 properX (proper_VAR con 0));intro...  rewrite <- app_comm_cons...
       -- eapply H0 with (m:= complexityL M)...
          inversion HeqSizeM;try lia. 
   Qed.
@@ -206,7 +204,6 @@ Section InvNPhase .
     
     eapply H with (m:= complexityL (o x :: M));simpl in *; inversion HeqSizeM;solveF;FLLInversionAll;auto.
     generalize (ComplexityUniformEq H5 properX (proper_VAR con 0));intro...
-    lia. 
   Qed.
   
   
@@ -289,7 +286,7 @@ Section InvNPhase .
     solveLL.
     eapply H with (M:=  o x :: M)(m:= complexityL (o x :: M));inversion HeqSizeM;subst;solveF.
     generalize (ComplexityUniformEq H4 properX (proper_VAR con 0));intros...
-   lia. intros...
+    intros...
     generalize (H2 _ H3);intros Hs;invTri' Hs ;solveF.
   Qed.
   
