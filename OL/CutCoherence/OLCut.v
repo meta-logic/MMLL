@@ -342,54 +342,6 @@ Lemma CutRuleNBound : forall h n a b i B L X ,  seqN (OLTheoryCut (i:=i)  (a:=a)
     simpl in H13...
   Qed.  
     
-   
- (*  Theorem TENSORPARInv : forall A B Gamma n,
-      ( seq (OLTheoryCut (pred n)) (d| A | :: Gamma) [] (> [])) ->
-      ( seq (OLTheoryCut (pred n)) (d| B | :: Gamma) [] (> [])) ->
-      seq (OLTheoryCut (pred n)) Gamma [] (>> RulesDefs TENSORPAR Left A B ) .
-    intros;simpl;solveLL.
-    LLExact H.
-    LLExact H0.
-  Qed.
-
-  Theorem TENSORPARInv' : forall A B Gamma n,
-      ( seq (OLTheoryCut (pred n)) (u| A | :: u| B | :: Gamma) [] (> [])) ->
-      seq (OLTheoryCut (pred n)) Gamma [] (>> RulesDefs TENSORPAR Right A B ) .
-    intros;simpl;solveLL.
-    LLExact H.
-  Qed.
-
-  Theorem TENSORPAREXCHInv : forall A B Gamma  n,
-      ( seq (OLTheoryCut (pred n)) (u| A |:: Gamma) [] (> [])) ->
-      ( seq (OLTheoryCut (pred n)) (d| B | :: Gamma) [] (> [])) ->
-      seq (OLTheoryCut (pred n)) Gamma [] (>> RulesDefs TENSORPAREXCH Left A B ) .
-    intros;simpl;solveLL.
-    LLExact H.
-    LLExact H0.
-  Qed.
-
-  Theorem TENSORPAREXCHInv' : forall A B Gamma  n,
-      ( seq (OLTheoryCut (pred n)) (d| A | :: u| B | :: Gamma) [] (> [])) ->
-      seq (OLTheoryCut (pred n)) Gamma [] (>> RulesDefs TENSORPAREXCH Right A B ) .
-    intros;simpl;solveLL.
-    LLExact H.
-  Qed.
-
-  Theorem PARTensorInv : forall A B Gamma n,
-      ( seq (OLTheoryCut (pred n)) (d| A | :: d| B | :: Gamma) [] (> [])) ->
-      seq (OLTheoryCut (pred n)) Gamma [] (>> RulesDefs PARTENSOR Left A B ) .
-    intros;simpl;solveLL.
-    LLExact H.
-  Qed.
-
-  Theorem PARTensorInv' : forall A B Gamma n,
-      ( seq (OLTheoryCut (pred n)) (u| A | :: Gamma) [] (> [])) ->
-      ( seq (OLTheoryCut (pred n)) (u| B | :: Gamma) [] (> [])) ->
-      seq (OLTheoryCut (pred n)) Gamma [] (>> RulesDefs PARTENSOR Right A B ) .
-    intros;simpl;solveLL;
-      rewrite Permutation_app_comm;simpl;auto.
-  Qed.
-*)
 
 Lemma emptyContext C : getU C = [] -> getL C =[] -> C = [].
 Proof.
@@ -2776,18 +2728,6 @@ Qed.
   Proof with CutTacPOSNEG.
   *) 
   
-  Theorem Corollary_CutElimination:
-    forall n a FC L M N,
-    isOLFormula FC ->
-    lengthUexp FC n ->
-    IsPositiveAtomFormulaL M -> 
-    IsPositiveAtomFormulaL N -> 
-    IsPositiveAtomFormulaL (second L) -> 
-    SetU L ->
-    mt a = true -> u a = true ->
-    seq   (TH a) L (M ++ N)  (> []) <-> seq  (THC a n) L (M ++ N)  (> [])  .
-  Proof with CutTacPOSNEG.
-  (* TODO *)
- Abort.
+ 
 End OLCutElimination.
-
+End OLInferenceRules.
