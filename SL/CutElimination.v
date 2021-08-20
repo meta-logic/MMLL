@@ -32,7 +32,8 @@ Local Hint Resolve allU :core.
   Variable theory : oo -> Prop .
   Notation " n '|---' B ';' L ';' X " := (seqN theory n B L X) (at level 80).
   Notation " '|--' B ';' L ';' X " := (seq theory B L X) (at level 80).
- 
+
+
  Lemma simplUnb B D:          
   Permutation (getU B) (getU D) ->
   Permutation B D.

@@ -704,6 +704,7 @@ Tactic Notation "decide3"  constr(R) := match goal with
                                         | [|- seqN _ _ _ _ _] => eapply @tri_dec3 with (F:= R);solveF;solveLL
                                         end;solveF.
 
+
 Tactic Notation "tensor"  constr(Ctx1) constr(Ctx2) constr(Ctx3) constr(Ctx4) := match goal with
                                                        | [ |- seq _ _ _ _ ] =>  eapply @tri_tensor' with (M:=Ctx1) (N:=Ctx2) (B:=Ctx3) (D:=Ctx4);solveF;solveLL
                                                        | [|- seqN _ _ _ _ _] => eapply @tri_tensor with (M:=Ctx1) (N:=Ctx2) (B:=Ctx3) (D:=Ctx4);solveF;solveLL
@@ -718,6 +719,49 @@ Tactic Notation "tensor"  := match goal with
                | [ |- seq _ ?C [] _ ] =>  eapply @tri_tensor' with (M:=nil) (N:=nil) (B:=C) (D:=C);solveF;solveLL
                | [|- seqN _ _ ?C [] _] => eapply @tri_tensor with (M:=nil) (N:=nil) (B:=C) (D:=C);solveF;solveLL
                  end.
+
+  Lemma allSeTU (OLS: OLSig) (SI: Signature) (SIU: UnbSignature) B : SetU B.
+Proof with auto.
+ induction B...
+ apply Forall_cons... 
+ apply allU.
+Qed.
+
+Lemma allSeTLEmpty (OLS: OLSig) (SI: Signature) (SIU: UnbSignature) (B : list TypedFormula) : getL B = (@nil TypedFormula).
+Proof with auto.
+ rewrite (SetU_then_empty (allSeTU SIU B));auto.
+Qed.
+
+Lemma permSeTL (OLS: OLSig) (SI: Signature) (SIU: UnbSignature) (B : list TypedFormula) : Permutation (getL B) (getL B ++ getL B).
+Proof with auto.
+ rewrite allSeTLEmpty...
+Qed.
+
+Global Hint Resolve allSeTU permSeTL : core. 
+
+ Lemma tensorU (OLS: OLSig) (SI : Signature) (USI : UnbSignature) n th B MN M N F G:          
+  Permutation MN (M ++ N) ->
+  seqN th n B M (>> F) ->
+  seqN th n B N (>> G) -> seqN th (S n) B MN (>> F ** G).
+  Proof.   
+  intros.
+  tensor M N.
+  Qed.
+
+ Lemma tensorU' (OLS: OLSig) (SI : Signature) (USI : UnbSignature) th B MN M N F G:          
+  Permutation MN (M ++ N) ->
+  seq th B M (>> F) ->
+  seq th B N (>> G) -> seq th B MN (>> F ** G).
+  Proof.   
+  intros.
+  tensor M N.
+  Qed.
+
+Tactic Notation "tensorUnb"  constr(Ctx1) constr(Ctx2) := match goal with
+               | [ |- seq _ _ _ _ ] =>  eapply @tensorU' with (M:=Ctx1) (N:=Ctx2);solveF;solveLL
+               | [|- seqN _ _ _ _ _] => eapply @tensorU with (M:=Ctx1) (N:=Ctx2);solveF;solveLL
+                 end.
+
 
 Tactic Notation "copyK4"  constr(i) constr(P) constr(B) := match goal with
                                                        | [ |- tri_bangK4' _ _ _ _ _ _ ] => eapply @tri_copyK4' with (b:=i) (F:=P) (B':=B);try SLSolve;solveF;solveLL

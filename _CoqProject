@@ -22,3 +22,6 @@ SL/CutElimination.v
 # OL/Examples.v
 # Encoding inference systems and cut-coherent conditions
 OL/CutCoherence/OLSyntax.v
+OL/CutCoherence/OLDefinitions.v
+OL/CutCoherence/OLTactics.v
+OL/CutCoherence/OLCut.v
