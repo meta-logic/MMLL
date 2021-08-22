@@ -24,4 +24,7 @@ SL/CutElimination.v
 OL/CutCoherence/OLSyntax.v
 OL/CutCoherence/OLDefinitions.v
 OL/CutCoherence/OLTactics.v
+OL/CutCoherence/OLPosNeg.v
 OL/CutCoherence/OLCut.v
+OL/CutCoherence/Bipoles.v
+OL/CutCoherence/LK.v

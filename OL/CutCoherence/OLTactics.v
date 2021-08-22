@@ -48,6 +48,7 @@ Ltac solveOLFormulas := auto;try
   match goal with
   | [  |- IsPositiveAtomFormula (atom _)] => constructor;solveOLFormulas 
   | [ H:  IsPositiveAtomFormula (atom (_ (?A))) |- isOLFormula ?A] => inversion H;subst;auto
+  | [ H:  isOLFormulaL (?A::_) |- isOLFormula ?A] => inversion H;subst;auto
   | [H : isOLAtom ?A |-  isOLFormula ?A] => inversion H;subst;auto
   | [ H:  isOLFormula (t_bin _ _ ?A) |- isOLFormula ?A] => inversion H;subst;auto;clear H;solveOLFormulas
   | [ H:  isOLFormula (t_bin _ ?A _) |- isOLFormula ?A] => inversion H;subst;auto;clear H;solveOLFormulas
@@ -61,6 +62,10 @@ Ltac solveOLFormulas := auto;try
   | [ H:  isOLConstant _ |- _] => try solve [inversion H]
   | [ H:  isOLTerm _ |- _] => try solve [inversion H]
 
+  | [ H:  isOLFormulaL ((t_bin _ _ ?A)::_) |- isOLFormula ?A] => inversion H;subst;auto;clear H;solveOLFormulas
+  | [ H:  isOLFormulaL ((t_bin _ ?A _)::_) |- isOLFormula ?A] => inversion H;subst;auto;clear H;solveOLFormulas
+  | [ H:  isOLFormulaL ((t_ucon _ ?A)::_) |- isOLFormula ?A] => inversion H;subst;clear H;solveOLFormulas
+  | [ H : isOLFormulaL ((t_quant _ ?FX)::_) |- isOLFormula (?FX _) ] => inversion H;subst;clear H;solveOLFormulas  
 
   | [ H:  IsPositiveAtomFormula (atom (_ (?A))) |- isOLFormula ?A] => inversion H;subst;auto
   | [H : isOLFormulaL ?L |-  IsPositiveAtomFormulaL (LEncode ?L)] => solve [apply (isOLLEncode H);auto]

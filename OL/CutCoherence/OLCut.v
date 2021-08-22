@@ -5,8 +5,9 @@ object-logics (OL) where formulas on both the left and the right side
 of the sequent can be weakened and contacted. Then, we assume that all
 of them are stored into the classical context of LL. *)
 
-Require Export MMLL.Misc.Hybrid.
-Require Export MMLL.OL.CutCoherence.OLTactics.
+Require Import MMLL.Misc.Hybrid.
+Require Import MMLL.OL.CutCoherence.OLTactics.
+Require Import MMLL.OL.CutCoherence.OLPosNeg.
 Require Export MMLL.SL.CutElimination.
 Import MMLL.Misc.Permutations.
 Export ListNotations.
@@ -14,9 +15,7 @@ Export LLNotations.
 
 Set Implicit Arguments.
   
-  Class UnbNoDSignature `{UnbSignature}:=
-  { 
-    allNoD: forall x, md x = false; }.
+
 
 (** ** Rules of the encoded proof system *)
 Section OLInferenceRules.
@@ -24,12 +23,14 @@ Context {SI : Signature}.
 Context {USI : UnbSignature}.
 Context {USInoD : UnbNoDSignature}.  
   
+
 (** ** Syntax *)
   
 Inductive Constants := .
 Inductive Connectives := AND.
 Inductive UConnectives := BOX.
 Inductive Quantifiers := .
+
 
 Instance SimpleOLSig : OLSyntax:=
   {|
@@ -45,11 +46,6 @@ Instance SimpleOLSig : OLSyntax:=
   Definition RINIT (F:uexp) : oo := (perp (up  F) )  ** (perp (down F) ) .
   Definition CUTL F :=  d| F | ** u| F |.
   Definition CUTC F := (loc ? d| F |) ** (loc ? u| F |).
-
-  (** Allowing contraction and weakening on the left side of the sequent *)
-  Definition POS F a := (perp (down F)) ** (a ? (atom (down F))).
-  (** Allowing contraction and weakening on the right side of the sequent *)
-  Definition NEG F a := (perp (up F)) ** (a ? atom (up F)).
 
   Inductive Side := Left | Right .
   
@@ -233,8 +229,6 @@ Lemma CutRuleNBound : forall h n a b i B L X ,  seqN (OLTheoryCut (i:=i)  (a:=a)
                      eapply H  with (m:= h) (n:= n)  (m0:=m) (B:= B1);solveF 
                    );clear Hs
              end;solveLL;auto.
-    - init2 i0 C. 
-             
     -         
     rewrite H3. tensor M N B0 D.
     -
@@ -355,7 +349,7 @@ Proof.
     Lemma FocusingInitRuleU : forall h F D B th,
       seqN th h B D (>> RINIT F) -> 
       Permutation D ([u| F |] ++ [d| F |]) \/ 
-      (exists i, D = [u| F |] /\ In (i,d| F |) B /\ mt i = true /\ u i = true ) \/ 
+      (exists i, D = [u| F |] /\ In (i,d| F |) B /\ mt i = true  ) \/ 
       (exists i, D = [d| F |] /\ In (i,u| F |) B  /\ mt i = true ) \/
       (exists i j, In (i,d| F |) B /\ In (j,u| F |) B/\ mt i = true /\mt j = true /\ D=[]).
   Proof with sauto.
@@ -375,7 +369,6 @@ Proof.
         split;auto.
         split;auto.
         rewrite <- H14...
-        CleanContext. apply allU.
       + inversion H7.
       + right.
         right.
@@ -722,108 +715,36 @@ Section OLCutElimination.
  Qed.   
   
   Local Hint Resolve TheoryCutIsFormula: core.
- 
-Lemma PosSetP L : forall a (th : oo -> Prop) D M, 
-SetU D -> isOLFormulaL L -> (forall OO: uexp, isOLFormula OO -> th (POS OO a)) ->
-mt a = true -> u a = true -> 
-seq th (CEncode a (LEncode L)++D ) (M) (> []) -> 
-seq th D (M++LEncode L) (> []).
-Proof with sauto.
-  induction L;intros...
-  simpl in *...
-  inversion H0...
-  simpl in *...
-  
-  decide3 (POS a a0)...
-  tensor [d| a |] (M ++ LEncode L)...
-    eapply IHL with (a:=a0)...
-    LLExact H4.
- Qed.    
-
-Lemma NegSetP L : forall a (th : oo -> Prop) D M, 
-SetU D -> isOLFormulaL L -> (forall OO: uexp, isOLFormula OO -> th (NEG OO a)) ->
-mt a = true -> u a = true -> 
-seq th (CEncode a (REncode L)++D ) (M) (> []) -> 
-seq th D (M++REncode L) (> []).
-Proof with sauto.
-  induction L;intros...
-  simpl in *...
-  inversion H0...
-  simpl in *...
-  
-  decide3 (NEG a a0)...
-  tensor [u| a |] (M ++ REncode L)...
-    eapply IHL with (a:=a0)...
-    LLExact H4.
- Qed.
- 
-Theorem PosNegSetT : forall a b (th:oo->Prop) D L1 L2,  
-SetU D -> isOLFormulaL L1 -> isOLFormulaL L2 ->
-(forall OO: uexp, isOLFormula OO -> th (NEG OO b)) ->
-(forall OO: uexp, isOLFormula OO -> th (POS OO a)) ->
-mt a = true -> u a = true ->
-mt b = true -> u b = true ->
-seq th (D ++ CEncode a (LEncode L1) ++ CEncode b (REncode L2)) [] (> []) ->
-seq th D (LEncode L1++REncode L2) (> []).
-Proof with sauto.
-  intros.
-  apply NegSetP with (a:=b)...
-  rewrite <- (app_nil_l (LEncode L1)).
-  apply PosSetP with (a:=a)...
-  LLExact H8. 
-Qed.  
- 
-
-Lemma PosNegSetT' : forall (th:oo->Prop) D L1 L2,  
-(forall OO: uexp, isOLFormula OO -> th (NEG OO loc)) -> (forall OO: uexp, isOLFormula OO -> th (POS OO loc)) ->
-SetU D -> IsPositiveAtomFormulaL L1 -> IsPositiveAtomFormulaL L2 ->
-seq th (CEncode loc L1++CEncode loc L2 ++D) [] (> []) ->
-seq th D (L1++L2) (> []).
-Proof with sauto.
-  intros.
-  assert(IsPositiveAtomFormulaL L1) by auto.
-  assert(IsPositiveAtomFormulaL L2) by auto.
-  apply posDestruct' in H2.
-  apply posDestruct' in H3...
-  assert(isOLFormulaL x1).
-  apply PositiveAtomLEOLFormula.
-  OLSolve.
-  assert(isOLFormulaL x).
-  apply PositiveAtomLEOLFormula.
-  OLSolve.
-  assert(isOLFormulaL x2).
-  apply PositiveAtomREOLFormula.
-  OLSolve.
-  assert(isOLFormulaL x0).
-  apply PositiveAtomREOLFormula.
-  OLSolve. 
- 
-  rewrite H2.
-   
-  LLPerm((L2++LEncode x1) ++ REncode x2).
-  apply NegSetP with (a:=loc)...
-  SLSolve. SLSolve.
-  apply PosSetP with (a:=loc)...
-  SLSolve. SLSolve.
-  
-  rewrite H3.
-  apply NegSetP with (a:=loc)...
-  SLSolve. SLSolve.
-  rewrite <- (app_nil_l (LEncode x)).
-  apply PosSetP with (a:=loc)...
-  SLSolve. SLSolve.
-  eapply exchangeCC.
-  2:{ exact H4. }
-  srewrite H2.
-  srewrite H3.
-  OLfold.
-  rewrite !CEncodeApp.
-  perm.
-Qed.  
-
 
  Definition TH i := OLTheory (a:=loc) (b:=loc) (i:=i).
  Definition THC i n := OLTheoryCut (a:=loc) (b:=loc) (i:=i) n.
+ 
+ Lemma TH_HasPos i : hasPos (TH i) loc.
+ Proof. unfold hasPos. 
+        intros.
+        apply ooth_pos;auto;SLSolve. 
+ Qed. 
+
+ Lemma TH_HasNeg i : hasNeg (TH i) loc.
+ Proof. unfold hasNeg. 
+        intros.
+        apply ooth_neg;auto;SLSolve. 
+ Qed.  
+ 
+ Lemma THC_HasPos i n: hasPos (THC i n) loc.
+ Proof. unfold hasPos. 
+        intros.
+        apply oothc_pos;auto;SLSolve. 
+ Qed. 
+
+ Lemma THC_HasNeg i n: hasNeg (THC i n) loc.
+ Proof. unfold hasNeg. 
+        intros.
+        apply oothc_neg;auto;SLSolve. 
+ Qed.
+ 
+ Local Hint Resolve TH_HasPos TH_HasNeg THC_HasPos THC_HasNeg : core.  
+ 
  
  Definition CutC (h: nat) (a:subexp) := forall m n i j FC M N L,
     m <= h ->
@@ -864,6 +785,7 @@ Qed.
  inversion Hp...
  apply RemoveNotPos1 in H2;sauto...
  apply InUNotPos in H4;sauto...
+ simpl;solveFoldFALL1 IsPositiveAtomFormula.
  OLSolve.       
  apply RemoveNotPos2 in H4;sauto...
  OLSolve. 
@@ -925,12 +847,10 @@ Qed.
    apply H in H7...
    decide3((ConjunctionDefs C0 Left F0 G)).
    tensor (@nil oo) N...
-   init2 x1 L.
    oplus1. OLSolve.
    apply H in H7...
    decide3((ConjunctionDefs C0 Left F0 G)).
    tensor (@nil oo) N...
-   init2 x1 L.
    oplus2. OLSolve.
    --
    assert(a <> loc).
@@ -963,7 +883,7 @@ Qed.
   
   apply in_app_or in H10;CleanContext.
   decide3(ModalDefs C0 Right A0 a).
-   tensor (@nil oo) (@nil oo).
+   tensorUnb.
    apply InPermutation in H3...
    init2 x1 ((a, d| A |)::x).
    rewrite H3...
@@ -1011,7 +931,6 @@ Qed.
      
      decide3(ModalDefs C0 Left A0 x1).
      tensor (@nil oo) N.
-     init2 x1 L.
      rewrite app_comm_cons.
      eapply H with (C:=C)... OLSolve.
      LLExact H11.
@@ -1032,7 +951,6 @@ Qed.
     rewrite H3...
     decide3(RINIT OO).
     tensor [u| OO|] (@nil oo).
-    init2 x0 L.
     assert(a <> loc).
     intro... SLSolve.
     decide3(ModalDefs C Right A a).
@@ -1048,8 +966,6 @@ Qed.
     OLSolve.
     tensor [u| A |] (@nil oo).  
     rewrite (allU a)...
-    init2 a (@nil (subexp*oo)).
-    
     apply in_app_or in H6;CleanContext.
     
     decide3(RINIT OO).
@@ -1062,7 +978,7 @@ Qed.
     apply in_app_or in H4;CleanContext.
      
     decide3(RINIT OO).
-    tensor (@nil oo) (@nil oo).
+    tensorUnb.
     apply InPermutation in H3...
     init2 x1  ((a, d| A |)::x2).
     rewrite H3...
@@ -1072,16 +988,15 @@ Qed.
     rewrite H4...
     
     decide3(RINIT OO).
-    tensor (@nil oo) (@nil oo).
+    tensorUnb.
     apply InPermutation in H3...
     init2 x1  ((x0, d| OO |)::x2).
     rewrite H3...
-    init2 x0 L.
     assert(a <> loc).
     intro... SLSolve.
     decide3(ModalDefs C Right A a).
     constructor;constructor;auto.
-    tensor (@nil oo) (@nil oo).
+    tensorUnb.
     apply InPermutation in H3...
     init2 x1 ((a, d| A |)::x0).
     rewrite H3...
@@ -1096,7 +1011,6 @@ Qed.
     OLSolve.
     tensor [u| A |] (@nil oo).  
     rewrite (allU a)...
-    init2 a (@nil (subexp*oo)).
  - apply FocusingPOSU in H3...
    rewrite app_comm_cons in H9.
    apply H in H9...
@@ -1733,7 +1647,7 @@ Qed.
        apply InPermutation in H10;sauto.
        rewrite H1.
        eapply @seqNtoSeq with (n:=S n1).
-       apply AbsorptionC;sauto.
+       apply AbsorptionC;sauto... apply allU. 
        rewrite <- H1.
        eapply WeakTheoryN with (th:=(TH a)).
       apply TheoryEmb1.
@@ -1924,9 +1838,7 @@ Qed.
              rewrite !secCEncode.
              LLExact Hs3.
              clear H11 H14 H10 Hs1 Hs2 Hs3.
-             apply PosNegSetT'...
-             intros... apply oothc_neg... SLSolve.
-             intros... apply oothc_pos... SLSolve.
+             apply @PosNegSetT' with (a:=loc)...
              inversion lngF...
              rewrite <- (app_nil_r []).
              eapply GeneralCut' with (C:=dual (d| F0 | op d| G0 |))...
@@ -1975,9 +1887,7 @@ Qed.
              rewrite !secCEncode.
              LLExact Hs3.
              clear H11 H14 H10 Hs1 Hs2 Hs3.
-             apply PosNegSetT'...
-             intros... apply oothc_neg... SLSolve.
-             intros... apply oothc_pos... SLSolve.
+             apply @PosNegSetT' with (a:=loc)...
              inversion lngF...
              rewrite <- (app_nil_r []).
              eapply GeneralCut' with (C:=dual (d| F0 | op d| G0 |))...
@@ -2022,14 +1932,11 @@ Qed.
                rewrite app_comm_cons.
                eapply CutHC with (FC:=t_bin C F1 G) (j:=S (S x)) (i:= x2) (m:= x2+S (S x)) ;sauto...
             +++ apply FocusingRightMU in H1...
-                 apply PosNegSetT'...
-               intros... apply oothc_neg... SLSolve.
-               intros... apply oothc_pos... SLSolve.
+                 apply @PosNegSetT' with (a:=loc)...
                 decide3 (ModalDefs C0 Right A a).
                 constructor;constructor;sauto.
-                tensor (@nil oo)  (@nil oo).
+                tensorUnb.
                 CleanContext.
-                init2 loc (CEncode loc N ++ L).
                 intro... SLSolve.
                 apply AppQUESTBANGRightLoc in H16...
                 eapply @GenK4Rel' with (C4:=x2) (CK:=[]) (CN:=(loc, u| t_ucon C0 A |) :: x3++ CEncode loc N)...
@@ -2044,9 +1951,7 @@ Qed.
                 
                 inversion H15...
                 rewrite <- (app_nil_l N).
-                apply PosNegSetT'...
-                intros... apply oothc_neg... SLSolve.
-                intros... apply oothc_pos... SLSolve.
+                apply @PosNegSetT' with (a:=loc)...
                 decide3 (ModalDefs C0 Right A a).
                 constructor;constructor;sauto.
                 tensorUnb (@nil oo) (@nil oo).
@@ -2083,66 +1988,48 @@ Qed.
                LLSwap.
                apply weakeningN...
       ++ apply FocusingInitRuleU in H1...     
-         apply PosNegSetT'...
-         intros... apply oothc_neg... SLSolve.
-                intros... apply oothc_pos... SLSolve.
-                     
+         apply @PosNegSetT' with (a:=loc)...
          decide3 (RINIT OO).  
          apply oothc_init...    
-         tensor (@nil oo)  (@nil oo).
+         tensorUnb.
          init2 loc (CEncode loc [d| OO|] ++ CEncode loc N ++ L). 
          srewrite H9...      
          init2 loc (CEncode loc [u| OO|] ++ CEncode loc N ++ L). 
          srewrite H9...      
          inversion H12...
-         apply PosNegSetT'...
-                intros... apply oothc_neg... SLSolve.
-                intros... apply oothc_pos... SLSolve.
+         apply @PosNegSetT' with (a:=loc)...
          decide3 (RINIT OO).  
          apply oothc_init...    
-         tensor (@nil oo)  (@nil oo).
-         SLSolve.
-         rewrite allSeTLEmpty...
-         init2 loc ( CEncode loc N ++ L).
+         tensorUnb.
          apply InPermutation in H1...
-         init2 x0 ((loc, u| OO |) ::CEncode loc N ++ x1).
+         init2 x0 ((loc, u| OO |) :: CEncode loc N ++ x1).
          rewrite H1...
-         
-         inversion H12...
+         CleanContext.
          LLPerm (N ++ LEncode [t_bin C F1 G]).
-         apply PosSetP with (a:=loc)... 
-                intros... apply oothc_pos... SLSolve.
-         SLSolve.       
+         apply @PosSetP with (a:=loc)... 
          decide3((ConjunctionDefs C Left F1 G)).
          constructor;auto.
          tensor (@nil oo) N.
-         init2 loc L.
          apply seqNtoSeq in H13.
          eapply WeakTheory with (th:=(TH a)).
          apply TheoryEmb1.
          LLExact H13.
                 
-         apply PosNegSetT'...
-                intros... apply oothc_neg... SLSolve.
-                intros... apply oothc_pos... SLSolve.
+         apply @LinearToClassic with (a:=loc)...
          decide3 (RINIT OO).  
          apply oothc_init...    
-         tensor (@nil oo)  (@nil oo).
-         SLSolve.
-         rewrite allSeTLEmpty...
+         tensorUnb.
          apply InPermutation in H1...
+         
          init2 x0 ((loc, d| OO |) ::CEncode loc N ++ x1).
          rewrite H1...
-         init2 loc ( CEncode loc N ++ L).
          
          inversion H9...
          inversion H12...
          apply AppPARTENSORLeft in H13;sauto.
            
          rewrite <- (app_nil_l N).
-          apply PosNegSetT'...
-                intros... apply oothc_neg... SLSolve.
-                intros... apply oothc_pos... SLSolve.
+          apply @PosNegSetT' with (a:=loc)...
          decide3((ConjunctionDefs C Left F1 G)).
          constructor;auto.
          tensorUnb (@nil oo) (@nil oo).
@@ -2157,9 +2044,7 @@ Qed.
          rewrite <- (app_nil_l  (d| F1 | :: N)).
          eapply CutHC with (FC:=t_bin C F1 G) (j:=x1) (i:= S n0) (m:= S n0 + x1) ;sauto...
          rewrite <- (app_nil_l N).
-          apply PosNegSetT'...
-                intros... apply oothc_neg... SLSolve.
-                intros... apply oothc_pos... SLSolve.
+          apply @PosNegSetT' with (a:=loc)...
          decide3((ConjunctionDefs C Left F1 G)).
          constructor;auto.
          tensorUnb (@nil oo) (@nil oo).
@@ -2174,9 +2059,7 @@ Qed.
          rewrite <- (app_nil_l  (d| G | :: N)).
          eapply CutHC with (FC:=t_bin C F1 G) (j:=x1) (i:= S n0) (m:= S n0 + x1) ;sauto...
          rewrite <- (app_nil_l N).
-          apply PosNegSetT'...
-                intros... apply oothc_neg... SLSolve.
-                intros... apply oothc_pos... SLSolve.
+          apply @PosNegSetT' with (a:=loc)...
         decide3(RINIT OO).
         apply oothc_init;auto.
         tensorUnb (@nil oo) (@nil oo). 
@@ -2196,9 +2079,7 @@ Qed.
       LLSwap.
       apply weakeningN...
       inversion H14...
-        apply PosNegSetT'...
-                intros... apply oothc_neg... SLSolve.
-                intros... apply oothc_pos... SLSolve.
+        apply @PosNegSetT' with (a:=loc)...
          decide3(POS OO loc).
          apply oothc_pos...
          tensorUnb (@nil oo) (@nil oo).
@@ -2256,13 +2137,10 @@ Qed.
      ** apply FocusingRightMU in H4;sauto.
         --  assert (a <> loc). 
            intro... SLSolve.
-           apply PosNegSetT'...
-                intros... apply oothc_neg... SLSolve. SLSolve.
-                intros... apply oothc_pos... SLSolve. SLSolve.
+           apply @PosNegSetT' with (a:=loc)...
            decide3 (ModalDefs C Right A a).
             constructor;constructor;auto.
-            tensorUnb (@nil oo) (@nil oo).  
-            init2 loc (CEncode loc M ++ L).
+            tensorUnb (@nil oo) (@nil oo).   
             SLSolve. 
             apply AppQUESTBANGRightLoc in H13...
              eapply @GenK4Rel' with (C4:=x1) (CK:=[]) (CN:=(loc, u| t_ucon C A |) ::x2++ CEncode loc M)...
@@ -2273,10 +2151,8 @@ Qed.
                 eapply WeakTheory with (th:=(TH a)).
                 apply TheoryEmb1.
                 LLExact H16.
-         --  apply PosNegSetT'...
+         --  apply @PosNegSetT' with (a:=loc)...
              all: CleanContext. 
-             intros... apply oothc_neg... SLSolve. SLSolve.
-             intros... apply oothc_pos... SLSolve. SLSolve.
                assert (a <> loc). 
             intro... SLSolve.
            decide3 (ModalDefs C Right A a).
@@ -2363,16 +2239,13 @@ Qed.
               eapply CutHC with (FC:=t_ucon C A) (j:=(S (S (S (S x))))) (i:= x2) (m:= x2 + (S (S (S (S x))))) ;sauto...
              ++
              apply FocusingRightMU in H1;sauto.
-              apply PosNegSetT'...
-             3: CleanContext. 
-             intros... apply oothc_neg... SLSolve. SLSolve.
-             intros... apply oothc_pos... SLSolve. SLSolve.
+              apply @PosNegSetT' with (a:=loc)...
+             2: CleanContext. 
                assert (a <> loc). 
             intro... SLSolve.
             decide3((ModalDefs C0 Right A0 a)).
             constructor;constructor;auto.
             tensorUnb (@nil oo) (@nil oo).
-            init2 loc (CEncode loc N ++ L).
             apply AppQUESTBANGRightLoc in H16...
              eapply @GenK4Rel' with (C4:=x2) (CK:=[]) (CN:=(loc, u| t_ucon C0 A0 |) :: CEncode loc N ++ x3)...
                 rewrite H16...   
@@ -2384,10 +2257,8 @@ Qed.
                 LLExact H19.
             CleanContext.                
             2:{ rewrite <- (app_nil_l N). 
-              apply PosNegSetT'...
+              apply @PosNegSetT' with (a:=loc)...
              all: CleanContext. 
-             intros... apply oothc_neg... SLSolve. 
-             intros... apply oothc_pos... SLSolve. 
                assert (a <> loc). 
             intro... SLSolve.
             decide3((ModalDefs C0 Right A0 a)).
@@ -2460,7 +2331,6 @@ Qed.
              HProof.
              decide3(ModalDefs C Left A a).
              tensorUnb (@nil oo) N.
-             init2 loc ( (a, d| A0 |) :: L).
              LLPerm( (a, d| A0 |) ::((loc, d| t_ucon C A |) :: L ++ [(a, d| A |)])).
              apply weakeningN...  
              CleanContext.
@@ -2471,32 +2341,24 @@ Qed.
              HProof.
              decide3(ModalDefs C Left A a).
              tensorUnb (@nil oo) N.
-            
-             init2 loc ( (a, d| A0 |) :: L).
              LLPerm( (a, d| A0 |) ::((loc, d| t_ucon C A |) :: L ++ [(a, d| A |)])).
              apply weakeningN... 
         ---       
          apply FocusingInitRuleU in H1...     
-         apply PosNegSetT'...
-         intros... apply oothc_neg... SLSolve.
-                intros... apply oothc_pos... SLSolve.
-                     
+         apply @PosNegSetT' with (a:=loc)...
          decide3 (RINIT OO).  
          apply oothc_init...    
-         tensor (@nil oo)  (@nil oo).
+         tensorUnb.
          init2 loc (CEncode loc [d| OO|] ++ CEncode loc N ++ L). 
          srewrite H5...      
          init2 loc (CEncode loc [u| OO|] ++ CEncode loc N ++ L). 
          srewrite H5...  
          CleanContext.   
          rewrite <- (app_nil_r (u| OO | :: N)). 
-         apply PosNegSetT'...
-                intros... apply oothc_neg... SLSolve.
-                intros... apply oothc_pos... SLSolve.
+         apply @PosNegSetT' with (a:=loc)...
          decide3 (RINIT OO).  
          apply oothc_init...    
-         tensorUnb (@nil oo)  (@nil oo).
-         init2 loc (CEncode loc N ++ L).
+         tensorUnb.
          apply InPermutation in H1...
          init2 x0 ((loc, u| OO |) :: CEncode loc N ++ x1).
          rewrite H1...
@@ -2512,24 +2374,19 @@ Qed.
                 LLExact Hj.
          
          rewrite <- (app_nil_l (d| OO | :: N)). 
-         apply PosNegSetT'...
-                intros... apply oothc_neg... SLSolve.
-                intros... apply oothc_pos... SLSolve.
+         apply @PosNegSetT' with (a:=loc)...
          decide3 (RINIT OO).  
          apply oothc_init...    
-         tensorUnb (@nil oo)  (@nil oo).
+         tensorUnb.
          apply InPermutation in H1...
          init2 x0 ((loc, d| OO |) :: CEncode loc N ++ x1).
          rewrite H1...
-         init2 loc (CEncode loc N ++ L).
          CleanContext.
          2:{ rewrite <- (app_nil_l N).
-          apply PosNegSetT'...
-                intros... apply oothc_neg... SLSolve.
-                intros... apply oothc_pos... SLSolve.
+          apply @PosNegSetT' with (a:=loc)...
          decide3 (RINIT OO).  
          apply oothc_init...    
-         tensorUnb (@nil oo)  (@nil oo).
+         tensorUnb.
          apply InPermutation in H1...
          init2 x1 (CEncode loc N ++ x2).
          rewrite H1...
@@ -2559,7 +2416,7 @@ Qed.
         CleanContext.
         decide3(POS OO loc).
        apply oothc_pos...
-       tensor (@nil oo) (M++N).
+       tensorUnb (@nil oo) (M++N).
        eapply CutHC with (FC:=t_ucon C A) (j:=(S (S (S (S x))))) (i:= x0) (m:= x0+(S (S (S (S x))))) ;sauto...
          LLExact H17.      
          LLSwap.
@@ -2586,21 +2443,18 @@ Qed.
       eapply @contractionN with (F:=(loc, u| t_ucon C A |) )...    
   *     apply FocusingInitRuleU in H4...     
         rewrite H8.
-         apply PosNegSetT'...
-         intros... apply oothc_neg... SLSolve. SLSolve.
-                intros... apply oothc_pos... SLSolve. SLSolve.
+         apply @PosNegSetT' with (a:=loc)...
          CleanContext.            
          decide3 (RINIT OO).  
          apply oothc_init...    
-         tensor (@nil oo)  (@nil oo).
-         init2 loc (CEncode loc [d| OO|] ++ CEncode loc M ++ L). 
+         tensorUnb. 
          SLSolve.      CleanContext.
           init2 loc (CEncode loc [u| OO|] ++ CEncode loc M ++ L). 
          SLSolve. CleanContext.  
          
          CleanContext. 
           decide3(NEG OO loc).
-       apply oothc_neg...
+       apply oothc_neg... SLSolve.
        tensor [u| OO | ] M.
        decide3 F.
        apply TheoryEmb1...
@@ -2609,30 +2463,24 @@ Qed.
                 apply TheoryEmb1.
                 LLExact H1.
      
-         apply PosNegSetT'...
-         intros... apply oothc_neg... SLSolve. SLSolve.
-                intros... apply oothc_pos... SLSolve. SLSolve.
+         apply @PosNegSetT' with (a:=loc)...
          CleanContext.            
          decide3 (RINIT OO).  
          apply oothc_init...    
-         tensor (@nil oo)  (@nil oo).
-         init2 loc (CEncode loc M ++ L). 
+         tensorUnb.
          SLSolve.  
          apply InPermutation in H4...
           init2 x (CEncode loc M ++ (loc, u| OO |) :: x0).
           rewrite H4... 
          
-          apply PosNegSetT'...
-         intros... apply oothc_neg... SLSolve. SLSolve.
-                intros... apply oothc_pos... SLSolve. SLSolve.
+          apply @PosNegSetT' with (a:=loc)...
          CleanContext. 
          decide3 (RINIT OO).  
          apply oothc_init...    
-         tensor (@nil oo)  (@nil oo).
+         tensorUnb.
            apply InPermutation in H4...
           init2 x (CEncode loc M ++ (loc, d| OO |) :: x0).
           rewrite H4... 
-         init2 loc (CEncode loc M ++ L). 
          SLSolve.  
          
          CleanContext.
@@ -2650,12 +2498,10 @@ Qed.
          
          
          rewrite <- (app_nil_r M). 
-         apply PosNegSetT'...
-                intros... apply oothc_neg... SLSolve. SLSolve.
-                intros... apply oothc_pos... SLSolve. SLSolve.
+         apply @PosNegSetT' with (a:=loc)...
          decide3 (RINIT OO).  
          apply oothc_init...    
-         tensorUnb (@nil oo)  (@nil oo).
+         tensorUnb.
          apply InPermutation in H4...
          init2 x0 (CEncode loc M ++ x1).
          rewrite H4...

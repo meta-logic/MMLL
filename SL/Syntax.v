@@ -107,6 +107,9 @@ Class UnbSignature `{Signature}:=
   { 
     allU: forall x, u x = true; }.
 
+Class UnbNoDSignature `{UnbSignature}:=
+  { 
+    allNoD: forall x, md x = false; }.
 
 Section LLSyntax.
  
@@ -877,10 +880,11 @@ end;sfold.
   | [ H: context[_ (_::_)] |- _ ] => simpl in H 
 
   end.
- 
+
  
  Ltac solveSignature1 := try
   match goal with
+  | [ H1: UnbNoDSignature, H2: md _ = true |- _ ] => rewrite allNoD in H2;discriminate H2 
   | [ H: UnbSignature |- u ?i = true ] => apply allU 
   | [ H: md ?i = true |- ?i <> loc ] => apply locNoD;auto 
   | [ H: m4 ?i = true |- ?i <> loc ] => apply locNo4;auto 

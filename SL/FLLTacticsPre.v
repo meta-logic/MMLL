@@ -498,18 +498,18 @@ Ltac solvell :=
     (* initial Rules *)
     | [ |- seqN _ _ _ [atom ?A] (>> (perp ?A))] => init1
   
-    | [ |- seqN _ _ ((?i,atom ?A)::?B) [] (>> (perp ?A))] => init2 i B
-    | [ |- seqN _ _ (?B++[(?i,atom ?A)]) [] (>> (perp ?A))] => init2 i B
-    | [ |- seqN _ _ (?X::?B++[(?i,atom ?A)]) [] (>> (perp ?A))] => init2 i (X::B)
-    | [ |- seqN _ _ (?B++(?i,atom ?A)::?E) [] (>> (perp ?A))] => init2 i (B++E)    
-    | [ |- seqN _ _ (?X::?B++(?i,atom ?A)::?E) [] (>> (perp ?A))] => init2 i (X::B++E)       
-    | [ H: Permutation ((?i,atom ?A)::?B) ?D |- seqN _ _ ?D [] (>> (perp ?A))] => init2 i B
-    | [ H: Permutation (?B++[(?i,atom ?A)]) ?D |- seqN _ _ ?D [] (>> (perp ?A))] => init2 i B
-    | [ H: Permutation (?B++(?i,atom ?A)::?E) ?D |- seqN _ _ ?D [] (>> (perp ?A))] => init2 i (B++E)
+    | [ |- seqN _ _ ((?a,atom ?A)::?B) [] (>> (perp ?A))] => init2 a B
+    | [ |- seqN _ _ (?B++[(?a,atom ?A)]) [] (>> (perp ?A))] => init2 a B
+    | [ |- seqN _ _ (?X::?B++[(?a,atom ?A)]) [] (>> (perp ?A))] => init2 a (X::B)
+    | [ |- seqN _ _ (?B++(?a,atom ?A)::?E) [] (>> (perp ?A))] => init2 a (B++E)    
+    | [ |- seqN _ _ (?X::?B++(?a,atom ?A)::?E) [] (>> (perp ?A))] => init2 a (X::B++E)       
+    | [ H: Permutation ((?a,atom ?A)::?B) ?D |- seqN _ _ ?D [] (>> (perp ?A))] => init2 a B
+    | [ H: Permutation (?B++[(?a,atom ?A)]) ?D |- seqN _ _ ?D [] (>> (perp ?A))] => init2 a B
+    | [ H: Permutation (?B++(?a,atom ?A)::?E) ?D |- seqN _ _ ?D [] (>> (perp ?A))] => init2 a (B++E)
 
-    | [ H: Permutation ?D ((?i,atom ?A)::?B)  |- seqN _ _ ?D [] (>> (perp ?A))] => init2 i B
-    | [ H: Permutation ?D (?B++[(?i,atom ?A)])  |- seqN _ _ ?D [] (>> (perp ?A))] => init2 i B
-    | [ H: Permutation ?D (?B++(?i,atom ?A)::?E)  |- seqN _ _ ?D [] (>> (perp ?A))] => init2 i (B++E)
+    | [ H: Permutation ?D ((?a,atom ?A)::?B)  |- seqN _ _ ?D [] (>> (perp ?A))] => init2 a B
+    | [ H: Permutation ?D (?B++[(?a,atom ?A)])  |- seqN _ _ ?D [] (>> (perp ?A))] => init2 a B
+    | [ H: Permutation ?D (?B++(?a,atom ?A)::?E)  |- seqN _ _ ?D [] (>> (perp ?A))] => init2 a (B++E)
 
     
     | [H: seqN _ _ _ _ (>> zero) |- _ ] => inversion H;subst;solveF
@@ -586,19 +586,19 @@ Ltac solvell' :=
     
     | [ H: SetU ?L, Hm: mt ?i = true, HIn: In (?i,atom ?A) ?L |- seq _ ?L [] (>> (perp ?A))] =>  try solve [refine (init2Cut i _ _ _ _ _);auto]
    
-    | [ |- seq _ ((?i,atom ?A)::?B) [] (>> (perp ?A))] => init2 i B
-    | [ |- seq _ (?B++[(?i,atom ?A)]) [] (>> (perp ?A))] => init2 i B
-    | [ |- seq _ (?X::?B++[(?i,atom ?A)]) [] (>> (perp ?A))] => init2 i (X::B)
-    | [ |- seq _ (?B++(?i,atom ?A)::?E) [] (>> (perp ?A))] => init2 i (B++E)   
-    | [ |- seq _ (?X::?B++(?i,atom ?A)::?E) [] (>> (perp ?A))] => init2 i (X::B++E)   
+    | [ |- seq _ ((?a,atom ?A)::?B) [] (>> (perp ?A))] => init2 a B
+    | [ |- seq _ (?B++[(?a,atom ?A)]) [] (>> (perp ?A))] => init2 a B
+    | [ |- seq _ (?X::?B++[(?a,atom ?A)]) [] (>> (perp ?A))] => init2 a (X::B)
+    | [ |- seq _ (?B++(?a,atom ?A)::?E) [] (>> (perp ?A))] => init2 a (B++E)   
+    | [ |- seq _ (?X::?B++(?a,atom ?A)::?E) [] (>> (perp ?A))] => init2 a (X::B++E)   
     
-    | [ H: Permutation ((?i,atom _)::?B) ?D |- seq  _ ?D [] (>> (perp ?A))] => init2 i B
-    | [ H: Permutation (?B++[(?i,atom ?A)]) ?D |- seq _ ?D [] (>> (perp ?A))] => init2 i B
-    | [ H: Permutation (?B++(?i,atom ?A)::?E) ?D |- seq _ ?D [] (>> (perp ?A))] => init2 i (B++E)
+    | [ H: Permutation ((?a,atom _)::?B) ?D |- seq  _ ?D [] (>> (perp ?A))] => init2 a B
+    | [ H: Permutation (?B++[(?a,atom ?A)]) ?D |- seq _ ?D [] (>> (perp ?A))] => init2 a B
+    | [ H: Permutation (?B++(?a,atom ?A)::?E) ?D |- seq _ ?D [] (>> (perp ?A))] => init2 a (B++E)
 
-    | [ H: Permutation ?D ((?i,atom ?A)::?B)  |- seq _ ?D [] (>> (perp ?A))] => init2 i B
-    | [ H: Permutation ?D (?B++[(?i,atom ?A)])  |- seq _ ?D [] (>> (perp ?A))] => init2 i B
-    | [ H: Permutation ?D (?B++(?i,atom ?A)::?E)  |- seq _ ?D [] (>> (perp ?A))] => init2 i (B++E)
+    | [ H: Permutation ?D ((?a,atom ?A)::?B)  |- seq _ ?D [] (>> (perp ?A))] => init2 a B
+    | [ H: Permutation ?D (?B++[(?a,atom ?A)])  |- seq _ ?D [] (>> (perp ?A))] => init2 a B
+    | [ H: Permutation ?D (?B++(?a,atom ?A)::?E)  |- seq _ ?D [] (>> (perp ?A))] => init2 a (B++E)
 
     | [H: seq _ _ _ (>> zero) |- _ ] => inversion H;subst;solveF
     
@@ -720,7 +720,8 @@ Tactic Notation "tensor"  := match goal with
                | [|- seqN _ _ ?C [] _] => eapply @tri_tensor with (M:=nil) (N:=nil) (B:=C) (D:=C);solveF;solveLL
                  end.
 
-  Lemma allSeTU (OLS: OLSig) (SI: Signature) (SIU: UnbSignature) B : SetU B.
+
+Lemma allSeTU (OLS: OLSig) (SI: Signature) (SIU: UnbSignature) B : SetU B.
 Proof with auto.
  induction B...
  apply Forall_cons... 
@@ -760,6 +761,11 @@ Global Hint Resolve allSeTU permSeTL : core.
 Tactic Notation "tensorUnb"  constr(Ctx1) constr(Ctx2) := match goal with
                | [ |- seq _ _ _ _ ] =>  eapply @tensorU' with (M:=Ctx1) (N:=Ctx2);solveF;solveLL
                | [|- seqN _ _ _ _ _] => eapply @tensorU with (M:=Ctx1) (N:=Ctx2);solveF;solveLL
+                 end.
+
+Tactic Notation "tensorUnb"   := match goal with
+               | [ |- seq _ _ _ _ ] =>  eapply @tensorU' with (M:=nil) (N:=nil);solveF;solveLL
+               | [|- seqN _ _ _ _ _] => eapply @tensorU with (M:=nil) (N:=nil);solveF;solveLL
                  end.
 
 
