@@ -28,3 +28,4 @@ OL/CutCoherence/OLPosNeg.v
 OL/CutCoherence/OLCut.v
 OL/CutCoherence/Bipoles.v
 OL/CutCoherence/LK.v
+OL/CutCoherence/LJ.v

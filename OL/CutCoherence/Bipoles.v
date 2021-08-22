@@ -289,7 +289,7 @@ Theorem QPerpIsFormula: forall T S FX,
 
   Inductive OLTheoryI  {i a: subexp} : oo -> Prop :=
   | ooth_consI : forall OO, buildTheoryCons OO ->  OLTheoryI OO  
-  | ooth_rulesI : forall OO, buildTheoryI (i:=i) OO ->  OLTheoryI OO
+  | ooth_rulesI : forall OO, m4 i = true -> mt i = true -> buildTheoryI (i:=i) OO ->  OLTheoryI OO
   | ooth_initI : forall OO, isOLFormula OO -> OLTheoryI (RINIT OO)
   | ooth_binderI : forall OO, buildTheoryBind OO -> OLTheoryI OO
   | ooth_posI : forall OO , m4 a = true -> mt a = true -> isOLFormula OO -> OLTheoryI (POS OO a) 
@@ -902,7 +902,7 @@ Qed.
     (seqN th n G D (>> RulesDefsI (i:=a) PARTENSOR Right A B)) ->
       exists m , n = S(S(S m))  /\
                  (seqN th m G (u| A |::D) (> []) ) /\
-                 (seqN th m G (u| A |::D) (> []) ) .
+                 (seqN th m G (u| B |::D) (> []) ) .
   Proof with sauto.
     intros.
     simpl in H.

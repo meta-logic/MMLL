@@ -22,6 +22,27 @@ Context {USI : UnbSignature}.
 Definition hasPos th a:= (forall OO: uexp, isOLFormula OO -> th (POS OO a)).
 Definition hasNeg th a:= (forall OO: uexp, isOLFormula OO -> th (NEG OO a)).
 
+Lemma PosF : forall a (th : oo -> Prop) F D M, 
+isOLFormula F -> hasPos th a ->
+seq th ((CEncode a [d| F |])++D ) (M) (> []) -> 
+seq th D (d| F | :: M) (> []).
+Proof with sauto.
+ intros. 
+ decide3 (POS F a)...
+  tensor [d| F |] M.
+ Qed.    
+
+Lemma NegF : forall a (th : oo -> Prop) F D M, 
+isOLFormula F -> hasNeg th a ->
+seq th ((CEncode a [u| F |])++D ) (M) (> []) -> 
+seq th D (u| F | :: M) (> []).
+Proof with sauto.
+ intros. 
+ decide3 (NEG F a)...
+  tensor [u| F |] M.
+ Qed. 
+ 
+
 Lemma PosSetP L : forall a (th : oo -> Prop) D M, 
 isOLFormulaL L -> hasPos th a ->
 seq th (CEncode a (LEncode L)++D ) (M) (> []) -> 
@@ -141,3 +162,22 @@ Proof with sauto.
 Qed.
 
 End OLPOSNEG.
+
+Tactic Notation "PosNeg"  constr(j) := 
+  match goal with
+     | [ |- seq _ _  (u| _ | :: _) _ ] =>  eapply NegF with (a:=j);auto
+     | [ |- seq _ _  (d| _ | :: _) _ ] =>  eapply PosF with (a:=j);auto
+end.
+
+Tactic Notation "PosNegAll"  constr(j) := 
+  match goal with
+     | [ |- seq _ _ _ _ ] =>  eapply LinearToClassic with (a:=j);auto
+     | [ |- seq _ _ _ _ ] =>  eapply LinearToClassic with (a:=j);auto
+end.
+
+
+Tactic Notation "PosNegAll"  constr(i) constr(j) := 
+  match goal with
+     | [ |- seq _ _ _ _ ] =>  eapply PosNegSetT with (a:=i) (b:=j);auto
+     | [ |- seq _ _ _ _ ] =>  eapply PosNegSetT with (a:=i) (b:=j);auto
+end.
