@@ -422,6 +422,23 @@ Section RemovePermutation.
     apply IHL;auto.
   Qed.
 
+ Variable B:Type.
+ 
+  Lemma Remove_Map : forall (F : A) (L L' : list A) (f: A -> B),
+      Remove F L L' -> Remove (f F) (map f L) (map f L').
+  Proof.    
+    induction L;intros.
+    inversion H.
+    simpl...
+    apply Remove_inv_cons in H.
+    firstorder;subst.
+    simpl...
+    constructor;auto.
+    simpl...
+    constructor;auto.
+  Qed.
+
+
 End RemovePermutation.
 
 

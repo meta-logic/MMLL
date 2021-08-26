@@ -274,8 +274,8 @@ Theorem QPerpIsFormula: forall T S FX,
   | bconnLC : forall C F G, isOLFormula ( t_bin C F G) -> buildTheoryC  (makeRuleBinC C Left F G).
   
    Inductive buildTheoryModal {i: subexp} : oo ->  Prop := 
-  | bmR : forall i C A, isOLFormula (t_ucon C A) -> buildTheoryModal  (makeRuleM C Right A i)
-  | bmL : forall i C A, isOLFormula (t_ucon C A) -> buildTheoryModal  (makeRuleM C Left A i).
+  | bmR : forall C A, isOLFormula (t_ucon C A) -> buildTheoryModal  (makeRuleM C Right A i)
+  | bmL : forall C A, isOLFormula (t_ucon C A) -> buildTheoryModal  (makeRuleM C Left A i).
   
   (** A theory containing only the logical rules and init *)
   Inductive OLTheoryC : oo -> Prop :=
@@ -296,9 +296,10 @@ Theorem QPerpIsFormula: forall T S FX,
   | ooth_negI : forall OO , isOLFormula OO -> OLTheoryI (NEG OO loc) 
 .
 
-  Inductive OLTheoryM  {i a b: subexp} : oo -> Prop :=
+  Inductive OLTheoryM  {i: subexp} : oo -> Prop :=
   | ooth_consM : forall OO, buildTheoryCons OO ->  OLTheoryM OO  
   | ooth_rulesM : forall OO, buildTheoryC OO ->  OLTheoryM OO
+  | ooth_modalM : forall OO, buildTheoryModal (i:=i) OO ->  OLTheoryM OO  
   | ooth_initM : forall OO, isOLFormula OO -> OLTheoryM (RINIT OO)
   | ooth_posM : forall OO , isOLFormula OO -> OLTheoryM (POS OO loc) 
   | ooth_negM : forall OO , isOLFormula OO -> OLTheoryM (NEG OO loc) 
@@ -1199,7 +1200,7 @@ Theorem AppTENSORPAREXCHLeftI :
     exists n0. exists t.
     split;eauto.
   Qed.
-
+ 
    
  Lemma OLTheoryC_HasPos : hasPos OLTheoryC loc.
  Proof. unfold hasPos. 
@@ -1225,6 +1226,7 @@ Theorem AppTENSORPAREXCHLeftI :
         intros.
         apply ooth_negI;auto;SLSolve. 
  Qed.
+ 
  
 End Bipoles.
 

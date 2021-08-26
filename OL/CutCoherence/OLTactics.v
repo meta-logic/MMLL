@@ -40,9 +40,11 @@ Ltac solveCEncode :=
   | [H: context[getU (CEncode ?i ?L)] |- _ ] => rewrite !setUtoGetU in H 
   | [ |- context[getL (CEncode ?i ?L)] ] => rewrite !SetU_then_empty;auto;solveCEncode
   | [H: context[getL (CEncode ?i ?L)] |- _ ] => rewrite !SetU_then_empty in H;auto;try solveCEncode 
-
+ | [H1: Remove ?F ?D ?D' |- Remove (d| ?F |) (LEncode ?D) (LEncode ?D') ] => apply Remove_LEncode;auto
+ | [H1: Remove ?F ?D ?D' |- Remove (u| ?F |) (REncode ?D) (REncode ?D') ] => apply Remove_REncode;auto
+ 
   end.
-
+ 
 
 Ltac solveOLFormulas := auto;try
   match goal with

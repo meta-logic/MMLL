@@ -84,7 +84,9 @@ try
  | [H : ?B |- ?A \/ ?B] => firstorder 
  
  | [ |- Remove ?F (?L++_) (?L++_)] => apply Remove_app_head 
- | [ |- Remove ?F (_++?L) (_++?L)] => apply Remove_app_tail 
+ | [ |- Remove ?F (_++?L) (_++?L)] => apply Remove_app_tail
+ | [ H: Remove ?F ?L ?L' |- Remove (?f ?F) (map ?f ?L) (map ?f ?L')] => apply Remove_Map;auto
+  
  | [ H: ?a <> ?a |- _ ] => try solve [timeout 2 firstorder]
 
  | [ H1: forall x, ?P x -> ?L = ?R, H2: ?P ?X |- _ ] => rewrite (H1 X H2) in x

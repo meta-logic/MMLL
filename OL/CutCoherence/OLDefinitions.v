@@ -1057,6 +1057,21 @@ Theorem checkEncodeCasesU L L' x F :
     apply Forall_app;auto.
   Qed.
 
+ Lemma Remove_LEncode F D D' : Remove F D D' -> Remove (d| F|) (LEncode D) (LEncode D').
+ Proof with sauto.
+ intros.
+ change (d| F |) with ((fun x : uexp => d| x |) F).
+ apply Remove_Map...
+ Qed.
+ 
+ Lemma Remove_REncode F D D' : Remove F D D' -> Remove (u| F|) (REncode D) (REncode D').
+ Proof with sauto.
+ intros.
+ change (u| F |) with ((fun x : uexp => u| x |) F).
+ apply Remove_Map...
+ Qed.
+ 
+ 
 End OLEncodings.
 
 Global Hint Unfold LEncode REncode CEncode : core.

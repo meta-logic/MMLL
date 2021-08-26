@@ -1273,10 +1273,8 @@ Lemma seqNtoSeq : forall n B C X,
   
  
    
-  Theorem seqtoSeqN : forall D O X, 
+  Axiom seqtoSeqN : forall D O X, 
         seq theory  D O X -> exists n, (seqN theory n D O X).
-  Proof with subst;auto.
-  Admitted.
   
   Lemma weakeness_mutual' : forall i CC  D O F L,
     u (fst F)= true ->
@@ -1554,6 +1552,37 @@ Lemma seqNtoSeq : forall n B C X,
       - inversion H1.
      Qed.   
     
+    Theorem FocusAtomNUnb (SIU: UnbSignature): forall n Gamma Delta A,
+        (seqN theory n Gamma Delta (>> ((perp A ) ))) ->
+              Delta = [ (atom A)] \/ 
+     (exists i, Delta = [] /\ In (i,atom A) Gamma /\ mt i = true).
+    Proof with sauto.
+      intros.
+      inversion H ...
+      2:{ inversion H1. }
+      right.
+      exists i...
+      rewrite <- H6...
+    Qed.
+
+
+  Theorem InvTensorNUnb (SIU: UnbSignature) : forall n Gamma D F G,
+   seqN theory n Gamma D (>> F ** G) ->
+   exists M N, Permutation D (M++N) /\
+   (seqN theory (n -1) Gamma M (>> F)) /\ 
+   (seqN theory (n -1) Gamma N (>> G)).
+  Proof with sauto.
+  intros.
+  inversion H...
+  2:{ inversion H1. }
+  exists M.
+  exists N.
+  split;auto.
+  eapply simplUnb' in H3;[ | exact H5| SLSolve ].
+  eapply simplUnb in H4;[ | exact H5| SLSolve ]...
+  rewrite H3...
+  rewrite H4...
+  Qed.
    
     Theorem FocusAtomTensorInvN: forall n  A F,
         (seqN theory n []  [atom A] (>> ((perp A) ** F))) ->

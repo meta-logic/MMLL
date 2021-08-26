@@ -2609,33 +2609,32 @@ Proof with sauto.
   Qed.
  
   Lemma simplUnb BD B D:          
-  Permutation (getU BD) (getU B) ->
   Permutation (getU BD) (getU D) ->
   Permutation (getL BD) (getL B ++ getL D) ->
   SetU B -> Permutation BD D.
   Proof.   
   intros.
-  rewrite (SetU_then_empty H2) in H1.
+  rewrite (SetU_then_empty H1) in H0.
   rewrite (cxtDestruct BD).
   rewrite H0.
-  rewrite H1.
+  rewrite H.
   simpl. 
   rewrite <- cxtDestruct;auto.
   Qed.
   
   Lemma simplUnb' BD B D:          
   Permutation (getU BD) (getU B) ->
-  Permutation (getU BD) (getU D) ->
   Permutation (getL BD) (getL B ++ getL D) ->
   SetU D -> Permutation BD B.
   Proof.   
   intros.
-  rewrite (SetU_then_empty H2) in H1.
+  rewrite (SetU_then_empty H1) in H0.
   rewrite (cxtDestruct BD).
   rewrite H.
-  rewrite H1;sauto.
+  rewrite H0;sauto.
   rewrite <- cxtDestruct;auto.
   Qed.
+  
       
 End Properties.
 
