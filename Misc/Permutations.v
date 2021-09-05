@@ -10,6 +10,8 @@ Require Import Coq.Relations.Relations.
 Require Import Coq.Classes.Morphisms.
 Require Import Coq.Setoids.Setoid.
 
+
+
 Lemma eq_then_Permutation: forall{A:Type} (l1 l2:list A),
     l1 = l2 -> Permutation l1 l2.
 Proof.
@@ -308,6 +310,45 @@ Proof.
     destruct H;split;auto.
     rewrite perm_takeit_7;auto.
 Qed.
+
+Lemma Permutation_filter: forall{A:Type} (f: A -> bool) (f_dec:forall a, {f a = true} + {f a = false})(l1 l2:list A),
+   Permutation l1 l2 -> Permutation (filter f l1) (filter f l2).
+Proof.
+  induction l1;intros;auto.
+  apply Permutation_nil in H;subst;auto.
+  symmetry in H.
+  assert(Permutation l2 (a :: l1)) by auto.
+  apply Permutation_vs_cons_inv in H.
+  do 2 destruct H.
+  rewrite H.
+  apply eq_then_Permutation in H.
+  destruct (f_dec a).
+  rewrite filter_app.
+  simpl. 
+  rewrite e;auto.
+  rewrite perm_takeit_5.
+  rewrite <- filter_app.
+  apply perm_skip.
+  rewrite H in H0.
+  rewrite <- Permutation_middle in H0.
+  
+  apply Permutation_cons_inv in H0.
+  symmetry in H0.
+  apply IHl1 in H0.
+  rewrite H0;auto.
+  
+  rewrite filter_app.
+  simpl. 
+  rewrite e;auto.
+  rewrite <- filter_app.
+  rewrite H in H0.
+  rewrite <- Permutation_middle in H0.
+  
+  apply Permutation_cons_inv in H0.
+  symmetry in H0.
+  apply IHl1 in H0.
+  rewrite H0;auto.
+ Qed.
 
 
 Lemma Permutation_assoc_comm: forall (T:Type) (X Y Z : list T), Permutation  ((X ++ Y) ++ Z) ((X ++ Z) ++ Y).

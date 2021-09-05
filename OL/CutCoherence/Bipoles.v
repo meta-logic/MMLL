@@ -395,7 +395,7 @@ Proof.
       Permutation D ([u| F |] ++ [d| F |]) \/ 
       (D = [u| F |] /\ In (d| F |) (second (getU B))) \/ 
       (D = [d| F |] /\ In (u| F |) (second (getU B))) \/
-      (In (d| F |) (second (getU B)) /\ In (u| F |) (second (getU B))).
+      (In (d| F |) (second (getU B)) /\ In (u| F |) (second (getU B)) /\ D = []).
   Proof with sauto.
     intros.
     inversion H...
@@ -1218,7 +1218,7 @@ Theorem AppTENSORPAREXCHLeftI :
  hasPos (OLTheoryI (i:=i) (a:=a) ) a.
  Proof. unfold hasPos. 
         intros.
-        apply ooth_posI;auto;SLSolve. 
+        apply ooth_posI ;auto.  
  Qed. 
 
  Lemma OLTheoryI_HasNeg i a: hasNeg (OLTheoryI (i:=i) (a:=a) ) loc.
@@ -1227,10 +1227,25 @@ Theorem AppTENSORPAREXCHLeftI :
         apply ooth_negI;auto;SLSolve. 
  Qed.
  
+ Lemma OLTheoryM_HasPos a: 
+ hasPos (OLTheoryM (i:=a)) loc.
+ Proof. unfold hasPos. 
+        intros.
+        apply ooth_posM;auto.  
+ Qed. 
+
+ Lemma OLTheoryM_HasNeg a: 
+    hasNeg (OLTheoryM (i:=a)) loc.
+ Proof. unfold hasNeg. 
+        intros.
+        apply ooth_negM;auto. 
+ Qed.
+ 
  
 End Bipoles.
 
  Global Hint Resolve OLTheoryC_HasPos OLTheoryC_HasNeg : core.  
- Global Hint Resolve OLTheoryI_HasPos OLTheoryI_HasNeg : core. 
+ Global Hint Resolve OLTheoryI_HasPos OLTheoryI_HasNeg : core.
+ Global Hint Resolve OLTheoryM_HasPos OLTheoryM_HasNeg : core. 
         
 

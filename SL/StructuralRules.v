@@ -1213,6 +1213,21 @@ Lemma seqNtoSeq : forall n B C X,
         eapply H...
         firstorder.
    Qed.     
+ 
+  Lemma weakeness_mutualGen X: forall n i CC D O L,
+    SetU X ->
+    tri_bangK4 theory n CC i D O (> L) ->
+    tri_bangK4 theory n (CC++X) i D O (> L) .
+   Proof with sauto.
+   induction X;intros...
+   eapply exchangeCCNK4 with (CC:=(CC++[a])++X)...
+   apply IHX...
+   SLSolve.
+   apply weakeness_mutual...
+   firstorder.
+   SLSolve.
+   Qed.
+  
     
   (**  Weakening using inversion lemma of bang *)
   Theorem weakeningN : forall n CC LC F X ,
@@ -1307,6 +1322,19 @@ Lemma seqNtoSeq : forall n B C X,
       exists (S x).
       finishExp.
   Qed.            
+
+  
+  Lemma weakeness_mutualGen' X: forall i CC D O L,
+    SetU X ->
+    tri_bangK4' theory CC i D O (> L) ->
+    tri_bangK4' theory (CC++X) i D O (> L) .
+   Proof with sauto.
+   intros. 
+   apply seqtoSeqNK4 in H0...
+   eapply weakeness_mutualGen with (X:=X) in H0...
+   apply seqNtoSeq_mutual in H0...
+   firstorder.
+   Qed.
 
          
     (**  Weakening on the classical context *)  
@@ -1577,6 +1605,26 @@ Lemma seqNtoSeq : forall n B C X,
   2:{ inversion H1. }
   exists M.
   exists N.
+  split;auto.
+  eapply simplUnb' in H3;[ | exact H5| SLSolve ].
+  eapply simplUnb in H4;[ | exact H5| SLSolve ]...
+  rewrite H3...
+  rewrite H4...
+  Qed.
+   
+    Theorem InvTensorNUnb' (SIU: UnbSignature) : forall n Gamma D F G,
+   seqN theory n Gamma D (>> F ** G) ->
+   exists M N m, Permutation D (M++N) /\ S m <= n /\ 
+   (seqN theory m Gamma M (>> F)) /\ 
+   (seqN theory m Gamma N (>> G)).
+  Proof with sauto.
+  intros.
+  inversion H...
+  2:{ inversion H1. }
+  exists M.
+  exists N.
+  exists n0.
+  split;auto.
   split;auto.
   eapply simplUnb' in H3;[ | exact H5| SLSolve ].
   eapply simplUnb in H4;[ | exact H5| SLSolve ]...
@@ -2575,6 +2623,7 @@ Proof with sauto;solveLL.
    -- intro... solveSignature.                        
     Qed.
  
+  
    Lemma ContractionL : forall n B C L X, 
    SetU C -> SetT C -> seqN theory n (B++C++Loc C) L X -> 
    seqN theory n (B++C) L X.
@@ -2634,6 +2683,32 @@ Lemma Loc_Unb' : forall  B C L X,
     perm. 
     apply weakeningGen_rev...
   Qed.  
+
+ Lemma ContractionLocK4 : forall n a C B L D X, a <> loc -> 
+   SetU C -> SetT C ->  tri_bangK4 theory n D a (B++Loc C) L (> X) -> 
+   tri_bangK4 theory n D a (B++C) L (> X).
+  Proof with sauto;solveLL.
+  intros.
+  apply InvSubExpPhase in H2...
+  apply GenK4Rel with (C4:= x) (CK:= x0) (CN:=x1)...
+  eapply exchangeCCN with (CC:=(B ++ PlusT x ++ Loc (getU x0))++C)...
+  
+  apply Loc_Unb...
+  eapply exchangeCCN with (CC:=((B ++ Loc C) ++ PlusT x ++ Loc (getU x0)))...
+ Qed. 
+ 
+ Lemma ContractionLocK4' : forall a C B L D X, a <> loc -> 
+   SetU C -> SetT C ->  tri_bangK4' theory  D a (B++Loc C) L (> X) -> 
+   tri_bangK4' theory D a (B++C) L (> X).
+  Proof with sauto;solveLL.
+  intros.
+  apply InvSubExpPhase' in H2...
+  apply GenK4Rel' with (C4:= x) (CK:= x0) (CN:=x1)...
+  eapply exchangeCC with (CC:=(B ++ PlusT x ++ Loc (getU x0))++C)...
+  
+  apply Loc_Unb'...
+  eapply exchangeCC with (CC:=((B ++ Loc C) ++ PlusT x ++ Loc (getU x0)))...
+ Qed. 
  
  Lemma Derivation1 D M F : 
  seq theory D M (>> F) -> seq theory D M (> [F]).
@@ -2678,6 +2753,8 @@ Qed.
   apply InvBangTN in Hj...
   apply seqNtoSeq in Hj...
  Qed. 
+
+
              
 End GeneralResults.
 
