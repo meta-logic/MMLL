@@ -226,103 +226,6 @@ Ltac solveUniform :=
     | [|- level _ _ ] => constructor
     end.
 
-
-(* Ltac simplF := 
- repeat    
-  match goal with
-  | [ |- subexp ] => exact loc
-  | [ |- SetU (getU _) ] => apply getUtoSetU
-  | [ |- SetU (Loc _) ] => apply SetULoc  
-  | [ |- SetT (Loc _) ] => apply SetTLoc    
-  | [ |- SetL (getL _) ] => apply getLtoSetL
-    
-  | [  |- context[length []] ] => simpl
-  | [ H: context[length []]  |- _ ] => simpl in H
-  | [  |- context[Loc []] ] => simpl
-  | [ H:  context[Loc []] |- _ ] => simpl in H
-  | [  |- context[PlusT []] ] => simpl
-  | [ H:  context[PlusT []] |- _ ] => simpl in H
-  | [  |- context[second []] ] => simpl
-  | [ H:  context[second []] |- _ ] => simpl in H
- 
- | [  |- context[PlusT(_++_)] ] => setoid_rewrite PlusTApp
- | [  |- context[Loc(_++_)] ] => setoid_rewrite locApp
- | [  |- context[getU(_++_)] ] => setoid_rewrite getUApp
- | [  |- context[getL(_++_)] ] => setoid_rewrite getLApp
- | [  |- context[getU(getU _)] ] => rewrite getU_fixpoint
- | [  |- context[getL(getL _)] ] => rewrite getL_fixpoint
- | [  |- context[PlusT (PlusT _)] ] => rewrite PlusT_fixpoint 
- | [  |- context[getU(getL _)] ] => rewrite getUgetL
- | [  |- context[getL(getU _)] ] => rewrite getLgetU
- | [  |- context[getU (PlusT (getL _))] ] => rewrite getUgetLPlusT
- | [  |- context[getL (PlusT (getU _))] ] => rewrite getLgetUPlusT
- | [  |- context[getL (Loc _)] ] => rewrite getLELoc 
- | [  |- context[getU (PlusT (getU _))] ] => rewrite getUPlusTgetU'
- | [  |- context[getL (Loc _)] ] => rewrite getLELoc
-
- 
- | [ H: context[PlusT(_++_)] |- _ ] => setoid_rewrite PlusTApp in H 
- | [ H: context[Loc(_++_)] |- _ ] => setoid_rewrite locApp in H 
- | [ H: context[getU(_++_)] |- _ ] => setoid_rewrite getUApp in H
- | [ H: context[getL(_++_)] |- _ ] => setoid_rewrite getLApp in H
- | [ H: context[getU(getU _)] |- _ ] => rewrite getU_fixpoint in H
- | [ H: context[getL(getL _)] |- _ ] => rewrite getL_fixpoint in H
- | [ H: context[PlusT (PlusT _)]  |- _ ] => rewrite PlusT_fixpoint in H
- | [ H: context[getU(getL _)] |- _ ] => rewrite getUgetL in H
- | [ H: context[getL(getU _)] |- _ ] => rewrite getLgetU in H
- | [ H: context[getU (PlusT (getL _))]  |- _ ] => rewrite getUgetLPlusT in H
- | [ H: context[getL (PlusT (getU _))]  |- _ ] => rewrite getLgetUPlusT in H  
- | [ H: context[getL (Loc _)]  |- _ ] => rewrite getLELoc in H  
- | [ H: context[getU (PlusT (getU _))]  |- _ ] => rewrite getUPlusTgetU' in H  
- | [ H: context[getL (Loc _)] |- _  ] => rewrite getLELoc in H
-
- | [ H: context[Loc ((_,_)::_)] |- _ ] => simpl in H
- | [ H: context[getU((_,_)::_)] |- _ ] => simpl in H
- | [ H: context[getL((_,_)::_)] |- _ ] => simpl in H
- | [ |- context[getU((_,_)::_)] ] => simpl
- | [ |- context[getL((_,_)::_)] ] => simpl
- 
- | [ H: context[if u loc then _ else _] |- _ ] => rewrite locu in H
- | [ H: context[if mt loc then _ else _] |- _ ] => rewrite locT in H
- | [ H: context[if md loc then _ else _] |- _ ] => rewrite locD in H
- | [ H: context[if m4 loc then _ else _] |- _ ] => rewrite loc4 in H
- | [ H: context[if mk loc then _ else _] |- _ ] => rewrite locK in H
- | [ |- context[if u loc then _ else _]  ] => rewrite locu 
- | [ |- context[if mt loc then _ else _] ] => rewrite locT 
- | [ |- context[if md loc then _ else _] ] => rewrite locD 
- | [ |- context[if m4 loc then _ else _] ] => rewrite loc4 
- | [ |- context[if mk loc then _ else _] ] => rewrite locK 
- 
-  | [ H1: u (fst ?F) = _, H2: context[getU (?F :: _)] |- _ ] => 
-     destruct F;simpl in H1;simpl in H2; rewrite H1 in H2 
-  | [ H1: u (fst ?F) = _, H2: context[getL (?F :: _)] |- _ ] => 
-     destruct F;simpl in H1;simpl in H2; rewrite H1 in H2      
-  | [ H: u (fst ?F) = true |- context[getU (?F :: _)] ] => 
-     destruct F;simpl;simpl in H; rewrite H 
-  | [ H: u (fst ?F) = true |- context[getL (?F :: _)] ] => 
-     destruct F;simpl;simpl in H; rewrite H 
-
- | [ H1: ?s ?a = _, H2: context[if ?s ?a then _ else _] |- _ ] => rewrite H1 in H2 
- | [ H: ?s ?a = _|- context[if ?s ?a then _ else _] ] => rewrite H 
-
- | [ H1: u ?i = false, H2: In (?i, ?F) ?B  |- In (?i, ?F) (getL ?B) ] => apply lIngetL
- | [ H: SetK4 ?i ?K  |- SetK4 ?i (getU ?K) ] => apply SetK4Destruct in H
- | [ H: SetK4 ?i ?K  |- SetK4 ?i (getL ?K) ] => apply SetK4Destruct in H
- | [ H: SetK ?i ?K  |- SetK ?i (getU ?K) ] => apply SetKDestruct in H 
- | [ H: SetK ?i ?K  |- SetK ?i (getL ?K) ] => apply SetKDestruct in H 
-
- | [ H1: u ?i = true, H2: SetK ?i ?K  |- SetU ?K  ] => eapply (SetUKClosure H1);simplF
- | [ H1: mt ?i = true, H2: SetK ?i ?K  |- SetT ?K  ] => eapply (SetTKClosure H1);simplF 
- | [ H1: u ?i = true, H2: SetK4 ?i ?K  |- SetU ?K  ] => eapply (SetUK4Closure H1);simplF
- | [ H1: mt ?i = true, H2: SetK4 ?i ?K  |- SetT ?K  ] => eapply (SetTK4Closure H1);simplF 
-
- | [ H1: u ?i = true, H2: SetK ?i ?K  |- SetU (_ ?K)  ] => eapply (SetUKClosure H1);simplF
- | [ H1: mt ?i = true, H2: SetK ?i ?K  |- SetT (_ ?K)  ] => eapply (SetTKClosure H1);simplF 
- | [ H1: u ?i = true, H2: SetK4 ?i ?K  |- SetU (_ ?K)  ] => eapply (SetUK4Closure H1);simplF
- | [ H1: mt ?i = true, H2: SetK4 ?i ?K  |- SetT (_ ?K)  ] => eapply (SetTK4Closure H1);simplF 
-
-end.
- *)
    
 Ltac cleanF :=
  repeat
@@ -379,6 +282,7 @@ Ltac solveF :=
   let H := fresh "H" in
   repeat
     match goal with
+     | [ |- Arrow ] =>  exact (UP nil)
     | [ |- uniform _ ] => solve [solveUniform]
     | [ |- _ <= _ ] => lia
     | [ |- _ >= _ ] => lia
@@ -822,11 +726,6 @@ Tactic Notation "createWorld" := match goal with
                 | [|- seqN _ _ _ _ _] => eapply @tri_bang;auto
                 end.
                  
-     Lemma asas (OLS: OLSig) (SI: Signature) th a C F G : seq th C [] (>> a ! F ** G).
-     createWorld.
-     Abort. 
-
-
              
 (** Given a rule R (belonging to the theory), this rule introduces R
   (using [tri_dec3]) and then tries to decompose such formula using

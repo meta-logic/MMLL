@@ -50,8 +50,8 @@ Section InvNPhase .
     destruct M as [ | a]; simpl in HeqSizeM.
     inversion HeqSizeM.
     destruct a; simpl in *; invTri' H0;solveLL; 
-      repeat rewrite app_comm_cons;
-      try match goal with
+      repeat rewrite app_comm_cons.
+    all:  try match goal with
           |  [ |- seq _ _ _ (> ?M ++ bot :: _) ] =>
              eapply H with (m:= complexityL M);simpl in *; inversion HeqSizeM; solveF
           end. 
@@ -80,8 +80,8 @@ Section InvNPhase .
     inversion HeqSizeM.
     
     destruct a; simpl in *; invTri' H0;solveLL;
-      repeat rewrite app_comm_cons;
-      try solve [
+      repeat rewrite app_comm_cons.
+   all:   try solve [
             match goal with
             |  [ |- seq _ _ _ (> ?M ++ (AAnd _ _) :: _) ] =>
                eapply H with (m:= complexityL M);simpl in *; inversion HeqSizeM;solveF;FLLInversionAll;auto
@@ -549,7 +549,7 @@ Section InvNPhase .
   
   Lemma UpExtension: forall B M L F n,
       ~ asynchronous F ->
-      (n |--- B; M ++ [F] ; UP L) ->
+      (n |--- B; F::M ; UP L) ->
       exists m, m<= S n /\ m |--- B; M ; UP (L ++ [F]).
   Proof with subst;auto.
     intros.
@@ -567,8 +567,7 @@ Section InvNPhase .
       destruct L. (* L must be empty. The second case is trivial *)
       { exists ((S n)). firstorder.
       simpl.
-      eapply tri_store;auto.
-      LLExact HD. }
+      eapply tri_store;auto. }
       simpl in Hw.
       apply exp_weight0LF in Hw;contradiction.
     + intros.
@@ -641,7 +640,7 @@ Section InvNPhase .
   
     Lemma UpExtension': forall B M L F,
       ~ asynchronous F ->
-      (|-- B; M ++ [F] ; UP L) -> |-- B; M ; UP (L ++ [F]).
+      (|-- B; F::M ; UP L) -> |-- B; M ; UP (L ++ [F]).
   Proof with sauto.
   intros.
   apply seqtoSeqN in H0.
@@ -651,10 +650,9 @@ Section InvNPhase .
   Qed.
 
 Lemma UpExtensionInv n F B M L :
-     n |---  B ; M ; (UP (L++[F])) -> |-- B ; M ++ [F]; (UP L).
+     n |---  B ; M ; (UP (L++[F])) -> |-- B ; F::M; (UP L).
   Proof with sauto;solveF;solveLL.
   intros.
-  LLPerm (F::M).
   
   revert dependent F. 
   revert B M L.
@@ -662,7 +660,7 @@ Lemma UpExtensionInv n F B M L :
   + inversion H...
     apply ListConsApp in H4...
     decide1 top M.
-  + inversion H0...
+  + inversion H0... 
     -
     apply ListConsApp in H5...
     decide1 top M.
@@ -697,8 +695,7 @@ Lemma UpExtensionInv n F B M L :
     apply seqNtoSeq in H6;auto.
     eapply H in H6...
     LLExact H6.        
-    -
-   
+    - 
     apply ListConsApp in H2...
     decide1 (F{ FX}) M.
     apply H6 in properX...
@@ -710,11 +707,9 @@ Lemma UpExtensionInv n F B M L :
 
 
 Lemma UpExtensionInvN n F B M L :
-     n |---  B ; M ; (UP (L++[F])) -> S (S n) |--- B ; M ++ [F]; (UP L).
+     n |---  B ; M ; (UP (L++[F])) -> S (S n) |--- B ; F::M; (UP L).
   Proof with sauto;solveF;solveLL.
   intros.
-  LLPerm (F::M).
-  
   revert dependent F. 
   revert B M L.
   induction n using strongind;intros...
@@ -740,7 +735,7 @@ Lemma UpExtensionInvN n F B M L :
     -
     apply ListConsApp in H2...
     LLExact H6.
-    rewrite perm_swap...
+    apply (exchangeLCN (perm_swap F0 F M))...
     -
     apply ListConsApp in H2...
     decide1 (F{ FX}) M.
@@ -748,7 +743,7 @@ Lemma UpExtensionInvN n F B M L :
  Qed. 
  
   Lemma UpExtensionInv' F B M L : 
-       |--  B ; M ; (UP (L++[F])) -> |-- B ; M ++ [F]; (UP L).
+       |--  B ; M ; (UP (L++[F])) -> |-- B ; F::M; (UP L).
   Proof with sauto.
   intros.
   apply seqtoSeqN in H.
@@ -758,7 +753,7 @@ Lemma UpExtensionInvN n F B M L :
  
 
 Lemma UpExtensionInv2 n F B M L1 L2 :
-   ~ asynchronous F ->  n |---  B ; M ; (UP (L1++[F]++L2)) -> |-- B ; M ++ [F]; (UP (L1++L2)).
+   ~ asynchronous F ->  n |---  B ; M ; (UP (L1++[F]++L2)) -> |-- B ; F::M; (UP (L1++L2)).
   Proof with sauto;solveF;solveLL.
   intros.
   apply UpExtensionInv'.
@@ -793,7 +788,6 @@ Lemma UpExtensionInv2 n F B M L1 L2 :
     apply ListConsApp' in H3...
     apply seqNtoSeq in H7...
     apply UpExtension';auto.
-    LLExact H7. 
     eapply H in H7...        
     -
     apply ListConsApp' in H3...

@@ -243,7 +243,7 @@ Proof with sauto;solveLL.
    2:{ inversion H5;CleanContext... 
        rewrite H1.
        rewrite <- app_comm_cons.
-       LLPerm((x++N)++[F]). 
+
        eapply UpExtensionInv'... 
         assert(S n0 |--- B; x++ [C]; (> [F]) ->
                j |--- B; N; (> [dual C]) ->
@@ -270,7 +270,6 @@ Proof with sauto;solveLL.
               rewrite <- H3... LLExact H9.
               rewrite H1.
               rewrite <- app_comm_cons.
-              rewrite Permutation_cons_append.
               apply TensorComm'.
               rewrite <- H8.
               LLPerm(G**F0::N0++(x0++N)).
@@ -294,7 +293,6 @@ Proof with sauto;solveLL.
               inversion H9;CleanContext...
               rewrite H1.
               rewrite <- app_comm_cons.
-              rewrite Permutation_cons_append.
               apply TensorComm'.
               rewrite <- H8.
               LLPerm(G**F0::N0++(x0++N)).
