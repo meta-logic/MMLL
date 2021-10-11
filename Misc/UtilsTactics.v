@@ -21,7 +21,6 @@ Set Implicit Arguments.
   | H: Permutation ?T S  |- _ => symmetry in H; apply (Permutation_trans H)  
   end : core.
 
- 
 Ltac clear_junk :=
 repeat
  match goal with
@@ -36,9 +35,12 @@ repeat
  | [ H: Permutation ?A ?A |- _] => clear H 
  end.
  
+
 Ltac simplifier :=
 repeat
   match goal with
+ | [ H: map ?f ?B = [_] |- _ ] => apply map_eq_cons in H;simplifier
+ | [ H: map ?f ?B = [ ] |- _ ] => apply map_eq_nil in H;subst 
  | [ H: context[_++nil] |- _ ] => rewrite app_nil_r in H
  | [ H: context[nil++_] |- _ ] => rewrite app_nil_l in H
  | [  |- context[_++nil] ] => rewrite app_nil_r
@@ -52,13 +54,24 @@ repeat
  | [  |- context[S _ - 1] ] => simpl;rewrite Nat.sub_0_r
  | [  |- context[fst (_, _)] ] => simpl
  | [  |- context[snd (_, _)] ] => simpl
+
+  | [ H1: ?f ?a = true, H2: context[?f ?a] |- _ ] => rewrite H1 in H2
+  | [ H1: ?f ?a = false, H2: context[?f ?a] |- _ ] => rewrite H1 in H2
+                   
+  | [ H: ?f ?a = true |- context[?f ?a]  ] => rewrite H
+  | [ H: ?f ?a = false |- context[?f ?a]  ] => rewrite H
  
+  | [ H1: ?f = [], H2: context[?f] |- _ ] => rewrite H1 in H2                 
+  | [ H: ?f = [] |- context[?f]  ] => rewrite H
+  
+   
  | [H : exists (x : _), _ |- _ ] => destruct H
  | [H : _ /\ _ |- _ ] => decompose [and or] H;clear H
  | [H : _ \/ _ |- _ ] => decompose [and or] H;clear H
  | [ |- _ /\ _ ] => split
 end;auto.
     
+ 
 Ltac strivial := 
 try
   match goal with
@@ -77,6 +90,7 @@ try
  | [ H: nil = [_] |- _ ] => inversion H 
 
  | [ H: Permutation ?A ?B |- Permutation ?B ?A  ] => symmetry in H;auto
+ | [ H: Permutation ?A ?B |- Permutation (?a::?A) (?a::?B)  ] => apply perm_skip;auto
  | [ |- Permutation (?x::?y::?A) (?y::?x::?A)  ] =>  rewrite perm_swap;auto
  | [H : ?A /\ ?B |- ?A ] => firstorder 
  | [H : ?A /\ ?B |- ?B ] => firstorder  
@@ -99,7 +113,6 @@ try
  | [  |- Permutation _ _ ] => try solve[simpl;subst;perm]
  end;auto.
 
-  
 Ltac clean_goal :=
 try
 repeat 

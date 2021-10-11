@@ -858,30 +858,28 @@ Section OLCutElimination.
    apply FocusingRightMU in H3...
    decide3(ModalDefs C0 Right A0 a).
    tensor [u| t_ucon C0 A0 |] (@nil oo).
-   simpl in H11.
-   LLPermH H11 (Loc [(loc, d| t_ucon C A |)]++ (L ++ [(a, d| A |)])).
-   apply AppQUESTBANGRightLoc in H11...
-   checkPermutationCases H10.
+   simpl in H9.
+   LLPermH H9 (Loc [(loc, d| t_ucon C A |)]++ (L ++ [(a, d| A |)])).
+   apply AppQUESTBANGRightLoc in H9...
+   checkPermutationCases H8.
+   rewrite <- Permutation_cons_append in H5.
    apply GenK4Rel' with (C4:=[(a, d| A |)]++x0) (CK:=[]) (CN:=x2)...
-   rewrite <- Permutation_cons_append in H8.
-   rewrite H8 in H11...
-   rewrite <- H10... 
+   rewrite H5 in H9...
+   rewrite <- H8... 
+  rewrite H5 in H11.
+  apply seqNtoSeq in H11.
   solveLL.
-  rewrite H8 in H13.
-  apply seqNtoSeq in H13.
-  
   rewrite plustpropT...
   rewrite SetTPlusT...
-  LLExact H13.
   SLSolve.
  
    apply GenK4Rel' with (C4:=x1) (CK:=[]) (CN:=[(a, d| A |)]++x0)...
-   rewrite <- H10...
+   rewrite <- H8...
   solveLL.
-  apply seqNtoSeq in H13.
-  LLExact H13.
+  apply seqNtoSeq in H11.
+  LLExact H11.
   
-  apply in_app_or in H10;CleanContext.
+  apply in_app_or in H8;CleanContext.
   decide3(ModalDefs C0 Right A0 a).
    tensorUnb.
    apply InPermutation in H3...
@@ -889,35 +887,35 @@ Section OLCutElimination.
    rewrite H3...
    
    LLPermH H13 ([(loc, d| t_ucon C A |)]++ (L ++ [(a, d| A |)])).
-   apply AppQUESTBANGRightLoc in H13...
-   checkPermutationCases H12.
+   apply AppQUESTBANGRightLoc in H11...
+   checkPermutationCases H10.
    apply GenK4Rel' with (C4:=[(a, d| A |)]++x0) (CK:=[]) (CN:=x3)...
-   rewrite <- Permutation_cons_append in H9.
-   rewrite H9 in H13...
-   rewrite <- H12...
+   rewrite <- Permutation_cons_append in H7.
+   rewrite H7 in H11...
+   rewrite <- H10...
    solveLL.
   rewrite plustpropT...
   rewrite SetTPlusT...
-  rewrite H9 in H15.
-  apply seqNtoSeq in H15.
-  LLExact H15.
+  rewrite H7 in H13.
+  apply seqNtoSeq in H13.
+  LLExact H13.
   SLSolve.
   
    apply GenK4Rel' with (C4:=x2) (CK:=[]) (CN:=[(a, d| A |)]++x0)...
-   rewrite <- H12...
+   rewrite <- H10...
   solveLL.
-  apply seqNtoSeq in H15.
-  LLExact H15.
+  apply seqNtoSeq in H13.
+  LLExact H13.
   -- apply FocusingLeftMU in H3...
      decide3(ModalDefs C0 Left A0 a).
      tensor [d| t_ucon C0 A0 |] x1.
      LLPermH H10 ((L ++ [(a, d| A0 |)]) ++ [(a, d| A |); (loc, d| t_ucon C A |)]).
-     apply H in H10...
-     LLExact H10.
+     apply H in H8...
+     LLExact H8.
      OLSolve. OLSolve.
      OLSolve.
       
-     apply in_app_or in H9;CleanContext.
+     apply in_app_or in H7;CleanContext.
      
      decide3(ModalDefs C0 Left A0 a).
      tensor (@nil oo) N.
@@ -925,21 +923,21 @@ Section OLCutElimination.
      init2 x1 ((a, d| A |)::x).
      rewrite H3... 
      LLPermH H11 ((L ++ [(a, d| A0 |)]) ++ [(a, d| A |); (loc, d| t_ucon C A |)]).
-     apply H in H11...
-     LLExact H11.
+     apply H in H9...
+     LLExact H9.
      OLSolve. OLSolve.
      
      decide3(ModalDefs C0 Left A0 x1).
      tensor (@nil oo) N.
      rewrite app_comm_cons.
      eapply H with (C:=C)... OLSolve.
-     LLExact H11.
+     LLExact H9.
      
      apply contraction with (F:=(a, d| A0 |))...
      SLSolve.
      rewrite app_comm_cons.
      eapply H with (C:=C0)... OLSolve.
-     LLExact H11.
+     LLExact H9.
   - apply FocusingInitRuleU in H3...
     decide3(RINIT OO).
     tensor [u| OO|] [d| OO|].
@@ -1413,7 +1411,7 @@ Section OLCutElimination.
        LLExact H12.
        rewrite H9. perm.
   ** inversion H2;sauto. 
-     -- inversion H5;sauto. 
+     -- inversion H8;sauto. 
      --- 
         apply FocusingRightRuleU in H4;sauto.
         ----
@@ -1510,13 +1508,13 @@ Section OLCutElimination.
       2:{ decide3 (ModalDefs C0 Left A0 a).
        constructor;sauto.
        tensor [d| t_ucon C0 A0 |] (M ++ x1).
-       rewrite H9. perm.
+       rewrite H12. perm.
       eapply CutHL with (FC:=FC) (i:=S n0) (j:= x) (m:=(S n0)+x);sauto...
       OLSolve.
       apply weakeningN;sauto.
       LLExact H15. }
       
-      inversion H8;CleanContext.
+      inversion H11;CleanContext.
       apply FocusingRightMU in H1;CleanContext.
       inversion H14;sauto.
       rewrite <- (app_nil_r N).
@@ -1529,7 +1527,7 @@ Section OLCutElimination.
        eapply @GeneralCut' with (C:=((a ? d| A |))^);sauto.
       2:{ rewrite  <- ng_involutive;auto.
           solveLL.
-          rewrite H9.
+          rewrite H12.
           eapply WeakTheory.
           2:{ rewrite Permutation_cons_append. apply seqNtoSeq in H15.  exact H15. }
           apply TheoryEmb1. }
@@ -1956,7 +1954,7 @@ Section OLCutElimination.
                 constructor;constructor;sauto.
                 tensorUnb (@nil oo) (@nil oo).
                 CleanContext.
-                apply InPermutation in H5...
+                apply InPermutation in H9...
                 init2 x1 (CEncode loc N ++ x2).
                 rewrite H1...
                 intro... SLSolve.
@@ -2151,7 +2149,7 @@ Section OLCutElimination.
                 eapply WeakTheory with (th:=(TH a)).
                 apply TheoryEmb1.
                 LLExact H16.
-         --  apply @PosNegSetT' with (a:=loc)...
+         -- change M with ([]++M). apply @PosNegSetT' with (a:=loc)...
              all: CleanContext. 
                assert (a <> loc). 
             intro... SLSolve.
@@ -2350,9 +2348,9 @@ Section OLCutElimination.
          apply oothc_init...    
          tensorUnb.
          init2 loc (CEncode loc [d| OO|] ++ CEncode loc N ++ L). 
-         srewrite H5...      
+         srewrite H8...      
          init2 loc (CEncode loc [u| OO|] ++ CEncode loc N ++ L). 
-         srewrite H5...  
+         srewrite H8...  
          CleanContext.   
          rewrite <- (app_nil_r (u| OO | :: N)). 
          apply @PosNegSetT' with (a:=loc)...
@@ -2392,7 +2390,7 @@ Section OLCutElimination.
          rewrite H1...
          apply InPermutation in H13...
          init2 x0 (CEncode loc N ++ x2).
-         rewrite H5... }
+         rewrite H8... }
           apply InPermutation in H13...
         rewrite H1.
         LLPerm(x1++[(x0, d| t_ucon C A |)]).
@@ -2547,33 +2545,7 @@ Section OLCutElimination.
          LLExact H14.        
   Qed.        
       
-      
- (*  Theorem CutElimination:
-    forall n a i j FC L M N,
-    isOLFormula FC ->
-    lengthUexp FC n ->
-    IsPositiveAtomFormulaL M -> 
-    IsPositiveAtomFormulaL N -> 
-    IsPositiveAtomFormulaL (second L) -> 
-    SetU L ->
-    mt a = true -> u a = true -> md a = false ->
-    seqN  (TH a) i L (u|FC|::M)  (> []) -> 
-    seqN  (TH a) j L (d|FC|::N)  (> []) ->
-    seq   (THC a n) L (M ++ N)  (> []) with 
-    CUTCElimination : forall n a i j FC L M N,
-     isOLFormula FC ->
-    lengthUexp FC n ->
-    IsPositiveAtomFormulaL M -> 
-    IsPositiveAtomFormulaL N -> 
-    IsPositiveAtomFormulaL (second L) -> 
-    SetU L ->
-    mt a = true -> u a = true -> md a = false ->
-    seqN  (TH a) i ((loc,u|FC|)::L) M  (> []) -> 
-    seqN  (TH a) j ((loc,d|FC|)::L) N  (> []) ->
-    seq   (THC a n) L (M++N)  (> []).
-  Proof with CutTacPOSNEG.
-  *) 
-  
+
  
 End OLCutElimination.
 End OLInferenceRules.

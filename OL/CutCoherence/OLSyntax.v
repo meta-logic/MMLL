@@ -335,7 +335,7 @@ Section OLSyntax.
       con := Econ ;
       uniform_atm := uniform_atm'
     |}.
-   
+
    Definition up : uexp -> atm := up'.
    Definition down : uexp -> atm := down'.
 

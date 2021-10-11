@@ -127,6 +127,148 @@ Inductive KT4Seq : list uexp -> list uexp -> list uexp -> Prop :=
 Hint Constructors KT4Seq : core .
 Hint Constructors KT4SeqT : core .
 
+Inductive KT4Seq' : list uexp -> list uexp -> Prop :=
+| KT4TRUE' : forall L L', KT4Seq' L ((t_cons TT)::L')
+| KT4FALSE' : forall L L', KT4Seq' (t_cons FF :: L) L' 
+| KT4init' : forall L L' F,  KT4Seq' (F:: L) (F::L')
+
+| KT4AndL1' : forall L F G L', KT4Seq' (F :: L) L' -> KT4Seq' ( (t_bin AND F G) :: L) L'
+| KT4AndL2' : forall L F G L', KT4Seq' (G :: L) L' -> KT4Seq' ( (t_bin AND F G) :: L) L'
+| KT4AndR' : forall L F G L', KT4Seq' L (F::L') -> KT4Seq' L (G::L') -> KT4Seq' L (t_bin AND F G :: L')
+
+| KT4OrL' : forall L F G L',  KT4Seq' (F :: L) L' -> KT4Seq' (G :: L) L' -> KT4Seq' ( (t_bin OR F G) :: L) L'
+| KT4OrR1' : forall L F G L', KT4Seq' L (F::L') -> KT4Seq' L (t_bin OR F G :: L')
+| KT4OrR2' : forall L F G L', KT4Seq' L (G::L') -> KT4Seq' L (t_bin OR F G :: L')
+ 
+| KT4ImpL' : forall A B L1 L2 L1' L2', KT4Seq' L1 (A::L1') -> KT4Seq' (B:: L2) L2' -> KT4Seq' (t_bin IMP A B ::L1++L2) (L1'++L2')
+| KT4ImpR' : forall L A B L', KT4Seq' (A:: L) (B::L') ->  KT4Seq' L (t_bin IMP A B :: L')
+                 
+| KT4ExL' : forall L L' Delta, Permutation L L' -> KT4Seq' L Delta -> KT4Seq' L' Delta
+| KT4ExR' : forall L L' Delta, Permutation L L' -> KT4Seq' Delta L -> KT4Seq' Delta L'
+(* Explicit contraction *)
+| KT4CtL' : forall L L' F, KT4Seq' (F :: F :: L)  L' -> KT4Seq' (F :: L)  L'
+| KT4CtR' : forall L L' F, KT4Seq' L (F :: F :: L')   -> KT4Seq' L (F :: L')
+
+| KT4WkL' : forall L L' F, KT4Seq' L L' -> KT4Seq' (F :: L)  L'
+| KT4WkR' : forall L L' F, KT4Seq' L L' -> KT4Seq' L (F :: L')
+
+| KT4BoxL' : forall L F L', KT4Seq' (F :: L) L' ->  KT4Seq' (t_ucon BOX F :: L) L'
+
+| KT4BoxR' : forall L F L', KT4SeqT' L [ ] [F] ->  KT4Seq' L (t_ucon BOX F :: L')
+    with
+      KT4SeqT' : list uexp -> list uexp -> list uexp -> Prop :=
+       | KT4_K' : forall L F L' D D' , Remove (t_ucon BOX F) D D' -> KT4SeqT' D' (F::L) L' ->  KT4SeqT' D L L'                                  
+       | KT4_4' : forall L F L' D D' , Remove (t_ucon BOX F) D D' -> KT4SeqT' D' (t_ucon BOX F::L) L' ->  KT4SeqT' D L L'                                  
+       | KT4Release' : forall L L' T, KT4Seq' L L' -> KT4SeqT' T L L'
+.
+
+Hint Constructors KT4Seq' : core .
+Hint Constructors KT4SeqT' : core .
+
+Theorem KT4CtLGen'  C : forall L L', KT4Seq' (L++C++C)  L' -> KT4Seq' (L++C) L'.
+Proof with sauto.
+  induction C;intros...
+  eapply KT4ExL' with (L:=a::L++C)...
+  apply KT4CtL'.
+  eapply KT4ExL' with (L:=(a::a::L)++C)...
+  eapply IHC.
+  eapply KT4ExL' with (L:=(L ++ (a :: C) ++ a :: C))...
+Qed.
+
+  Theorem KT4SeqPerm1' D1  : forall D2 L R ,
+  Permutation D1 D2 -> KT4SeqT' D2 L R -> KT4SeqT' D1 L R .
+  Proof with  CleanContext.
+   intros *.
+  intros Hp Hseq.
+  generalize dependent D1.
+  induction Hseq;intros;eauto using Permutation_in.
+  symmetry in Hp.
+  generalize (Remove_Permutation_Ex2 H Hp);intros...
+  eapply KT4_K' with (F:=F) (D':=x)...
+  symmetry in Hp.
+  generalize (Remove_Permutation_Ex2 H Hp);intros...
+  eapply KT4_4' with (F:=F) (D':=x)...
+  Qed.
+  
+  Theorem KT4SeqPerm2' L1  : forall D L2 R,
+  Permutation L1 L2 -> KT4SeqT' D L2 R -> KT4SeqT' D L1 R .
+  Proof with  CleanContext.
+   intros *.
+  intros Hp Hseq.
+  generalize dependent L1.
+  induction Hseq;intros;eauto using Permutation_in.
+  apply KT4Release'...
+  eapply KT4ExL'.
+  exact (symmetry Hp).
+  auto.
+  Qed.
+
+  Theorem KT4SeqPerm3' R1  : forall D L R2,
+  Permutation R1 R2 -> KT4SeqT' D L R2 -> KT4SeqT' D L R1.
+  Proof with  CleanContext.
+   intros *.
+  intros Hp Hseq.
+  generalize dependent R1.
+  induction Hseq;intros;eauto using Permutation_in.
+  apply KT4Release'...
+  eapply KT4ExR'.
+  exact (symmetry Hp).
+  auto.
+  Qed.
+      
+  Global Instance KT4T_morph' : 
+  Proper ((@Permutation uexp) ==> (@Permutation uexp) ==>  (@Permutation uexp)  ==> iff) (KT4SeqT').
+Proof.
+  unfold Proper; unfold respectful. 
+  intros.
+  split;intros;subst.
+  - symmetry in H.
+    symmetry in H0.
+    symmetry in H1.
+    eapply KT4SeqPerm1';eauto.
+    eapply KT4SeqPerm2';eauto.
+    eapply KT4SeqPerm3';eauto.
+  - eapply KT4SeqPerm1';eauto.
+    eapply KT4SeqPerm2';eauto.
+    eapply KT4SeqPerm3';eauto.
+Qed.
+
+
+  Global Instance KT4_morph' : 
+  Proper ((@Permutation uexp) ==> (@Permutation uexp) ==> iff) (KT4Seq').
+Proof with auto.
+  unfold Proper; unfold respectful. 
+  intros.
+  split;intros.
+  eapply (KT4ExL' H).  
+  eapply (KT4ExR' H0)... 
+  eapply (KT4ExL' (symmetry H)).  
+  eapply (KT4ExR' (symmetry H0))... 
+Qed.
+
+ Theorem KT4SeqTWkL' D : forall F L R, KT4SeqT' D L R -> KT4SeqT' (F::D) L R .
+  Proof with  CleanContext.
+   intros.
+   induction H;intros...
+     apply Remove_Permute in H...
+     rewrite H.
+     rewrite perm_swap.
+     apply KT4_K' with (F:=F0) (D':=F::D')...
+apply Remove_Permute in H...
+     rewrite H.
+     rewrite perm_swap.
+     apply KT4_4' with (F:=F0) (D':=F::D')...
+ Qed.
+ 
+ Theorem KT4SeqTWkLGen' C : forall D L R, KT4SeqT' D L R -> KT4SeqT' (C++D) L R.
+Proof with sauto.
+  induction C;intros...
+  rewrite <- app_comm_cons.
+  apply KT4SeqTWkL'...
+Qed.
+
+Definition toBox D:= map (fun x => t_ucon BOX x) D.
+
   Theorem KT4SeqPerm1 A1  : forall A2 L R B D,
   Permutation A1 A2 -> KT4SeqT A2 B D L R -> KT4SeqT A1 B D L R .
   Proof with  CleanContext.
@@ -885,7 +1027,7 @@ Proof with CleanContext;SLSolve;OLSolve.
         apply ooth_initM...
         tensorUnb [u| F |] (@nil oo).
         apply InPermutation in H7...
-        apply InPermutation in H9...
+        apply InPermutation in H8...
         decide3 (RINIT OO).
         tensorUnb (@nil oo) (@nil oo).
         init2 x2 ((j, d| F |)::x1).
@@ -1900,8 +2042,6 @@ Proof with CleanContext;SLSolve;OLSolve.
       | [H: REncode _ = [_] |- _] => apply map_eq_cons in H;sauto
       | [H: LEncode _ = [_] |- _] => apply map_eq_cons in H;sauto
       end... 
-      apply map_eq_nil in H10... 
-      apply map_eq_nil in H11... 
       rewrite Permutation_app_comm...
       rewrite Permutation_app_comm...
     ++  CleanContext.
