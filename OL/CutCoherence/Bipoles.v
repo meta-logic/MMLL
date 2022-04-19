@@ -314,22 +314,22 @@ Theorem QPerpIsFormula: forall T S FX,
     FLLInversionAll...
     simpl in *. 
     CleanContext.
-    rewrite (cxtDestruct B) in H1.
-    rewrite H3 in H1.
-    rewrite H in H1.
+    rewrite (cxtDestruct B) in H12.
+    rewrite H3 in H12.
+    rewrite H in H12.
+    simpl in H12...
+    simpl in *. 
+    CleanContext.
+    rewrite (cxtDestruct D0) in H1.
+    rewrite H4 in H1.
+    rewrite H0 in H1.
     simpl in H1...
     simpl in *. 
     CleanContext.
-    rewrite (cxtDestruct D0) in H11.
-    rewrite H4 in H11.
-    rewrite H0 in H11.
-    simpl in H11...
-    simpl in *. 
-    CleanContext.
-    rewrite (cxtDestruct D0) in H13.
-    rewrite H4 in H13.
-    rewrite H0 in H13.
-    simpl in H13...
+    rewrite (cxtDestruct D0) in H16.
+    rewrite H4 in H16.
+    rewrite H0 in H16.
+    simpl in H16...
   Qed.  
     
    

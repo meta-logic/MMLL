@@ -16,7 +16,7 @@ Set Implicit Arguments.
 
 (** Solves some efficiency problems related to rewriting with setoids *)
 (* Remove Hints Equivalence.pointwise_equivalence : typeclass_instances. *)
-Existing Instance Equivalence.pointwise_equivalence | 11.
+#[global] Existing Instance Equivalence.pointwise_equivalence | 11.
 
 Ltac simplSignature := simplSignature1; 
  repeat    

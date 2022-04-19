@@ -2244,11 +2244,11 @@ End api.
 
 Global Hint Resolve ext_eq_refl : hybrid.
 Global Hint Resolve proper_APP uniform_proper : hybrid.
-Hint Rewrite ext_eq_eta : hybrid.
+Global Hint Rewrite ext_eq_eta : hybrid.
 
 Global Hint Resolve level_CON level_VAR level_BND level_APP level_ABS : hybrid.
 Global Hint Resolve proper_APP uniform_proper uniform_level0 : hybrid.
 Global Hint Unfold proper: hybrid.
-Hint Rewrite ext_eq_eta : hybrid.
+Global Hint Rewrite ext_eq_eta : hybrid.
 Global Hint Resolve uniform_id uniform_con uniform_app : hybrid.
 Global Hint Resolve lbindEq exprInhabited : hybrid.

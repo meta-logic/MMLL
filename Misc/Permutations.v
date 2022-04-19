@@ -28,7 +28,7 @@ Proof.
   - apply perm_skip,IHl.
 Qed.
 
-Instance app_compat_perm(A:Type) :
+#[global] Instance app_compat_perm(A:Type) :
   Proper (@Permutation A ==> @Permutation A ==> @Permutation A) (@app A).
 Proof.
   unfold Proper,respectful.
@@ -68,7 +68,7 @@ Proof.
   - apply IHHP2,IHHP1,H.
 Qed.
 
-Instance In_compat_perm(A:Type):
+#[global] Instance In_compat_perm(A:Type):
   Proper (eq ==> @Permutation A ==> iff) (@In A).
 Proof.
   unfold Proper,respectful.
@@ -81,7 +81,7 @@ Proof.
     exact Hl.
 Qed.
 
-Instance length_compat_perm(A:Type):
+#[global] Instance length_compat_perm(A:Type):
   Proper (@Permutation A ==> eq) (@length A).
 Proof.
   unfold Proper, respectful.

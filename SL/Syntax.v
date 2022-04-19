@@ -97,10 +97,10 @@ Class Signature :=
                                                    
   }.
   
-Instance Lt_Reflexive `{Signature} : Reflexive lt.
+#[global] Instance Lt_Reflexive `{Signature} : Reflexive lt.
 Proof. apply @PreOrder_Reflexive;eauto. exact lt_pre. Qed.
 
-Instance Lt_Transitive `{Signature} : Transitive lt.
+#[global] Instance Lt_Transitive `{Signature} : Transitive lt.
 Proof.  apply @PreOrder_Transitive;eauto. exact lt_pre. Qed.
 
 Class UnbSignature `{Signature}:=
