@@ -1485,12 +1485,12 @@ Qed.
  ********************************************************************)
 
 Definition lbnd_curry : (prodT bnd (expr->expr))->expr->Prop
- := (prodT_curry lbnd).
+ := (uncurry lbnd).
 
 Lemma lbnd_curry_eq : forall (i:bnd) (e:expr->expr) (s:expr),
   (lbnd i e s)=(lbnd_curry (pairT i e) s).
 Proof.
-unfold lbnd_curry, prodT_curry; auto.
+unfold lbnd_curry, uncurry; auto.
 Qed.
 
 Lemma lbnd_curry_total:
@@ -1498,7 +1498,7 @@ Lemma lbnd_curry_total:
 Proof.
 intro p.
 elim p.
-unfold lbnd_curry, prodT_curry.
+unfold lbnd_curry, uncurry.
 exact lbnd_total.
 Qed.
 
@@ -1508,7 +1508,7 @@ Lemma lbnd_curry_total_unique :
 Proof.
 intro p.
 elim p.
-unfold lbnd_curry, prodT_curry.
+unfold lbnd_curry, uncurry.
 intros a b.
 generalize (lbnd_total a b); intro H.
 elim H; clear H; intros x H.
@@ -1558,12 +1558,12 @@ Axiom lbind_curry_lbnd_curry :
   forall p:(prodT bnd (expr con->expr con)), lbnd_curry p (lbind_curry p).
 
 Definition lbind : bnd -> (expr con -> expr con) -> expr con :=
-  prodT_uncurry lbind_curry.
+  curry lbind_curry.
 Lemma lbind_lbnd :
   forall i:bnd, forall e:expr con->expr con, lbnd i e (lbind i e).
 Proof.
 intros i e.
-unfold lbind, prodT_uncurry.
+unfold lbind, curry.
 rewrite -> lbnd_curry_eq.
 apply lbind_curry_lbnd_curry.
 Qed.
@@ -1573,7 +1573,7 @@ Lemma lbind_value : forall i:bnd, forall e:expr con->expr con,
 Proof.
 intros i e s H.
 generalize (lbind_curry_lbnd_curry (pairT i e)); intro H0.
-unfold lbnd_curry, prodT_curry in H0.
+unfold lbnd_curry, curry in H0.
 apply lbnd_unique with i e; auto.
 Qed.
 

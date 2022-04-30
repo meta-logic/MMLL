@@ -134,7 +134,7 @@ Theorem RINITIsFormula : forall F,
                let Hs1 := fresh in
                assert (Hs1 : seq (RCUTcN m) B1 N1 X1) by
                    (
-                     eapply H  with (m:= h) (n:= n)  (m0:=m) (B:= B1);solveF 
+                     eapply H  with (m:= h) (n:= n) ;solveF
                    );clear Hs
              end;solveLL;auto.
     -         
@@ -154,18 +154,22 @@ Theorem RINITIsFormula : forall F,
     -
     existential t.
     -
-    apply H4 in properX.
-    eapply H with (m0:=m) in properX...
+    apply H4 in properX...
+    eapply H  with (m:= h) (n:= n) ;solveF.
     - 
     finishExponential.
     eapply @GenK4Rel' with (C4:=CK4) (CK:=CK) (CN:=CN)...
-    eapply H with (m0:=m) in H10...
+    eapply H  with (m:= h) (n:= n) ;solveF.
+    eapply HeightGeq. exact H10.
+    lia.              
     - 
     finishExponential.
     createWorld i.
     eapply @GenK4Rel' with (C4:=CK4) (CK:=CK) (CN:=CN)...
     intro... SLSolve.
-    eapply H with (m0:=m) in H10...
+    eapply H  with (m:= h) (n:= n) ;solveF.
+    eapply HeightGeq. exact H10.
+    lia.              
     intro... SLSolve.
   Qed.
 
@@ -226,7 +230,7 @@ Lemma CutRuleNBound : forall h n a b i B L X ,  seqN (OLTheoryCut (i:=i)  (a:=a)
                let Hs1 := fresh in
                assert (Hs1 : seq (OLTheoryCut (i:=i)  (a:=a) (b:=b) m) B1 N1 X1) by
                    (
-                     eapply H  with (m:= h) (n:= n)  (m0:=m) (B:= B1);solveF 
+                     eapply H  with (m:= h) (n:= n)  (B:= B1);solveF 
                    );clear Hs
              end;solveLL;auto.
     -         
@@ -248,17 +252,19 @@ Lemma CutRuleNBound : forall h n a b i B L X ,  seqN (OLTheoryCut (i:=i)  (a:=a)
     existential t.
     -
     apply H4 in properX.
-    eapply H with (m0:=m) in properX...
+     eapply H  with (m:= h) (n:= n)  ;solveF.
     - 
     finishExponential.
     eapply @GenK4Rel' with (C4:=CK4) (CK:=CK) (CN:=CN)...
-    eapply H with (m0:=m) in H10...
+     eapply H  with (m:= h) (n:= n) ;solveF.
+     eapply HeightGeq. exact H10. lia.
     - 
     finishExponential.
     createWorld i0.
     eapply @GenK4Rel' with (C4:=CK4) (CK:=CK) (CN:=CN)...
     intro... SLSolve.
-    eapply H with (m0:=m) in H10...
+       eapply H  with (m:= h) (n:= n) ;solveF.
+     eapply HeightGeq. exact H10. lia.
     intro... SLSolve.
   Qed.
 
