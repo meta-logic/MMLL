@@ -10,8 +10,6 @@ Require Import Coq.Relations.Relations.
 Require Import Coq.Classes.Morphisms.
 Require Import Coq.Setoids.Setoid.
 
-
-
 Lemma eq_then_Permutation: forall{A:Type} (l1 l2:list A),
     l1 = l2 -> Permutation l1 l2.
 Proof.
@@ -19,6 +17,7 @@ Proof.
   rewrite H; reflexivity.
 Qed.
 
+(* Permutation_app_head *)
 Lemma app_compat_perm_latter(A:Type) : forall l a1 a2:list A,
     Permutation a1 a2 -> Permutation (l++a1) (l++a2).
 Proof.
@@ -45,6 +44,7 @@ Proof.
     apply app_compat_perm_latter,Permutation_sym,Hb.
 Qed.
 
+(* Permutation_in *)
 Lemma Permutation_In_In: forall{A:Type} (x:A) (l1 l2:list A),
     Permutation l1 l2 -> In x l1 -> In x l2.
 Proof.
@@ -89,6 +89,7 @@ Proof.
   apply Permutation_length,HL.
 Qed.
 
+(* app_assoc_reverse *)
 Lemma app_normalize_1:
   forall(A:Type) (l1 l2 l3:list A),
     (l1 ++ l2) ++ l3 = l1 ++ (l2 ++ l3).
@@ -105,6 +106,7 @@ Proof.
   intros; reflexivity.
 Qed.
 
+(* app_nil_l *)
 Lemma app_normalize_3:
   forall(A:Type) (l1:list A), (nil++l1) = l1.
 Proof.
@@ -116,25 +118,25 @@ Ltac app_normalize := repeat (
                           rewrite app_normalize_2 ||
                           rewrite app_normalize_3).
 
+(* Permutation_app_swap_app *)
 Lemma perm_takeit_1:
   forall(A:Type) (target:list A) (l1 l2:list A),
     Permutation (l1 ++ (target ++ l2)) (target ++ (l1 ++ l2)).
 Proof.
   intros A target l1 l2.
-  rewrite (app_assoc l1 target l2),
-  (Permutation_app_comm l1 target),
-  <-(app_assoc target l1 l2).
-  reflexivity.
-Qed.
+  eapply Permutation_app_swap_app.
+ Qed.
 
+(* Permutation_middle *)
 Lemma perm_takeit_2:
   forall(A:Type) (target:list A) (a1:A) (l2:list A),
     Permutation (a1 :: (target ++ l2)) (target ++ (a1 :: l2)).
 Proof.
   intros A target a1 l2.
-  apply (perm_takeit_1 _ _ (a1::nil)).
+  apply Permutation_middle.
 Qed.
 
+(* Permutation_app_comm *)
 Lemma perm_takeit_3:
   forall(A:Type) (target:list A) (l1:list A),
     Permutation (l1 ++ target) (target ++ l1).
@@ -143,44 +145,53 @@ Proof.
   apply Permutation_app_comm.
 Qed.
 
+(* Permutation_cons_append *)
 Lemma perm_takeit_4:
   forall(A:Type) (target:list A) (a1:A),
     Permutation (a1 :: target) (target ++ (a1::nil)).
 Proof.
   intros A target a1.
-  apply (perm_takeit_3 _ _ (a1::nil)).
+  apply Permutation_cons_append.
 Qed.
 
+(*  symmetry
+     Permutation_middle *)
 Lemma perm_takeit_5:
   forall(A:Type) (target:A) (l1 l2:list A),
     Permutation (l1 ++ (target :: l2)) (target :: (l1 ++ l2)).
 Proof.
   intros A target l1 l2.
-  apply (perm_takeit_1 _ (target::nil)).
+  symmetry.
+  apply Permutation_middle.
 Qed.
 
+(* perm_swap *)
 Lemma perm_takeit_6:
   forall(A:Type) (target:A) (a1:A) (l2:list A),
     Permutation (a1 :: (target :: l2)) (target :: (a1 :: l2)).
 Proof.
   intros A target a1 l2.
-  apply (perm_takeit_2 _ (target::nil)).
+  apply perm_swap.
 Qed.
 
+(* symmetry
+    Permutation_cons_append *)
 Lemma perm_takeit_7:
   forall(A:Type) (target:A) (l1:list A),
     Permutation (l1 ++ (target::nil)) (target :: l1).
 Proof.
   intros A target l1.
-  apply (perm_takeit_3 _ (target::nil)).
+  symmetry.
+  apply Permutation_cons_append.
 Qed.
 
+(* perm_swap *)
 Lemma perm_takeit_8:
   forall(A:Type) (target:A) (a1:A),
     Permutation (a1 :: (target::nil)) (target :: (a1::nil)).
 Proof.
   intros A target a1.
-  apply (perm_takeit_4 _ (target::nil)).
+  apply perm_swap.
 Qed.
 
 Ltac perm_simplify := app_normalize; repeat (

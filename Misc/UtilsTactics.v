@@ -27,8 +27,7 @@ repeat
  | [ H: ?a = ?a |- _ ] => clear H
  | [ H: (?a,?b) = (?a,?b) |- _ ] => clear H
  | [ H1: ?A, H2: ?A |- _ ] => clear H1
- | [ H: Remove ?F (?F :: ?L) ?L |- _ ] => clear H
-
+ 
  | [ H: In ?F (?F :: _) |- _ ] => clear H
  | [ H: In ?F (_++[?F]) |- _ ] => clear H
  | [ H: In ?F (_++?F :: _)|- _ ] => clear H
@@ -96,10 +95,6 @@ try
  | [H : ?A /\ ?B |- ?B ] => firstorder  
  | [H : ?A |- ?A \/ ?B ] => firstorder 
  | [H : ?B |- ?A \/ ?B] => firstorder 
- 
- | [ |- Remove ?F (?L++_) (?L++_)] => apply Remove_app_head 
- | [ |- Remove ?F (_++?L) (_++?L)] => apply Remove_app_tail
- | [ H: Remove ?F ?L ?L' |- Remove (?f ?F) (map ?f ?L) (map ?f ?L')] => apply Remove_Map;auto
   
  | [ H: ?a <> ?a |- _ ] => try solve [timeout 2 firstorder]
 
@@ -141,7 +136,6 @@ repeat
  | [ H: [_] = ?A ++ ?B |- _ ] => 
         symmetry in H; apply app_eq_unit in H; decompose [and or] H;clear H
         
- | [ H: Remove _ [_] _ |- _ ] =>  apply RemoveUnique in H 
 end;subst.
 
 

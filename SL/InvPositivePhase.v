@@ -27,8 +27,8 @@ Section Absorption.
   do 2 intro.
     induction n using strongind ;intros.
     * inversion H1...
-      solveLL.
-    * inversion H2;solveF;solveLL...
+      solveLL. solveSE.
+    * inversion H2;solveF;solveLL... solveSE.
       + apply PermutationInCons in H4 as H4'.
         apply in_app_or in H4'.
         destruct H4'.
@@ -36,7 +36,7 @@ Section Absorption.
           destruct H3.
           rewrite H3 in H4;simpl in H4.
           apply Permutation_cons_inv in H4.
-          tensor x N B D.
+          LLTensor x N B D.
           LLrewrite H3 in H8.
           LLSplit in H8. 
           CleanContext.
@@ -44,8 +44,10 @@ Section Absorption.
           eapply exchangeCCN.
           rewrite <- H5...
           eapply exchangeCCN in H8.
-           2: rewrite <- H5... 
-          CleanContext.
+           2: rewrite <- H5...
+           simpl in H8...
+           eapply H in H8. simpl...
+           all:auto.
       }
       {
         apply InPermutation in H3;
@@ -53,7 +55,7 @@ Section Absorption.
         rewrite H3 in H4;simpl in H4.
         rewrite <- perm_takeit_2 in H4.
         apply Permutation_cons_inv in H4.
-        tensor M x B D.
+        LLTensor M x B D.
         eapply exchangeLCN in H9.
         2: rewrite H3... 
         CleanContext.
@@ -63,34 +65,32 @@ Section Absorption.
         CleanContext.
         LLSplit...
         eapply exchangeCCN.
-        rewrite <- H6... 
-        CleanContext.
+        rewrite <- H6...
+                 simpl in H9...
+           eapply H in H9. simpl...
+           all:auto.
       }
     + LLSwap. apply H... LLExact H4.  
     + apply H... LLExact H5.  
-    + apply Remove_Permute in H5...
-      checkPermutationCases H5. 
-      decide2u i F0.
-      eapply exchangeLCN. 
-      rewrite H8...
-      auto. 
-      eapply exchangeLCN. 
-      rewrite H7...
-      decide1.
-      eapply exchangeLCN in H6. 
-      2: rewrite H5...
+    +  checkPermutationCases H5.
+      UFocus i F. inversion H3;inversion H4...
+      eapply exchangeLCN with (LC:=L')... 
+      rewrite H7 in H6...
       eapply H in H6...
+      rewrite H5.
+      LFocus F0.
     + inversion H7... 
       { apply H in H8...
-        decide2u i0 F0... }
+        UFocus i0 F0... }
       { apply H in H8...
-        decide2u i0 F0... }
-    + inversion H7...    
-      decide2l i0 F0 ((i, F) :: l2)... 
+        UFocus i0 F0... }
+    + checkPermutationCases H7...    
+      BFocus i0 F0 ((i, F) :: x)... rewrite H7...
+      rewrite H9 in  H8...
     + apply H in H6...
-      decide3 F0.
+      TFocus F0.
     + apply H in H6...
-      existential t.
+      LLExists t.
   Qed.
 
 
@@ -117,10 +117,10 @@ Section Absorption.
           destruct H2.
           rewrite H2 in H3;simpl in H3.
           apply Permutation_cons_inv in H3.
-          tensor x N ((i,F)::B) D.
-          CleanContext.
-          CleanContext.
-          CleanContext.
+          LLTensor x N ((i,F)::B) D.
+          simpl...
+          simpl...
+          simpl... rewrite H6...
           eapply exchangeLCN in H7.
           2: rewrite H2...
           sauto. 
@@ -131,36 +131,27 @@ Section Absorption.
         rewrite H2 in H3;simpl in H3.
         rewrite <- perm_takeit_2 in H3.
         apply Permutation_cons_inv in H3.
-        tensor M x B ((i,F)::D).
-        CleanContext.
-        CleanContext.
-        CleanContext.
-        rewrite H6...
+        LLTensor M x B ((i,F)::D).
+        simpl...
+        simpl...
+        simpl... rewrite H6...
         eapply exchangeLCN in H8.
           2: rewrite H2...
           sauto. 
       }
      + LLSwap...    
     + apply H... LLExact H4.    
-    + apply Remove_Permute in H4...
-      checkPermutationCases H4. 
-      decide2l i F0.
-      eapply exchangeLCN.
-      rewrite H7...
-          sauto.
-      eapply exchangeLCN.
-      rewrite H6...
-      decide1 F0.
-      eapply exchangeLCN in H5.
-      2: rewrite H4...
-      sauto.    
-    + decide2u i0 F0... 
-    + inversion H6...    
-      decide2l i0 F0 ((i, F) :: B')...
-      decide2l i0 F0 ((i, F) :: t':: l2)...
-       
-    + decide3 F0.
-    + existential t.
+    +  checkPermutationCases H4. 
+      BFocus i F. inversion H2;inversion H3...
+      rewrite <- H7...
+      rewrite H4.
+      LFocus F0.
+      rewrite H6 in H5...
+    + UFocus i0 F0... 
+    + BFocus i0 F0 ((i, F) :: B')...
+        rewrite <- H6...
+    + TFocus F0.
+    + LLExists t.
   Qed.
 
 Lemma AbsorptionCSet : forall th n C Gamma Delta X,
@@ -170,10 +161,10 @@ Lemma AbsorptionCSet : forall th n C Gamma Delta X,
   induction C;simpl;intros...
   destruct a as [i F].
   apply AbsorptionC. 
-  SLSolve. SLSolve.
+  solveSE. solveSE.
   LLPerm (C ++ Gamma ++ [(i, F)]).
   eapply IHC.
-  SLSolve. SLSolve.
+  solveSE. solveSE.
   LLExact H1...
   Qed. 
   
@@ -207,9 +198,9 @@ Lemma AbsorptionCSet : forall th n C Gamma Delta X,
   rewrite app_comm_cons.
   destruct a as [i F].
   apply AbsorptionL.
-  SLSolve.
+  solveSE.
   apply IHC.
-  SLSolve.
+  solveSE.
   LLExact H0...
   Qed. 
  
@@ -285,7 +276,7 @@ Section InvPosPhase.
     Theorem AbsorptionPerp :  forall n B M A X , theory (perp A) -> n |--- B; (perp A) ::  M; X -> n |--- B; M; X.
     Proof with solveF.
       induction n;intros ;inversion H0;subst;eauto;clear H0...
-      + (* tensor: A+ is in N or in M0 *)
+      + (* LLTensor: A+ is in N or in M0 *)
         assert (In (perp A)  ( M0 ++ N)).
         apply Permutation_in with (l:= (perp A) :: M)...
         apply in_app_or in H0;destruct H0.
@@ -298,7 +289,7 @@ Section InvPosPhase.
           apply Permutation_cons_inv in H2.
           eapply exchangeLCN.
           rewrite H2...
-          tensor x N B0 D.
+          LLTensor x N B0 D.
         ++ (* A+ in N *)
           apply InPermutation in H0;destruct H0.
           eapply exchangeLCN in H7.
@@ -309,12 +300,18 @@ Section InvPosPhase.
           apply Permutation_cons_app_inv in H2.
           eapply exchangeLCN.
           rewrite H2...
-          tensor M0 x B0 D.
-      + store.
+          LLTensor M0 x B0 D.
+      + LLStore.
         eapply exchangeLCN with (LC':= perp A :: F:: M) in H3...
         eapply IHn in H3;auto.
       + (*dec1 *)
-        inversion H3;subst;eauto.
+        checkPermutationCases H3. 
+        TFocus (perp A).
+        rewrite <- H5...
+        rewrite H1.
+        LFocus F.
+        rewrite H3 in H4...
+        apply IHn in H4...
     Qed.
    
    Theorem AbsorptionPerp2 :  forall n B M A L , theory (perp A) -> n |--- B; M; UP (L++[perp A]) -> n |--- B; M; (UP L).
@@ -326,17 +323,17 @@ Section InvPosPhase.
       + inversion H0...
         -  apply ListConsApp in H5...
         - apply ListConsApp in H2...
-          apply tri_bot...
+          LLBot.
           apply IHn with (A:=A)...
         -  apply ListConsApp in H2...
-          apply tri_par...
+          LLPar.
           apply IHn with (A:=A)...
         - apply ListConsApp in H2...
-          apply tri_with...
+          LLWith.
           apply IHn with (A:=A)...
           apply IHn with (A:=A)...   
         - apply ListConsApp in H2...
-          apply tri_quest...
+          LLStoreC.
           apply IHn with (A:=A)...
         - apply ListConsApp in H2...
           CleanContext.
@@ -344,10 +341,10 @@ Section InvPosPhase.
           eapply HeightGeqLEx.
           2:{ exact H6. }
           perm. lia.
-          store.
+          LLStore.
           apply IHn with (A:=A)...
         - apply ListConsApp in H2...
-          apply tri_fx;intros...
+          LLForall.
           apply H6 in H1.
           apply IHn with (A:=A)...
     Qed.      
@@ -379,7 +376,7 @@ Section InvPosPhase.
         n |--- B ;M ; UP (L ++ [F])  -> |-- B ; M ; UP (L ).
 
     Definition RDownTheory (n:nat) := forall B  F  M  H, 
-         ~ asynchronous F ->  ~ IsPositiveAtom F -> ~ IsNegativeAtom F -> theory F -> 
+         positiveFormula F ->  ~ IsPositiveAtom F -> ~ IsNegativeAtom F -> theory F -> 
         n |--- B ; F::M ; DW H -> |-- B ; M  ; DW H.
 
     Definition RIndTheory (n:nat) := RUpTheory n /\ RDownTheory (n -1). 
@@ -396,7 +393,7 @@ Section InvPosPhase.
       unfold RUpTheory. intros B L F M FT FNP FNN HD.
       destruct L.
       + inversion HD...
-        decide3 top.
+        TFocus Top.
       + inversion HD ...
     Qed.
 
@@ -414,51 +411,47 @@ Section InvPosPhase.
       + (* L1 is Empty *)
         inversion HD1... 
         ++
-          decide3 top. 
+          TFocus Top. 
         ++ 
           apply seqNtoSeq in H3;auto. 
         ++ 
-          decide3 (F0 $ G). 
+          TFocus (MOr F0 G). 
           apply seqNtoSeq in H3;auto. 
         ++ 
-          decide3 (F0 & G). 
+          TFocus (AAnd F0 G). 
           apply seqNtoSeq in H4;auto.
           apply seqNtoSeq in H5;auto. 
         ++ 
-          decide3 (i ? F0).
+          TFocus (Quest i F0).
           apply seqNtoSeq in H3;auto. 
         ++ 
           assert(RIndTheory n) by ( apply IH;auto).
           destruct H as [HUp  HDown].
           inversion H5;subst ...
-        *
-          eapply Remove_Permutation_Ex2 with (M:=[F] ++ M1) in H0;[|perm].
-          do 2 destruct H0.
-          inversion H0;subst.
+        * checkPermutationCases H0.
           **
-            decide3 F.
+            TFocus F.
             apply seqNtoSeq in H1;auto.
-            rewrite H2;auto.
+            rewrite <- H6;auto.
           **   
-            eapply tri_dec1' with (F:= F0) (L':=l2);auto.
+            LFocus F0 x.
             eapply HDown with (F:= F);auto.
-            simpl; rewrite Nat.sub_0_r.
+            inversion H4...
             eapply exchangeLCN with (LC:=L')...
         *
-          decide2u i F0. 
+          UFocus i F0. 
           eapply HDown with (F:= F);auto.
-          simpl; rewrite Nat.sub_0_r;auto.
+            inversion H4...
         *
-          decide2l i F0 B'. 
+          BFocus i F0 B'. 
           eapply HDown with (F:= F);auto.
-          simpl; rewrite Nat.sub_0_r;auto.
-        
-        *
-          decide3 F0 ...
+            inversion H4...
+         *
+          TFocus F0 ...
           eapply HDown with (F:= F);auto.
-          simpl; rewrite Nat.sub_0_r;auto.
+            inversion H4...
           ++ 
-           decide3 (F{ FX}) ...
+           TFocus (All FX) ...
             generalize (H5 x);intros.
             apply H in properX .
             apply seqNtoSeq in properX;auto. 
@@ -486,21 +479,21 @@ Section InvPosPhase.
           assert(HRI: RIndTheory (S n0)) by (apply IH;auto).
           destruct HRI as [HUp  HDown] ...
          
-          assert(n0 |--- B0; (F::x); (>> F0)).
+          assert(n0 |--- B0; (F::x); (DW F0)).
           seqPerm H0 H5. 
 (*           apply HDown in H... *)
-          tensor x N B0 D.  
+          LLTensor x N B0 D.  
           apply HDown in H... 
           apply seqNtoSeq in H9;auto.
         ++
           assert(HRI: RIndTheory (S n0)) by (apply IH;auto).
           destruct HRI as [HUp  HDown] ...
-          assert(n0 |--- D; (F::x); (>> G)).
+          assert(n0 |--- D; (F::x); (DW G)).
           seqPerm H0 H9. 
 
           apply HDown in H...
 
-          tensor M0 x B0 D.   
+          LLTensor M0 x B0 D.   
        
           apply seqNtoSeq in H5;auto.
       +
@@ -519,7 +512,7 @@ Section InvPosPhase.
         assert(HRI: RIndTheory (S n0)) by ( apply IH;auto).
         destruct HRI as [HUp  HDown] ...
         apply HDown in H6 ...
-        existential t.
+        LLExists t.
     Qed.
 
     Theorem InvAuxTheory : forall n, RIndTheory n.
@@ -558,7 +551,7 @@ Section InvPosPhase.
       u i = true -> mt i = true -> In (i,F) B -> n |--- B ;M ; UP (L ++ [F])  -> |-- B ; M ; UP (L ).  
 
     Definition RDown (n:nat) := forall i B F  M  H, 
-        ~ asynchronous F ->
+        positiveLFormula F ->
     u i = true ->  mt i = true -> In (i,F) B -> n |--- B ; F::M ; DW H -> |-- B ; M  ; DW H.
 
     Definition RInd (n:nat) := RUp n /\ RDown (n -1). 
@@ -574,7 +567,7 @@ Section InvPosPhase.
       unfold RUp. intros i B L F M U MT FB HD.
       destruct L.
       + inversion HD...
-        decide2u i top.
+        UFocus i Top.
       + inversion HD ...
     Qed.
 
@@ -591,53 +584,50 @@ Section InvPosPhase.
       + (* L1 is Empty *)
         inversion HD... 
         ++
-        decide2u i top.
+        UFocus i Top.
         ++ 
           apply seqNtoSeq in H3;auto. 
         ++
-        decide2u i (F0 $ G).
+        UFocus i (MOr F0 G).
         apply seqNtoSeq in H3;auto.
         ++ 
-          decide2u i (F0 & G). 
+          UFocus i (AAnd F0 G). 
           apply seqNtoSeq in H4;auto.
           apply seqNtoSeq in H5;auto. 
         ++ 
-          decide2u i (i0 ? F0). 
+          UFocus i (Quest i0 F0). 
           apply seqNtoSeq in H3;auto. 
         ++ 
           assert(RInd n) by ( apply IH;auto).
           destruct H as [HUp  HDown].
           inversion H5;subst ...
         * 
-          eapply Remove_Permutation_Ex2 with (M:=[F] ++ M) in H0;[|perm].
-          CleanContext.
-          inversion H2;subst.
+          checkPermutationCases H0.
           **
-            decide2u i F. 
             apply seqNtoSeq in H1;auto.
-            rewrite H3;auto.
+            rewrite <- H6;auto.
+            UFocus i F.
+            inversion H;inversion H0;sauto.
           **    
-            decide1 F0 l2. 
+            LFocus F0 x. 
             eapply HDown with (F:= F) (i:=i);auto.
             
-            eapply exchangeLCN with (LC:=F :: l2)...
+            eapply exchangeLCN with (LC:=F :: x)...
             seqPerm H3 H1...
         *
-          decide2u i0 F0.
+          UFocus i0 F0.
             eapply HDown with (F:= F) (i:=i);auto.
             
-        * assert(In (i, F) ((i0, F0) :: B')).
-          apply Remove_Permute in H2;auto.
-          rewrite H2 in FB;auto.
-          inversion H6...
-           decide2l i0 F0 B'.
-           eapply HDown with (F:= F) (i:=i);auto.
+        * rewrite <- H2 in FB;sauto.
+          inversion FB...
+          BFocus i0 F0 B'.
+          eapply HDown with (F:= F) (i:=i);auto.
         *
-          decide3 F0. 
+          TFocus F0. 
           eapply HDown with (F:= F) (i:=i);auto.
           ++ 
-            decide2u i (F{ FX}). 
-            generalize (H5 x);intro.
+            UFocus i (All FX).
+            solveLL. generalize (H5 x);intro.
             apply H in properX.
             apply seqNtoSeq in properX;auto. 
       + (* L is not empty *)
@@ -655,7 +645,7 @@ Section InvPosPhase.
 
     Theorem InvCopyDW: forall  n ,
         (forall m : nat, m <= n -> RInd m) -> RDown (n).
-    Proof with sauto;solveF;solveLL.
+    Proof with sauto;solveF;try solveLL.
       intros n IH.
       unfold RDown.  intros i B F M H FNA U MT FB HD.
       inversion HD...
@@ -666,11 +656,11 @@ Section InvPosPhase.
         ++ 
           assert(HRI: RInd (S n0)) by (apply IH;auto).
           destruct HRI as [HUp  HDown] ...
-          assert(n0 |--- B0; F::x0; (>> F0)).
+          assert(n0 |--- B0; F::x0; (DW F0)).
           seqPerm H1 H5.
 
           eapply HDown in H0...
-          tensor x0 N B0 D.  
+          LLTensor x0 N B0 D.  
          
           apply seqNtoSeq in H9;auto.
           exact U. auto.
@@ -681,11 +671,11 @@ Section InvPosPhase.
         ++
           assert(HRI: RInd (S n0)) by (apply IH;auto).
           destruct HRI as [HUp  HDown] ...
-          assert(n0 |--- D; F::x0; (>> G)).
+          assert(n0 |--- D; F::x0; (DW G)).
           seqPerm H1 H9.
 
           eapply HDown in H0...
-          tensor M0 x0 B0 D.  
+          LLTensor M0 x0 B0 D.  
    
           apply seqNtoSeq in H5;auto.
           exact U. auto.
@@ -713,7 +703,7 @@ Section InvPosPhase.
         assert(HRI: RInd (S n0)) by ( apply IH;auto).
         destruct HRI as [HUp  HDown] ...
         eapply HDown in H6 ...
-        existential t.
+        LLExists t.
         exact U. auto. auto.
     Qed.
 
@@ -745,6 +735,16 @@ Section InvPosPhase.
       generalize (HRn x);intros. eapply H3;eauto.
     Qed.
 
+Theorem AbsorptionClassicN : forall n i B L F  M,
+        u i = true -> mt i = true -> In (i,F) B -> 
+        (n |--- B ; M ; UP (L++[F])) ->
+        |-- B; M  ; UP L .
+    Proof.
+      intros.
+      assert(HRn:  forall n, RUp n) by (apply InvAux).
+      generalize (HRn n);intros. eapply H3;eauto.
+    Qed.
+
     Theorem AbsorptionClassic' : forall i B L F  M,
         u i = true -> mt i = true -> In (i,F) B ->
         (|-- B ; M ; UP (L++[F])) ->
@@ -767,16 +767,15 @@ Section InvPosPhase.
     revert dependent B'.
     revert dependent M.
     induction C;intros...
-    CleanContext... 
-    simpl in H2.
-    simpl in H1.
+    simpl in H2...
     destruct a as [b F].
     rewrite H1.
     eapply AbsorptionClassic' with (i:=b) (F:=F)...
-    SLSolve.
-    SLSolve.
-    
-    eapply IHC with (B':= (b, F) :: B')... SLSolve. SLSolve.
+    solveSE.
+    solveSE.
+    firstorder.
+    eapply IHC with (B':= (b, F) :: B')... 
+    solveSE. solveSE.
     rewrite app_assoc_reverse.
     rewrite <- H1. exact H2.
     Qed.
@@ -788,11 +787,11 @@ Section InvPosPhase.
 Section AbsorptionLinear.
 
     Definition RLUp (n:nat) := forall i B B' L F M , 
-      u i = false -> mt i = true -> Remove (i,F) B B' -> n |--- B' ;M ; UP (L ++ [F])  -> |-- B ; M ; UP (L ).  
+      u i = false -> mt i = true -> Permutation ((i,F)::B') B -> n |--- B' ;M ; UP (L ++ [F])  -> |-- B ; M ; UP (L ).  
 
     Definition RLDown (n:nat) := forall i B B' F  M  H, 
-        ~ asynchronous F ->
-    u i = false ->  mt i = true -> Remove (i,F) B B' -> n |--- B' ; F::M ; DW H -> |-- B ; M  ; DW H.
+       positiveLFormula F ->
+    u i = false ->  mt i = true -> Permutation ((i,F)::B') B -> n |--- B' ; F::M ; DW H -> |-- B ; M  ; DW H.
 
     Definition RLInd (n:nat) := RLUp n /\ RLDown (n -1). 
 
@@ -800,8 +799,6 @@ Section AbsorptionLinear.
     Proof with sauto;solveLL.
       unfold RLDown. intros i B B' F M H NAF ML MT FB HD.
       inversion HD...
-      CleanContext.
-      apply Remove_Permute in FB...
      Qed.
 
     Lemma RLUp0 : RLUp 0.
@@ -809,7 +806,7 @@ Section AbsorptionLinear.
       unfold RLUp. intros i B B' L F M ML MT FB HD.
       destruct L.
       + inversion HD...
-        decide2l i top B'. 
+        BFocus i Top B'. 
       + inversion HD ...
     Qed.
 
@@ -819,7 +816,7 @@ Section AbsorptionLinear.
 
     Theorem InvCopyLUP: forall  n ,
         (forall m : nat, m <= n -> RLInd m) -> RLUp (S n).
-    Proof with sauto;solveF;solveLL.
+    Proof with sauto;solveF;try solveLL.
       intros n IH.
       unfold RLUp. intros i B B' L1 F M MU MT FB HD.
     (*   assert(HPR: Permutation B ((i,F)::B')).
@@ -828,57 +825,54 @@ Section AbsorptionLinear.
       + (* L1 is Empty *)
         inversion HD... 
         ++
-        decide2l i top B'.
+        BFocus i Top B'.
         ++
-           decide2l i bot B'.
+           BFocus i Bot B'.
           apply seqNtoSeq in H3;auto. 
         ++
-        decide2l i (F0 $ G) B'.
+        BFocus i (MOr F0 G) B'.
         apply seqNtoSeq in H3;auto.
         ++ 
-          decide2l i (F0 & G) B'. 
+          BFocus i (AAnd F0 G) B'. 
           apply seqNtoSeq in H4;auto.
           apply seqNtoSeq in H5;auto. 
         ++ 
-          decide2l i (i0 ? F0) B'. 
+          BFocus i (Quest i0 F0) B'. 
           apply seqNtoSeq in H3;auto. 
         ++ 
           assert(RLInd n) by ( apply IH;auto).
           destruct H as [HUp  HDown].
           inversion H5;subst ...
         * 
-          eapply Remove_Permutation_Ex2 with (M:=[F] ++ M) in H0;[|perm].
-          CleanContext.
-          inversion H2;subst.
+         checkPermutationCases H0.
           **
-            decide2l i F B'. 
+            BFocus i F B'.
+            inversion H0... 
             apply seqNtoSeq in H1;auto.
-            rewrite H3;auto.
+            rewrite <- H6;auto.
           **    
-            decide1 F0 l2. 
+            LFocus F0 x. 
             eapply HDown with (F:= F) (i:=i) (B':=B') ;auto.
             
-            eapply exchangeLCN with (LC:=F :: l2)...
+            eapply exchangeLCN with (LC:=F :: x)...
             seqPerm H3 H1...
         *
-          decide2u i0 F0.
-          apply Remove_Permute in FB.
-           rewrite FB...  exact nil. 
+           UFocus i0 F0.
+           rewrite <- FB...  
             eapply HDown with (F:= F) (i:=i) (B':=B');auto.
         *
-           apply Remove_Permute in FB;auto.
-           apply Remove_Permute in H2;auto.
-           rewrite H2 in FB.
-           rewrite FB.
+           rewrite <- H2 in FB.
+           rewrite  <- FB.
            eapply exchangeCC' with (CC:=(i0, F0) :: (i, F) :: B'0).
            perm.
-           decide2l i0 F0 ( (i, F) :: B'0).
+           BFocus i0 F0 ( (i, F) :: B'0).
            eapply HDown with (F:= F) (i:=i);auto.
         *
-          decide3 F0. 
+          TFocus F0. 
           eapply HDown with (F:= F) (i:=i) (B':=B');auto.
           ++ 
-            decide2l i (F{ FX}) B'. 
+            BFocus i (All FX) B'.
+            solveLL. 
             generalize (H5 x);intro.
             apply H in properX.
             apply seqNtoSeq in properX;auto. 
@@ -888,6 +882,7 @@ Section AbsorptionLinear.
                                  destruct H as [HLUp  HLDown]; clear HLDown) ...
         1-4: eapply HLUp with (F:=F) (i:=i) (B':=B');auto.
         eapply HLUp with (F:=F) (i:=i) (B':=(i0, F0)::B')...
+        rewrite <- FB...
         eapply HLUp with (F:=F) (i:=i) (B':=B')...       
         generalize (H5 x properX);intros...
         eapply HLUp with (F:=F) (i:=i) (B':=B')...       
@@ -901,85 +896,71 @@ Section AbsorptionLinear.
 
     Theorem InvCopyLDW: forall  n ,
         (forall m : nat, m <= n -> RLInd m) -> RLDown (n).
-    Proof with sauto;solveF;solveLL.
+    Proof with sauto;solveF;try solveLL.
       intros n IH.
       unfold RLDown.  intros i B B' F M H FNA MU MT FB HD.
       inversion HD...
-      + 
-         CleanContext.
-      apply Remove_Permute in FB...
       + 
         checkPermutationCases H1.
         ++ 
           assert(HRI: RLInd (S n0)) by (apply IH;auto).
           destruct HRI as [HUp  HDown] ...
-          assert(n0 |--- B0; F::x ; (>> F0)).
+          assert(n0 |--- B0; F::x ; (DW F0)).
           seqPerm H0 H5.
            
-          assert(|-- (i, F) :: B0; x; (>> F0)). 
-          eapply HDown ...
-          tensor x N ((i, F) :: B0) D.  
-          CleanContext.
-          apply Remove_Permute in FB...
-          rewrite FB.
-          CleanContext.
-          apply Remove_Permute in FB...
-          rewrite FB.
-          CleanContext.
-          apply Remove_Permute in FB...
-          rewrite FB.
-          CleanContext.
+          assert(|-- (i, F) :: B0; x; (DW F0)). 
+          eapply HDown with (i:=i) (F:=F) (B':=B0)...
+          LLTensor x N ((i, F) :: B0) D.
+          rewrite <- FB.
+          simpl...  
+          rewrite <- FB.
+          simpl...  
+          rewrite <- FB.
+          simpl... rewrite H4...  
           apply seqNtoSeq in H9;auto.
         ++
           assert(HRI: RLInd (S n0)) by (apply IH;auto).
           destruct HRI as [HUp  HDown] ...
-          assert(n0 |--- D; F::x; (>> G)).
+          assert(n0 |--- D; F::x; (DW G)).
           seqPerm H0 H9.
-          assert(|-- (i, F) :: D; x; (>> G)). 
-          eapply HDown ...
-          tensor M0 x B0 ((i, F) :: D).  
-          apply Remove_Permute in FB...
-          rewrite FB.
-          CleanContext.
-          apply Remove_Permute in FB...
-          rewrite FB.
-          CleanContext.
-          apply Remove_Permute in FB...
-          rewrite FB.
-          CleanContext.
-          rewrite <- Permutation_middle...
+          assert(|-- (i, F) :: D; x; (DW G)). 
+          eapply HDown with (i:=i) (F:=F) (B':=D)...
+         
+          LLTensor M0 x B0 ((i, F) :: D).
+          rewrite <- FB.
+          simpl...  
+          rewrite <- FB.
+          simpl...  
+          rewrite <- FB.
+          simpl... rewrite H4...  
           apply seqNtoSeq in H5;auto.
       + 
         assert(HRI: RLInd (S n0)) by (apply IH ; auto).
         destruct HRI as [HUp  HDown] ...
-        assert(|-- (i, F) :: B'; M; (>> F0)). 
-        eapply HDown...
-        oplus1...
-        apply Remove_Permute in FB...
-        rewrite FB...
+        assert(|-- (i, F) :: B'; M; (DW F0)). 
+        eapply HDown with (i:=i) (F:=F) (B':=B')...
+        LLPlusL.
+        rewrite <- FB...
       +
         assert(HRI: RLInd (S n0)) by (apply IH ; auto).
         destruct HRI as [HUp  HDown] ...
-        assert(|-- (i, F) :: B'; M; (>> G)). 
-        eapply HDown...
-        oplus2...
-        apply Remove_Permute in FB...
-        rewrite FB...
+        assert(|-- (i, F) :: B'; M; (DW G)). 
+        eapply HDown with (i:=i) (F:=F) (B':=B')...
+        LLPlusR.
+        rewrite <- FB...
       + eapply UpExtension in H5...
         assert(HRI: RLInd x)  by (apply IH ;auto).
         destruct HRI as [HUp  HDown] ...
-        assert( |-- (i, F) :: B'; M; (> [H])).
+        assert( |-- (i, F) :: B'; M; (UP [H])).
         eapply HUp...
-        apply Remove_Permute in FB...
-        rewrite FB... 
-      +
+        rewrite <- FB... 
+      + 
         assert(HRI: RLInd (S n0)) by ( apply IH;auto).
         destruct HRI as [HUp  HDown] ...
-        assert(|-- (i, F) :: B'; M; (>> FX t)).
-        eapply HDown...
-        existential t.
-        apply Remove_Permute in FB...
-        rewrite FB... 
+        assert(|-- (i, F) :: B'; M; (DW (FX t))).
+        eapply HDown with (i:=i) (F:=F)...
+        LLExists t.
+        rewrite <- FB... 
     Qed.
 
 
@@ -999,15 +980,14 @@ Section AbsorptionLinear.
     (* MAIN INVERTIBILITY THEOREM *)
     (* =============================================== *)   
     Theorem AbsorptionLinear : forall i B B' L F  M,
-        mt i = true -> Remove (i,F) B B' -> 
+        mt i = true -> Permutation ((i,F)::B') B  -> 
         |-- B' ;M ; UP (L ++ [F]) -> |-- B ; M ; UP L .
     Proof.
       intros.
       destruct (uDec i).
-      apply Remove_Permute in H0;auto.
       eapply AbsorptionClassic with (i:=i) (F:=F);auto.
-      rewrite H0;firstorder.
-      rewrite H0.
+      rewrite <- H0;firstorder.
+      rewrite <- H0.
       apply weakening;auto.
       
       assert(HRn:  forall n, RLUp n) by (apply InvLAux).
@@ -1026,14 +1006,13 @@ Section AbsorptionLinear.
     revert dependent B'.
     revert dependent M.
     induction C;intros...
-    CleanContext. rewrite H0...
-    simpl in H1.
-    simpl in H0.
+    simpl in H1...
+    rewrite H0...
     destruct a as [b F].
-    rewrite H0.
-    eapply AbsorptionLinear with (i:=b)...
-    SLSolve. SLSolve.
-    eapply IHC... SLSolve. SLSolve.
+    rewrite  H0.
+    eapply AbsorptionLinear with (i:=b) (F:=F) (B':=C++B')...
+    solveSE.
+    eapply IHC... solveSE. 
     rewrite app_assoc_reverse.
     exact H1.
     Qed.
@@ -1046,11 +1025,11 @@ Section AbsorptionLinear.
 
     Definition RUpExists (n:nat) := forall B L M FX t, 
       uniform_oo FX -> proper t -> 
-      n |--- B ;M ; UP (L ++ [FX t])  -> |-- B ; (E{ FX}):: M; UP L.
+      n |--- B ;M ; UP (L ++ [FX t])  -> |-- B ; (Some FX):: M; UP L.
 
     Definition RDownExists (n:nat) := forall B M H FX t, 
-        ~ asynchronous (FX t) -> positiveFormula (FX t) -> uniform_oo FX -> proper t ->
-        n |--- B ; (FX t)::M; DW H -> |-- B ;E{ FX} :: M; DW H.
+        ~ IsPositiveAtom (FX t) -> positiveLFormula (FX t) -> uniform_oo FX -> proper t ->
+        n |--- B ; (FX t)::M; DW H -> |-- B ;Some FX :: M; DW H.
 
 
     Definition RIndExists (n:nat) := RUpExists n /\ RDownExists (n -1). 
@@ -1062,31 +1041,21 @@ Section AbsorptionLinear.
     intros B M H FX t FNA FP Uni Ft HD.
       inversion HD...
       
-      rewrite <- H0 in FP.
-      inversion FP. 
+      rewrite <- H0 in FNA.
+      solveF.
     Qed.
 
-    Lemma Remove_app_in' :
-      forall (F:oo) (L: list oo), Remove F (L ++ [F]) (L).
-      intros.
-      assert(Remove (F) (L ++ [F]) (L++[])).
-      eapply Remove_app_in with (F:=F) (L1:=L) (L2:=nil).
-      rewrite app_nil_r in H.
-      assumption.
-    Qed.
-
-
-
+   
     Lemma RUpE0 : RUpExists 0.
     Proof with subst;auto;solveF;solveLL.
       unfold RUpExists.
       intros.
       destruct L.
       + inversion H1...
-        decide1 (E{ FX}) M ...
-        existential t.  
+        LFocus (Some FX) M ...
+        LLExists t.  
           rewrite <- H6.
-          release... 
+          LLRelease... 
       + inversion H1...
     Qed.
 
@@ -1094,109 +1063,113 @@ Section AbsorptionLinear.
     (* PROOF OF RUP *)
     (* =============================================== *)   
     Theorem InvExUP: forall  n , (forall m : nat, m <= n -> RIndExists m) -> RUpExists (S n).
-    Proof with sauto;solveF;solveLL.
+    Proof with sauto;solveF;try solveLL.
       intros n IH.
       unfold RUpExists.  intros B L1 M1 FX t  Hu Hp HD1.
       destruct L1;simpl in *.
       + (* L1 is Empty *)
         inversion HD1... 
         ++
-        decide1 (E{ FX}) M1...
-        existential t.  
+        LFocus (Some FX) M1...
+        LLExists t.  
           rewrite <- H3.
-          release...
-        ++ decide1 (E{ FX}) M1...
-           existential t.  
+         LLRelease...
+        ++ LFocus (Some FX) M1...
+           LLExists t.  
            rewrite <- H0.
-           release...
+           LLRelease...
            apply seqNtoSeq in H3;auto. 
-        ++ decide1 (E{ FX}) M1...
-           existential t.  
+        ++ LFocus (Some FX) M1...
+           LLExists t.  
            rewrite <- H0.
-           release...
+           LLRelease...
            apply seqNtoSeq in H3;auto. 
-        ++ decide1 (E{ FX}) M1...
-           existential t.  
+        ++ LFocus (Some FX) M1...
+           LLExists t.  
            rewrite <- H0.
-           release...
+           LLRelease...
            apply seqNtoSeq in H4;auto. 
            apply seqNtoSeq in H5;auto.
-        ++ decide1 (E{ FX}) M1...
-           existential t.  
+        ++ LFocus (Some FX) M1...
+           LLExists t.  
            rewrite <- H0.
-           release...
+           LLRelease...
            apply seqNtoSeq in H3;auto. 
         ++ 
           assert(RIndExists n) by ( apply IH;auto).
           destruct H as [HUp  HDown].
           inversion H5;subst ...
         * 
-          eapply Remove_Permutation_Ex2 with (M:=[FX t] ++ M1) in H0;[|perm].
-          CleanContext.
-          inversion H2;subst.
+          checkPermutationCases H0. 
           
-          decide1 (E{ FX}) x...
-          existential t.  
-          rewrite H3.
+          LFocus (Some FX) M1...
+          LLExists t.  
+          rewrite <- H6.
           apply seqNtoSeq in H1;auto.
           
           destruct (NotAsynchronousPosAtoms H4).
           2:{
           inversion H0...
-            decide1 (E{ FX}) M1... 
-            existential t.
+            LFocus (Some FX) M1... 
+            LLExists t.
              rewrite <- H7.
              rewrite <- H7 in H5.
-           release...
+           LLRelease...
            apply seqNtoSeq in H5;auto.
           }
-          assert(Permutation (l2 ++ [FX t]) L') by (rewrite <- H3;perm).
-          assert( n0 |--- B; (FX t)::l2; (>> F)).
-          seqPerm H6 H1. perm.
+          assert( n0 |--- B; (FX t)::x; (DW F)).
+          seqPerm H3 H1.
 
-          apply HDown in H7...
-          decide1 F ((E{ FX})::l2) ...
+          apply HDown in H6...
+          LFocus F ((Some FX)::x) ...
+          rewrite H2...
+          inversion H7...
+          
+          rewrite <- H9 in H0...
+          
         *
           destruct (NotAsynchronousPosAtoms H4).
           2:{
           inversion H6...
-            decide1 (E{ FX}) M1... 
-            existential t.
+            LFocus (Some FX) M1... 
+            LLExists t.
              rewrite <- H8.
              rewrite <- H8 in H5.
-           release...
+           LLRelease...
            apply seqNtoSeq in H5;auto. }
           eapply HDown in H3...
-          decide2u i F.  
+          UFocus i F.
+          eauto. 
         *
           destruct (NotAsynchronousPosAtoms H4).
           2:{
           inversion H6...
-            decide1 (E{ FX}) M1... 
-            existential t.
+            LFocus (Some FX) M1... 
+            LLExists t.
              rewrite <- H8.
              rewrite <- H8 in H5.
-           release...
+           LLRelease...
            apply seqNtoSeq in H5;auto.
           }
           apply HDown in H3 ...
-          decide2l i F B'.
+          BFocus i F B'.
+          eauto.
          *
           destruct (NotAsynchronousPosAtoms H4).
           2:{
           inversion H2...
-            decide1 (E{ FX}) M1... 
-            existential t.
+            LFocus (Some FX) M1... 
+            LLExists t.
              rewrite <- H6.
              rewrite <- H6 in H5.
-           release...
+           LLRelease...
            apply seqNtoSeq in H5;auto.
           }
           apply HDown in H1 ...
-          decide3 F.
+          TFocus F. eauto.
         ++ 
-            decide1 (E{ FX}) M1... 
-            existential t.
+            LFocus (Some FX) M1... 
+            LLExists t.
             rewrite <- H0...
             generalize(H5 x properX);intro.
             apply seqNtoSeq in H;auto.
@@ -1217,13 +1190,13 @@ Section AbsorptionLinear.
     (* PROOF OF RDOWN *)
     (* =============================================== *)   
     Theorem InvExDW: forall  n , (forall m : nat, m <= n -> RIndExists m) -> RDownExists (n).
-    Proof with sauto;solveF;solveLL.
+    Proof with sauto;solveF;try solveLL.
       intros n IH.
       unfold RDownExists.  
       intros B M H FX t HNA HP Hu Ht HD1.
       inversion HD1;subst ...
-      + rewrite <- H0 in HP.
-        inversion HP.
+      + rewrite <- H0 in HNA.
+      solveF.
       +
         checkPermutationCases H1. 
         ++ 
@@ -1233,7 +1206,8 @@ Section AbsorptionLinear.
           auto using le_n_S.
           destruct HRI as [HUp  HDown] ...
           apply HDown in H5 ...
-          tensor (E{ FX}::x ) N B0 D.
+          LLTensor (Some FX::x ) N B0 D.
+          rewrite <- H1...
           apply seqNtoSeq in H9;auto.
         ++ 
           eapply exchangeLCN in H9.
@@ -1242,9 +1216,8 @@ Section AbsorptionLinear.
           auto using le_n_S.
           destruct HRI as [HUp  HDown] ...
           apply HDown in H9 ...
-          tensor M0 (E{ FX}::x) B0 D.
-          rewrite <- H1; perm.
-          
+          LLTensor M0 (Some FX::x) B0 D.
+          rewrite <- H1...
           apply seqNtoSeq in H5;auto.
       +                   
           assert(HRI: RIndExists (S n0)).
@@ -1266,7 +1239,7 @@ Section AbsorptionLinear.
           auto using le_n_S.
           destruct HRI as [HUp  HDown] ...
           apply HDown in H6...
-          existential t0.
+          LLExists t0.
     Qed.
 
     Theorem InvExAux : forall n, RIndExists n.
@@ -1288,7 +1261,7 @@ Section AbsorptionLinear.
 
     Theorem InvEx : forall B L FX t  M, 
         uniform_oo FX -> proper t -> 
-        |-- B  ;M ; UP (L++[FX t ]) -> |-- B ; E{ FX}::M ; UP L .
+        |-- B  ;M ; UP (L++[FX t ]) -> |-- B ; Some FX::M ; UP L .
     Proof.
       intros.
       assert(HRn:  forall n, RUpExists n) by (apply InvExAux).
@@ -1300,38 +1273,37 @@ Section AbsorptionLinear.
 
 
     Theorem InvExC : forall i B L FX t  M, u i = true -> mt i = true ->
-       In (i,E{ FX}) B ->
+       In (i,Some FX) B ->
         uniform_oo FX -> proper t -> 
         |-- B ;M ; UP (L ++ [FX t]) -> |-- B ; M ; UP L .
     Proof.
       intros.
       eapply @AbsorptionClassic;eauto.
       apply UpExtension'.
-      intro. inversion H5.
+      solveF.
       apply InvEx with (t:=t);auto.
     Qed.  
     
      Theorem InvExL : forall i B B' L FX t M, u i = false -> mt i = true ->
-        uniform_oo FX -> proper t -> Remove (i,E{ FX}) B B' ->
+        uniform_oo FX -> proper t -> Permutation ((i,Some FX)::B') B ->
         |-- B'  ;M ; UP (L++[FX t ]) -> |-- B ; M ; UP L .
     Proof.
        intros.
       eapply @AbsorptionLinear;eauto.
       apply UpExtension'.
-      intro. inversion H5.
+      solveF.
       apply InvEx with (t:=t);auto.
     Qed.
   
        Theorem InvExT : forall B L FX t M, 
-        uniform_oo FX -> proper t -> theory (E{ FX}) ->
+        uniform_oo FX -> proper t -> theory (Some FX) ->
         |-- B  ;M ; UP (L++[FX t ]) -> |-- B ; M ; UP L .
     Proof.
        intros.
       eapply @AbsorptionTheory;eauto.
       intro Hc. inversion Hc.
-      intro Hc. inversion Hc.
       apply UpExtension'.
-      intro Hc. inversion Hc.
+      solveF.
       apply InvEx with (t:=t);auto.
     Qed.
       
@@ -1342,11 +1314,11 @@ Section AbsorptionLinear.
   Section InvOPlus.
 
     Definition RUpPlus (n:nat) := forall B L M F G, 
-      n |--- B ;M ; UP (L ++ [F])  -> |-- B ; (F op G)::M; UP L.
+      n |--- B ;M ; UP (L ++ [F])  -> |-- B ; (AOr F G)::M; UP L.
 
     Definition RDownPlus (n:nat) := forall B M H F G, 
         positiveFormula F ->
-        n |--- B ; F::M  ; DW H -> |-- B ; (F op G)::M; DW H.
+        n |--- B ; F::M  ; DW H -> |-- B ; (AOr F G)::M; DW H.
 
     Definition RIndPlus (n:nat) := RUpPlus n /\ RDownPlus (n -1). 
 
@@ -1355,7 +1327,6 @@ Section AbsorptionLinear.
       unfold RDownPlus.
       intros B M H F G FP HD.
       inversion HD;subst...
-      inversion FP. 
     Qed.
 
     Lemma RUpP0 : RUpPlus 0.
@@ -1364,8 +1335,7 @@ Section AbsorptionLinear.
       intros B L M F G HD.
       destruct L.
       + inversion HD;subst...
-        decide1 (top op G) M...
-        oplus1.
+        LFocus (AOr Top G) M...
       + inversion HD...
     Qed.
 
@@ -1374,91 +1344,90 @@ Section AbsorptionLinear.
     (* =============================================== *)   
 
     Theorem InvPlusUP: forall  n , (forall m : nat, m <= n -> RIndPlus m) -> RUpPlus (S n).
-    Proof with sauto;solveF;solveLL.
+    Proof with sauto;solveF;try solveLL.
       intros n IH.
       unfold RUpPlus.  intros B L1 M1 F G HD1.
       destruct L1;simpl in *.
       + (* L1 is Empty *)
         inversion HD1;subst ...
         ++
-          decide1 (top op G). 
-          oplus1.
+          LFocus (AOr Top G). 
         ++ 
-          decide1 (bot op G). 
-          oplus1.
+          LFocus (AOr Bot G). 
+          LLPlusL.
           apply seqNtoSeq in H3;auto.
         ++
-          decide1 ((F0 $ G0) op G). 
-          oplus1.
+          LFocus (AOr (MOr F0 G0) G). 
+          LLPlusL.
           apply seqNtoSeq in H3;auto.
         ++ 
-          decide1 ((F0 & G0) op G). 
-          oplus1.
+          LFocus (AOr (AAnd F0 G0) G). 
+          LLPlusL.
           apply seqNtoSeq in H4;auto.
           apply seqNtoSeq in H5;auto.
         ++
-          decide1 ((i ? F0) op G). 
-          oplus1.
+          LFocus (AOr (Quest i F0) G). 
+          LLPlusL.
           apply seqNtoSeq in H3;auto.
         ++ 
           assert(RIndPlus n) by ( apply IH;auto).
           destruct H as [HUp  HDown].
           inversion H5;subst ...
         *  
-          eapply Remove_Permutation_Ex2 with (M:=[F] ++ M1) in H0;[|perm].
-          CleanContext.
-          inversion H2...
-          decide1 (F op G) x...
-          oplus1.
-          rewrite H3.
+          checkPermutationCases H0. 
+          LFocus (AOr F G) M1...
+          LLPlusL.
+          rewrite <- H6.
           apply seqNtoSeq in H1;auto.
 
           destruct (NotAsynchronousPosAtoms H4).
           2:{
-            decide1 (F op G) M1...
-            oplus1.
+            LFocus (AOr F G) M1...
+            LLPlusL.
             inversion H0...
             apply seqNtoSeq in H5;auto.
           }
-          assert(n0 |--- B; (F::l2); (>> F0)).
+          assert(n0 |--- B; (F::x); (DW F0)).
           seqPerm H3 H1.
-          decide1 F0 ((F op G)::l2)...
+          LFocus F0 ((AOr F G)::x)...
+          rewrite H2...
         * 
           destruct (NotAsynchronousPosAtoms H4).
           2:{
-            decide1 (F op G) M1...
-            oplus1.
+            LFocus (AOr F G) M1...
+            LLPlusL.
             inversion H6...
             apply seqNtoSeq in H5;auto.
           }
           eapply HDown in H3 ...
-          decide2u i F0. 
+          UFocus i F0. 
           exact H3. 
         * 
           destruct (NotAsynchronousPosAtoms H4).
           2:{
-           decide1 (F op G) M1...
-            oplus1.
+           LFocus (AOr F G) M1...
+            LLPlusL.
             inversion H6...
             apply seqNtoSeq in H5;auto.
           }
           eapply HDown in H3 ...
-          decide2l i F0 B'. 
+          BFocus i F0 B'. 
           exact H3. 
          * 
           destruct (NotAsynchronousPosAtoms H4).
           2:{
-           decide1 (F op G) M1...
-            oplus1.
+           LFocus (AOr F G) M1...
+            LLPlusL.
             inversion H2...
             apply seqNtoSeq in H5;auto.
           }
           eapply HDown in H1 ...
-          decide3 F0. 
+          TFocus F0. 
           exact H1.          
           ++
-            decide1 (F{ FX} op G) M1...
-            oplus1.
+            LFocus (AOr (All FX) G) M1...
+            LLPlusL.
+            solveLL.
             generalize (H5 x properX);intro.
             apply seqNtoSeq in H;auto.
       + (* L is not empty *)
@@ -1468,18 +1437,18 @@ Section AbsorptionLinear.
 
         all: try eapply HUp...
         rewrite perm_swap... 
+          generalize (H5 x properX);intro...
+        
     Qed.    
 
     (* =============================================== *)
     (* PROOF OF RDOWN *)
     (* =============================================== *)   
     Theorem InvPlusDW: forall  n , (forall m : nat, m <= n -> RIndPlus m) -> RDownPlus (n).
-    Proof with sauto;solveF;solveLL.
+    Proof with sauto;solveF;try solveLL.
       intros n IH.
       unfold RDownPlus.  intros B M  H  F G HPosF HD1.
       inversion HD1;subst ...
-      + 
-        inversion HPosF.
       + 
     
        assert(HRI: RIndPlus (S n0)) by auto.
@@ -1488,12 +1457,13 @@ Section AbsorptionLinear.
        ++
        eapply exchangeLCN in H5.
        2: rewrite H0...
-       tensor ((F op G) ::x) N B0 D...  
+       LLTensor ((AOr F G) ::x) N B0 D...
+       rewrite <- H1...  
        apply seqNtoSeq in H9...
        ++
        eapply exchangeLCN in H9.
        2: rewrite H0...
-       tensor M0  ((F op G) ::x) B0 D...  
+       LLTensor M0  ((AOr F G) ::x) B0 D...  
        rewrite <- H1...
        apply seqNtoSeq in H5...
      +
@@ -1504,13 +1474,12 @@ Section AbsorptionLinear.
        destruct HRI as [HUp  HDown] ...
      + 
        apply UpExtension in H5...
-       2:{ inversion HPosF... } 
         assert(HRI: RIndPlus x)  by auto.
         destruct HRI as [HUp  HDown] ...
       +
         assert(HRI: RIndPlus (S n0)) by auto.
         destruct HRI as [HUp  HDown] ...
-        existential t.
+        LLExists t.
     Qed.
 
 
@@ -1531,7 +1500,7 @@ Section AbsorptionLinear.
     (* MAIN INVERTIBILITY THEOREM *)
     (* =============================================== *)   
     Theorem InvPlus : forall B L F G  M, 
-    |-- B  ;M ; UP (L++[F]) -> |-- B ; (F op G) :: M ; UP L .
+    |-- B  ;M ; UP (L++[F]) -> |-- B ; (AOr F G) :: M ; UP L .
     Proof.
       intros.
       assert(HRn:  forall n, RUpPlus n) by (apply InvPlusAux).
@@ -1542,44 +1511,41 @@ Section AbsorptionLinear.
     Qed.
 
    Theorem InvPlusC : forall i B L F G M, u i = true -> mt i = true ->
-       In (i,F op G) B ->
+       In (i,AOr F G) B ->
         |-- B ;M ; UP (L++[F]) -> |-- B ; M ; UP L .
     Proof.
       intros.
       eapply @AbsorptionClassic;eauto.
       apply UpExtension'.
-      intro Hc. inversion Hc.
+      auto.
       apply InvPlus ;auto.
     Qed.  
     
      Theorem InvPlusL : forall i B B' L F G M, u i = false -> mt i = true ->
-        Remove (i,F op G) B B' ->
+        Permutation ((i,AOr F G)::B') B  ->
         |-- B'  ;M ; UP (L++[F]) -> |-- B ; M ; UP L .
     Proof.
        intros.
       eapply @AbsorptionLinear;eauto.
-      apply UpExtension'.
-      intro Hc. inversion Hc.
+      apply UpExtension'. auto.
       apply InvPlus;auto.
     Qed.
 
      Theorem InvPlusT : forall L F G B M, 
-        theory (F op G) ->
+        theory (AOr F G) ->
         |-- B  ;M ; UP (L++[F]) -> |-- B ; M ; UP L .
     Proof.
        intros.
       eapply @AbsorptionTheory;eauto.
       intro Hc. inversion Hc.
-      intro Hc. inversion Hc.
       apply UpExtension'.
-      
-      intro Hc. inversion Hc.
+      auto.
       apply InvPlus ;auto.
     Qed.
     
     Lemma OPlusComm : forall B M F G X n,
-     n |--- B ; F op G::M ; X -> n |--- B ; G op F::M ; X.
-    Proof with sauto;solveF;solveLL.
+     n |--- B ; AOr F G::M ; X -> n |--- B ; AOr G F::M ; X.
+    Proof with sauto;solveF;try solveLL.
       intros.
       generalize dependent B.
       generalize dependent M.
@@ -1590,49 +1556,44 @@ Section AbsorptionLinear.
         inversion H...
       + 
         inversion H0...
-        ++ 
-          eapply Remove_Permutation_Ex2 with (F:=F op G) (L':= M) in H2...
-          CleanContext.
-
-          apply Remove_Permute in H2;auto.
-          checkPermutationCases H2.
+        ++
+        checkPermutationCases H2. 
           eapply exchangeLCN in H6.
            2: rewrite H2...
           eapply H in H6...
-          tensor (G op F::x0) N B0 D...
+          LLTensor (AOr G F::x) N B0 D...
+          rewrite <- H8...
           eapply exchangeLCN in H7.
            2: rewrite H2...
           eapply H in H7...
-          tensor M0 (G op F::x0) B0 D...
-          rewrite <- H8. rewrite <- H9. perm.
+          LLTensor M0 (AOr G F::x) B0 D...
+          rewrite <- H8... 
         ++
-          assert (n |--- B; F op G::(M ++ [F0]); (> M0)).
+          assert (n |--- B; AOr F G::(M ++ [F0]); (UP M0)).
           LLExact H3.
           eapply H in H1...
           LLExact H1.
-        ++ 
-          eapply Remove_Permutation_Ex2 with (M:=[F op G] ++ M) in H3;[|perm].
-          CleanContext.
-          inversion H3...
-      
-          decide1...
+        ++
+        checkPermutationCases H3. 
+          LFocus...
           eapply exchangeLCN. 
-          rewrite H5... 
+          rewrite <- H6... 
           inversion H4...
 
-          decide1 F0  (G op F::l2)...
+          LFocus F0  (AOr G F::x)...
+          rewrite H3...
           eapply exchangeLCN in H4. 
-          2: rewrite <- H5... 
+          2: rewrite H5... 
           apply H in H4...
        ++
-       decide2u i F0.
+       UFocus i F0.
        ++
-       decide2l i F0 B'.
+       BFocus i F0 B'.
           
         ++
-       decide3 F0.
+       TFocus F0.
         ++ 
-          existential t. 
+          LLExists t. 
        
     Qed.
 
@@ -1640,7 +1601,7 @@ Section AbsorptionLinear.
     (* MAIN INVERTIBILITY THEOREM (FLIPPING F and G)   *)
     (* =============================================== *)   
     Theorem InvPlusComm: forall B L F G  M, 
-     |-- B  ;M ; UP (L++[G]) -> |-- B ; (F op G)::M ; UP L .
+     |-- B  ;M ; UP (L++[G]) -> |-- B ; (AOr F G)::M ; UP L .
     Proof.
       intros.
       apply InvPlus with (G:=F)in H;auto.
@@ -1651,37 +1612,33 @@ Section AbsorptionLinear.
     Qed.
 
     Theorem InvPlusCComm : forall i B L F G M, u i = true -> mt i = true ->
-       In (i,F op G) B ->
+       In (i,AOr F G) B ->
         |-- B ;M ; UP (L++[G]) -> |-- B ; M ; UP L .
     Proof.
       intros.
       eapply @AbsorptionClassic;eauto.
-      apply UpExtension'.
-      intro Hc. inversion Hc.
+      apply UpExtension'. auto.
       apply InvPlusComm ;auto.
     Qed.  
     
      Theorem InvPlusLComm : forall i B B' L F G M, u i = false -> mt i = true ->
-        Remove (i,F op G) B B' ->
+        Permutation ((i, AOr F G):: B') B ->
         |-- B'  ;M ; UP (L++[G]) -> |-- B ; M ; UP L .
     Proof.
        intros.
       eapply @AbsorptionLinear;eauto.
-      apply UpExtension'.
-      intro Hc. inversion Hc.
+      apply UpExtension'. auto.
       apply InvPlusComm;auto.
     Qed.
     
     Theorem InvPlusTComm : forall L F G B M, 
-        theory (F op G) ->
+        theory (AOr F G) ->
         |-- B  ;M ; UP (L++[G]) -> |-- B ; M ; UP L .
     Proof.
        intros.
       eapply @AbsorptionTheory;eauto.
       intro Hc. inversion Hc.
-      intro Hc. inversion Hc.
-      apply UpExtension'.
-      intro Hc. inversion Hc.
+      apply UpExtension'. auto.
       apply InvPlusComm ;auto.
     Qed.
     
@@ -1700,7 +1657,7 @@ Section AbsorptionLinear.
       Permutation (getL BD) (getL B ++ getL D) ->
       n |--- B ;M ; UP (L ++ [F]) -> 
       m |--- D ;M' ; UP (L' ++ [G])  -> 
-        |-- BD ; (F ** G) :: M ++ M'; UP (L ++ L').
+        |-- BD ; (MAnd F  G) :: M ++ M'; UP (L ++ L').
 
     Definition RDownTensor (nm:nat) := forall BD B D M M' H F G n m, 
         nm = n + m -> positiveFormula F -> 
@@ -1709,12 +1666,12 @@ Section AbsorptionLinear.
         Permutation (getL BD) (getL B ++ getL D) ->
         n |--- B ; F::M; DW H -> 
         m |--- D ; M' ; UP [G] -> 
-          |-- BD ; (F ** G) :: M ++ M'  ; DW H.
+          |-- BD ; (MAnd F G) :: M ++ M'  ; DW H.
 
     Definition RIndTensor (n:nat) := RUpTensor n /\ RDownTensor (n -1). 
 
     Lemma RDownT0 : RDownTensor 0.
-    Proof with sauto;solveF;solveLL.
+    Proof with sauto;solveF;try solveLL.
       unfold RDownTensor. 
       intros *. intros MN FP P1 P2 P3 HD1 HD2.
     
@@ -1723,12 +1680,10 @@ Section AbsorptionLinear.
       destruct MN...
 
       inversion HD1...
-      inversion FP.
-     
      Qed.
 
     Lemma RUpT0 : RUpTensor 0.
-    Proof with sauto;solveF;solveLL.
+    Proof with sauto;solveF;try solveLL.
       unfold RUpTensor. 
       intros *.
       intros MN  P1 P2 P3 HD1 HD2.
@@ -1739,8 +1694,8 @@ Section AbsorptionLinear.
       +
         inversion HD1...
         inversion HD2...
-        decide1 (top ** top) (M++M')... 
-        tensor M M' B D. 
+        LFocus (MAnd Top  Top) (M++M')... 
+        LLTensor M M' B D. 
       + 
         inversion H3... inversion HD2...
       + 
@@ -1749,10 +1704,10 @@ Section AbsorptionLinear.
         inversion H3 ...
     Qed.
     (* =============================================== *)
-    (* F ** G COMMUTES *)
+    (* MAnd F G COMMUTES *)
     (* =============================================== *)
-    Lemma TensorComm : forall B M F G X n, n |--- B ; F**G::M; X -> n |--- B ; G**F::M; X.
-    Proof with sauto;solveF;solveLL.
+    Lemma TensorComm : forall B M F G X n, n |--- B ; MAnd F G::M; X -> n |--- B ; MAnd G F::M; X.
+    Proof with sauto;solveF;try solveLL.
       intros.
       generalize dependent B.
       generalize dependent M.
@@ -1768,45 +1723,45 @@ Section AbsorptionLinear.
         * eapply exchangeLCN in H6.
          2: rewrite H2...
           apply H in H6...
-          tensor (G ** F::x) N B0 D.
+          LLTensor (MAnd G F::x) N B0 D.
+          rewrite <- H8...
         * eapply exchangeLCN in H7.
          2: rewrite H2...
           apply H in H7...
-          tensor M0 (G ** F::x) B0 D.
+          LLTensor M0 (MAnd G F::x) B0 D.
           rewrite <- H8... 
           ++ 
-            assert(n |--- B; F ** G::(M ++ [F0]); (> M0)).
+            assert(n |--- B; MAnd F G::(M ++ [F0]); (UP M0)).
             LLExact H3.
             apply H in H1...
             LLExact H1.
-          ++ 
-            eapply Remove_Permutation_Ex2 with (M:=[F ** G] ++ M) in H3;[|perm].     CleanContext.
-       
-            inversion H3...
+          ++
+          checkPermutationCases H3. 
             2:{ 
-             decide1 F0 (G ** F::l2).
+             LFocus F0 (MAnd G F::x).
+             rewrite H3...
               apply H...
               LLExact H4.   }
               inversion H4...
-            decide1.
-            tensor N M D B0.
-            rewrite H5... rewrite H6...
+            LFocus.
+            LLTensor N M0 D B0.
+            rewrite <- H6... rewrite H5...
             rewrite Permutation_app_comm... 
           ++  
-            decide2u i F0 ...
+            UFocus i F0 ...
           ++  
-            decide2l i F0 B' ...
+            BFocus i F0 B' ...
          
           ++  
-            decide3 F0 ...
+            TFocus F0 ...
          
           ++ 
-            existential t. 
+            LLExists t. 
            
     Qed.
 
 
-    Lemma TensorComm' : forall B M F G X , |-- B ; F ** G::M ; X -> |-- B ; G ** F::M; X.
+    Lemma TensorComm' : forall B M F G X , |-- B ; MAnd F  G::M ; X -> |-- B ; MAnd G  F::M; X.
     Proof.
       intros.
       apply seqtoSeqN in H.
@@ -1828,8 +1783,8 @@ Section AbsorptionLinear.
        Permutation (getL BD) (getL B ++ getL D) ->
        n' |--- B; M1; UP (L1 ++ [F]) -> 
        m' |--- D; M2; UP (l :: L2 ++ [G]) -> 
-          |-- BD; (F ** G) :: M1 ++ M2; UP (L1 ++ l :: L2).
-    Proof with sauto;solveF;solveLL.
+          |-- BD; (MAnd F G) :: M1 ++ M2; UP (L1 ++ l :: L2).
+    Proof with sauto;solveF;try solveLL.
       intros. 
       inversion H5...
       + apply EquivAuxTop...
@@ -1847,25 +1802,20 @@ Section AbsorptionLinear.
       + destruct (uDec i).
         apply EquivAuxQuest...
         assert(HUp : RUpTensor(n' + n)) by (apply IH;lia) ...
-        eapply HUp with(n:=n') (m:=n) (B:=B++[(i, F0)]) (D:=D++[(i, F0)]);auto.  
-        simplSignature. rewrite H1...
-        simplSignature. rewrite H2...
-        simplSignature. rewrite H3...
-        eapply weakeningGenN_rev;auto.
-        LLExact H10.
+        eapply HUp with(n:=n') (m:=n) (B:=(i, F0)::B) (D:=(i, F0)::D);auto.
+        1-3: simpl... 
+         eapply weakeningN;auto.
         apply EquivAuxQuest...
         assert(HUp : RUpTensor(n' + n)) by (apply IH;lia) ...
-        eapply HUp with(n:=n') (m:=n) (B:=B) (D:=D++[(i, F0)]);auto.
-          simplSignature. rewrite H1...
-        simplSignature. rewrite H2...
-        simplSignature. rewrite H3...
-        LLExact H10.
+        eapply HUp with(n:=n') (m:=n) (B:=B) (D:=(i, F0)::D);auto.
+        1-3:simpl...
+        rewrite H3...
       +
         apply EquivAuxStore...
         assert(HUp : RUpTensor(n' + n)) by (apply IH;lia) ...
-        rewrite <- app_assoc.
+        assert(|-- BD; F ⊗ G :: M1 ++ l::M2; UP (L1 ++ L2)).
         eapply HUp with(n:=n') (m:=n) (B:=B) (D:=D)...
-        LLExact H12.
+        LLExact H6.
       +
         apply EquivAuxForAll;intros...
         generalize (H12 t H6);intro.
@@ -1881,60 +1831,55 @@ Lemma InvTensorConsNil' (nm : nat) (IH : forall m : nat, m <= nm -> RIndTensor m
        Permutation (getL BD) (getL B ++ getL D) ->
        n' |--- B; M1; UP (L1 ++ [F]) -> 
        m' |--- D; M2; UP (l :: L2 ++ [G]) -> 
-          |-- BD; (F ** G) :: M1 ++ M2; UP (L1 ++ l :: L2).
-    Proof with sauto;solveF;solveLL.
+          |-- BD; (MAnd F G) :: M1 ++ M2; UP (L1 ++ l :: L2).
+    Proof with sauto;solveF;try solveLL.
       intros. 
       inversion H4...
-      + apply ListConsApp in H10... 
+      + apply ListConsApp in H10...
+         rewrite <- app_comm_cons...
       + apply ListConsApp in H6...
         assert(HUp : RUpTensor(n + m')) by (apply IH;lia) ...
-        eapply HUp with (n:=n) (m:=m') (B:=B) (D:=D)... 
-      + apply ListConsApp in H6...
-        assert(HUp : RUpTensor(n + m')) by (apply IH;lia) ...
-        
-        repeat rewrite app_comm_cons.
-        rewrite <- app_comm_cons.
+        rewrite <- app_comm_cons...
         eapply HUp with (n:=n) (m:=m') (B:=B) (D:=D)... 
       + apply ListConsApp in H6...
         assert(HUp : RUpTensor(n + m')) by (apply IH;lia) ...
-        repeat rewrite app_comm_cons.
-        rewrite <- app_comm_cons.
+        rewrite <- app_comm_cons...
+        repeat rewrite app_comm_cons...
         eapply HUp with (n:=n) (m:=m') (B:=B) (D:=D)... 
+      + apply ListConsApp in H6...
         assert(HUp : RUpTensor(n + m')) by (apply IH;lia) ...
-        repeat rewrite app_comm_cons.
-        rewrite <- app_comm_cons.
-        
-        eapply HUp with (n:=n) (m:=m') (B:=B) (D:=D)... 
+        rewrite <- app_comm_cons...
+           repeat rewrite app_comm_cons.
+        eapply HUp with (n:=n) (m:=m') (B:=B) (D:=D)...
+           repeat rewrite app_comm_cons.
+        eapply HUp with (n:=n) (m:=m') (B:=B) (D:=D)...
       + apply ListConsApp in H6...
         destruct (uDec i).
         assert(HUp : RUpTensor(n + m')) by (apply IH;lia) ...
-        eapply HUp with (n:=n) (m:=m') (B:=B++[(i, F0)]) (D:=D++[(i, F0)]);auto. 
-        CleanContext.
-        rewrite H1...  
-        CleanContext.
-        rewrite H2...
-        CleanContext.
-         LLExact H10.  
-        eapply weakeningGenN_rev;auto.
+        rewrite <- app_comm_cons...
+        eapply HUp with (n:=n) (m:=m') (B:=(i, F0)::B) (D:=(i, F0)::D);auto.
+        1-3:simpl...
+        rewrite <- app_comm_cons.  
+        eapply weakeningN;auto.
         assert(HUp : RUpTensor(n + m')) by (apply IH;lia) ...
-        eapply HUp with (n:=n) (m:=m') (B:=B++[(i, F0)]) (D:=D);auto. 
-        CleanContext.
-        CleanContext.
-        CleanContext.
+        rewrite <- app_comm_cons...
+        eapply HUp with (n:=n) (m:=m') (B:=(i, F0)::B) (D:=D);auto.
+        all:simpl...  
         rewrite H3...
-        LLExact H10.  
       + apply ListConsApp in H6...
         assert(HUp : RUpTensor(n + m')) by (apply IH;lia) ...
-        do 2 rewrite app_comm_cons.
-        rewrite Permutation_cons_append.
-        repeat rewrite <- app_comm_cons.
+         rewrite <- app_comm_cons...
+         assert(|-- BD; F ⊗ G :: (F0:: M1) ++ M2; UP (x ++ l :: L2)).
         eapply HUp with (n:=n) (m:=m') (B:=B) (D:=D)...
-        LLExact H11. 
+        LLExact H6. 
       + apply ListConsApp in H6...
         assert(HUp : RUpTensor(n + m')) by (apply IH;lia) ...
-        repeat rewrite app_comm_cons.
-        rewrite <- app_comm_cons.
-        eapply HUp with (n:=n) (m:=m') (B:=B) (D:=D)... 
+        rewrite <- app_comm_cons...
+                repeat rewrite app_comm_cons.
+
+        eapply HUp with (n:=n) (m:=m') (B:=B) (D:=D)...
+       rewrite <- app_comm_cons...
+ 
     Qed.
 
 
@@ -1945,24 +1890,22 @@ Lemma InvTensorConsNil' (nm : nat) (IH : forall m : nat, m <= nm -> RIndTensor m
 
     Lemma ITCaseAsyncAsync:
       forall n m BD B D M1 M2 F G, 
-      (asynchronous F \/  IsPositiveAtom F) -> 
-      (asynchronous G \/ IsPositiveAtom G) -> 
+      negativeFormula F -> 
+      negativeFormula G -> 
         Permutation (getU BD) (getU B) ->
        Permutation (getU BD) (getU D) ->
        Permutation (getL BD) (getL B ++ getL D) ->
        (n |--- B; M1; UP [F]) -> 
        (m |--- D; M2; UP [G]) -> 
-       |-- BD; (F ** G):: M1 ++ M2; UP [].
+       |-- BD; (MAnd F  G):: M1 ++ M2; UP [].
     Proof.
       intros.
-      decide1 (F ** G). 
-      tensor M1 M2 B D...
-      release. 
-      apply AsIsPosRelease;auto.
+      LFocus (MAnd F G). 
+      LLTensor M1 M2 B D...
+      LLRelease.
       apply seqNtoSeq in H4;auto.
 
-      release.
-      apply AsIsPosRelease;auto.
+      LLRelease.
       apply seqNtoSeq in H5;auto.
    Qed.
 
@@ -1971,38 +1914,35 @@ Lemma InvTensorConsNil' (nm : nat) (IH : forall m : nat, m <= nm -> RIndTensor m
 
     Lemma ITAsyncSync  :
       forall nm n m BD B D M1 M2 F G,
-        (asynchronous F \/ IsPositiveAtom F) ->  ~ asynchronous G ->         
+        negativeFormula F ->  positiveLFormula G ->         
         (forall m : nat, m <= nm -> RIndTensor m) -> nm = n + m -> 
        Permutation (getU BD) (getU B) ->
        Permutation (getU BD) (getU D) ->
        Permutation (getL BD) (getL B ++ getL D) ->
         n |--- B; M1; UP [F] ->  
         m |--- D; G::M2; UP [] ->  
-          |-- BD; (F ** G) :: M1 ++ M2; UP [].
-    Proof with subst;auto;auto;solveF;solveLL.
+          |-- BD; (MAnd F G) :: M1 ++ M2; UP [].
+    Proof with subst;auto;auto;solveF;try solveLL.
       intros. 
-      apply NotAsynchronousPosAtoms' in H0; destruct H0 as [AG | AG].
+      apply NotAsynchronousPosAtoms in H0; destruct H0 as [AG | AG].
+       
+      2:{
+        (* G is a positive atom... then, LLRelease works (Lemma  ITCaseAsyncAsync) *)
+        eapply ITCaseAsyncAsync with (n:=n) (m:=S m) (B:=B) (D:=D);eauto. }
       +
-        (* G is a positive atom... then, release works (Lemma  ITCaseAsyncAsync) *)
-        eapply ITCaseAsyncAsync with (n:=n) (m:=S m) (B:=B) (D:=D);eauto. 
-        apply tri_store;auto using IsPositiveAtomNotAssync...
-      +
-        (* G cannot do release *)
+        (* G cannot do LLRelease *)
        
         inversion H7...
-        ++ eapply Remove_Permutation_Ex2 with (M:=G::M2) in H8...  
-           CleanContext.
-           inversion H8...
-        * decide1 (F ** G). 
-          tensor M1 x B D.
-          release. apply AsyncRelease;auto.
+        ++ checkPermutationCases H8.  
+        * LFocus (MAnd F G). 
+          LLTensor M1 M2 B D.
+          LLRelease. 
           apply seqNtoSeq in H6;auto. 
-          rewrite H10.
+          rewrite <- H11.
           apply seqNtoSeq in H9;auto. 
         * 
-          decide1 F0 ((F ** G) ::M1 ++ l2)...
-          constructor.
-          eapply Remove_app_head;auto.
+          LFocus F0 ((MAnd F G) ::M1 ++ x)...
+          rewrite H8...
           
           assert(IH2 : RIndTensor(n + S n0)) by(  apply H1;auto); destruct IH2 as [HUp HDw].
           assert(Hn : n + S n0 -1 = n + n0) by lia;rewrite Hn in HDw;clear Hn.
@@ -2011,71 +1951,45 @@ Lemma InvTensorConsNil' (nm : nat) (IH : forall m : nat, m <= nm -> RIndTensor m
            eapply HDw with (m:= n) (n:= n0) (B:=D) (D:=B);try(lia)...
            rewrite H5...
           eapply exchangeLCN in H9.
-          2: rewrite <- H10... 
+          2:rewrite H10... 
           LLExact H9.
-       *  
-          inversion H8...
-          decide1 (F ** G). 
-          tensor M1 x B D.
-          release. apply AsIsPosRelease;auto.
-          apply seqNtoSeq in H6;auto. 
-          rewrite H10.
-          apply seqNtoSeq in H9;auto.
-           decide1 F0 ((F ** G) ::M1 ++ l2)...
-          constructor.
-          eapply Remove_app_head;auto.
-          
-          assert(IH2 : RIndTensor(n + S n0)) by(  apply H1;auto); destruct IH2 as [HUp HDw].
-          assert(Hn : n + S n0 -1 = n + n0) by lia;rewrite Hn in HDw;clear Hn.
-          apply TensorComm'.
-          rewrite (Permutation_app_comm M1).
-           eapply HDw with (m:= n) (n:= n0) (B:=D) (D:=B);try(lia)...
-           rewrite H5...
-          eapply exchangeLCN in H9.
-          2: rewrite <- H10... 
-          LLExact H9. 
-  
+      
      ++ assert(IH2 : RIndTensor(n + S n0)) by(  apply H1;auto);
          destruct IH2 as [HUp HDw].
          assert(Hn : n + S n0 -1 = n + n0) by lia;rewrite Hn in HDw;clear Hn.
           rewrite cxtDestruct.
           rewrite H5.
-          decide2u i F0.
+          UFocus i F0.
           apply in_or_app. left. 
           rewrite H4.
           apply uIngetU...
             apply TensorComm'.
             rewrite (Permutation_app_comm M1).   
             eapply HDw with (m:= n) (n:= n0) (B:=D) (D:=B);try(lia)...
-            simplSignature.
-            rewrite H4...
-             simplSignature.
-            rewrite H3...
-      ++ assert(IH2 : RIndTensor(n + S n0)) by(  apply H1;auto);
+           all: repeat simplCtx.
+           all: repeat simplEmpty...
+           all: repeat simplFix...
+       ++ assert(IH2 : RIndTensor(n + S n0)) by(  apply H1;auto);
          destruct IH2 as [HUp HDw].
          assert(Hn : n + S n0 -1 = n + n0) by lia;rewrite Hn in HDw;clear Hn.
              rewrite cxtDestruct.
             rewrite H5.
-             apply Remove_Permute in H10.
-             rewrite H10.
-             simplSignature.
-            decide2l i F0 (getU BD ++ getL B ++ getL B')...
-             do 2 rewrite app_assoc.
-             apply Remove_app_in.
+             rewrite <- H10.
+            BFocus i F0 (getU BD ++ getL B ++ getL B')...
+            simpl...
             apply TensorComm'.
             rewrite (Permutation_app_comm M1).   
             eapply HDw with (m:= n) (n:= n0) (B:=B') (D:=B);try(lia)...
-            simplSignature. 
-            rewrite H4... rewrite H10.
-            simplSignature... 
-            simplSignature.
-            rewrite H3... 
-           firstorder.
+             all: repeat simplCtx.
+           all: repeat simplEmpty...
+           all: repeat simplFix...
+            rewrite <- H10 in H4...
+            simpl in H4... 
           ++ 
             assert(IH2 : RIndTensor(n + S n0)) by(  apply H1;auto);
               destruct IH2 as [HUp HDw].
             assert(Hn : n + S n0 -1 = n + n0) by lia;rewrite Hn in HDw;clear Hn.
-            decide3 F0 ...
+            TFocus F0 ...
             apply TensorComm'.
             rewrite (Permutation_app_comm M1).  
             eapply HDw with (m:= n) (n:= n0) (B:=D) (D:=B);try(lia)...
@@ -2085,55 +1999,46 @@ Qed.
 
     (* =============================================== *)
     (* PROOF OF RUP *)
-    (* Case when both formulas are not Async *)
+    (* Case when Both formulas are not Async *)
     (* =============================================== *)
     Lemma ITSyncSync : forall nm n m  BD B D M1 M2 F G, 
-    ~ asynchronous F -> ~ asynchronous G ->  
+   positiveLFormula F -> positiveLFormula G ->  
     (forall m : nat, m <= nm -> RIndTensor m) -> S nm = S n + S m -> 
        Permutation (getU BD) (getU B) ->
        Permutation (getU BD) (getU D) ->
        Permutation (getL BD) (getL B ++ getL D) ->     
               S n |--- B; M1 ; UP [F] -> 
               S m |--- D; M2 ; UP [G] ->  
-              |-- BD; (F ** G)::M1 ++ M2; UP [].
-    Proof with subst;auto;solveF;solveLL.
+              |-- BD; (MAnd F G)::M1 ++ M2; UP [].
+    Proof with subst;auto;solveF;try solveLL.
       intros * . 
       intros AF AG IH Hnm P1 P2 P3 HD1 HD2. 
-      apply NotAsynchronousPosAtoms' in AF; destruct AF as [AF | AF];
-        apply NotAsynchronousPosAtoms' in AG; destruct AG as [AG | AG].
-      + (* Both are positive *)
-        eapply ITCaseAsyncAsync with (B:=B) (D:=D);eauto.
-      + (* F is a positive atom *)
-        assert(~asynchronous G).
-        intro.
-        inversion H;subst;inversion AG...
-        assert(~asynchronous F) by auto using IsPositiveAtomNotAssync.
-        inversion HD2...
-        eapply ITAsyncSync with (nm:=nm) (n:= S n) (m:= m) (B:=B) (D:=D)... lia.
-      + (* G is a positive atom *)
-        assert(~asynchronous G) by auto using IsPositiveAtomNotAssync.
-        assert(~asynchronous F).
-        intro.
-        inversion H0;subst;inversion AF...
-        inversion HD1...
+      apply NotAsynchronousPosAtoms in AF; destruct AF as [AF | AF];
+        apply NotAsynchronousPosAtoms in AG; destruct AG as [AG | AG].
+              4:{  (* Both are positive atoms *)
+        eapply ITCaseAsyncAsync with (B:=B) (D:=D);eauto. }
+      3:{  (* F is a positive atom *)
+        assert(positiveLFormula G)...
+        assert(positiveLFormula F)...
+          inversion HD2...
+        eapply ITAsyncSync with (nm:=nm) (n:= S n) (m:= m) (B:=B) (D:=D)... lia. }
+        2:{ (* G is a positive atom *) 
+        assert(positiveLFormula G)...
+        assert(positiveLFormula F)...
+          inversion HD1...
             apply TensorComm'.
             rewrite (Permutation_app_comm M1).  
             eapply ITAsyncSync with (nm:=nm) (n:= S m) (m:= n) (B:=D) (D:=B);try lia...
-            rewrite P3...
-       +  (* F nor G can do release *)
-        assert(~asynchronous G).
-        intro.
-        inversion H;subst;inversion AG...
-        assert(~asynchronous F).
-        intro.
-        inversion H0;subst;inversion AF...
+            rewrite P3... }
+ 
+  (* F nor G can do LLRelease *)
         inversion HD1...
         inversion HD2...
           
-        inversion H7;subst...
+        inversion H5;subst...
         2:{
         
-        decide2u i F0. rewrite cxtDestruct. rewrite P1.
+        UFocus i F0. rewrite cxtDestruct. rewrite P1.
         apply in_or_app. left. 
           apply uIngetU...
           assert (IH' : RIndTensor (m + S (S n0))) by ( apply IH; lia).
@@ -2142,7 +2047,7 @@ Qed.
           eapply  HDw with (n:= n0) (m:= S m) (B:=B) (D:=D);try lia...
         }
        3:{ 
-        decide3 F0. 
+        TFocus F0. 
           assert (IH' : RIndTensor (m + S (S n0))) by ( apply IH; lia).
           destruct IH' as [HUp  HDw].
           assert(Hn : m + S (S n0) - 1 = m + (S n0)) by lia;rewrite Hn in HDw;clear Hn.
@@ -2150,122 +2055,95 @@ Qed.
           }
 
         ++ (* DEC1 DEC1 *)
-        eapply Remove_Permutation_Ex2 with (M:=F::M1) in H2...  
-        CleanContext.
-         inversion H4...
-       2:{   decide1 F0 ((F ** G) :: l2++M2).
-           constructor.
-           apply Remove_app_tail;auto.
-      
           assert (IH' : RIndTensor (m + S (S n0))) by ( apply IH; lia).
           destruct IH' as [HUp  HDw].
           assert(Hn : m + S (S n0) - 1 = m + (S n0)) by lia;rewrite Hn in HDw;clear Hn.
        
-          eapply HDw with (n:= n0) (m:= S m) (B:=B) (D:=D);try lia... 
-           eapply exchangeLCN in H3.
-          2: rewrite <- H5... 
-          auto.  }
-          clear H4.
-           eapply exchangeLCN in H3.
-          2: rewrite <- H5... 
-  
-          inversion H9...
-          -
-           eapply Remove_Permutation_Ex2 with (M:=G::M2) in H0...  
-        CleanContext.
-        inversion H4...
-        2:{ decide1 F0 ((F ** G)::x++l2).
-           constructor.
-           apply Remove_app_head;auto.
+        checkPermutationCases H0.
+       2:{   LFocus F0 ((MAnd F G) :: x++M2).
+          rewrite H2...
        
-   assert (IH' : RIndTensor (S n + S (S n0))) by ( apply IH; lia).
-          destruct IH' as [HUp  HDw].
-          assert(Hn : S n + S (S n0) - 1 = n + S (S n0)) by lia;rewrite Hn in HDw;clear Hn.
+          eapply HDw with (n:= n0) (m:= S m) (B:=B) (D:=D);try lia... 
+           eapply exchangeLCN in H1.
+          2: rewrite H3... 
+          auto.  }
+          
+           eapply exchangeLCN in H1.
+          2: rewrite  H8... 
+          clear H8.
+          inversion H7...
+          -
+          checkPermutationCases H2.
+        2:{ LFocus F0 ((MAnd F G)::M1++x).
+          rewrite H8...
+       
             apply TensorComm'.
-            rewrite (Permutation_app_comm x).  
+            rewrite (Permutation_app_comm M1).  
                  eapply HDw with (n:= n) (m:= S (S n0)) (B:=D) (D:=B);try lia... 
                  rewrite P3...
             
-                 LLExact H2. }
+                 LLExact H3. }
  
-          decide1 (F**G).  
-          tensor x L'0 B D.
+          LFocus (MAnd F G).  
+          LLTensor M1 L'0 B D.
           rewrite H10...
+          apply seqNtoSeq in H1...
           apply seqNtoSeq in H3...
-          apply seqNtoSeq in H2...
           -
-           decide2u i F0. 
+           UFocus i F0. 
            rewrite cxtDestruct.
            rewrite P2.
             apply in_or_app. left. 
           apply uIngetU...
-          assert (IH' : RIndTensor (S n + S (S n0))) by ( apply IH; lia).
-          destruct IH' as [HUp  HDw].
-          assert(Hn : S n + S (S n0) - 1 = n + S (S n0)) by lia;rewrite Hn in HDw;clear Hn.
             apply TensorComm'.
-            rewrite (Permutation_app_comm x).  
+            rewrite (Permutation_app_comm M1).  
             
           eapply  HDw with (n:= n) (m:= S (S n0)) (B:=D) (D:=B);try lia...
           rewrite P3...
           -
             rewrite cxtDestruct.
             rewrite P3.
-             apply Remove_Permute in H4.
-             rewrite H4.
-             CleanContext. 
-             decide2l i F0 (getU BD ++ getL B ++ getL B')...
-             do 2 rewrite app_assoc.
-             apply Remove_app_in.
-
-          assert (IH' : RIndTensor (S n + S (S n0))) by ( apply IH; lia).
-          destruct IH' as [HUp  HDw].
-          assert(Hn : S n + S (S n0) - 1 = n + S (S n0)) by lia;rewrite Hn in HDw;clear Hn.
+             rewrite <- H8...
+             simpl...
+             BFocus i F0 (getU BD ++ getL B ++ getL B')...
             apply TensorComm'.
-            rewrite (Permutation_app_comm x).  
+            rewrite (Permutation_app_comm M1).  
           eapply  HDw with (n:= n) (m:= S (S n0)) (B:=B') (D:=B);try lia...
-          rewrite P2. rewrite H4.
-          simplSignature...
-          rewrite P1. 
-          simplSignature...
-          
-    
-          firstorder.
+          all: repeat simplCtx.
+          all: repeat simplEmpty.
+          all: repeat simplFix...  
+          rewrite P2. rewrite <- H8...
+          simpl...
          -
-         decide3 F0. 
-          assert (IH' : RIndTensor (S n + S (S n0))) by ( apply IH; lia).
-          destruct IH' as [HUp  HDw].
-          assert(Hn : S n + S (S n0) - 1 = n + S (S n0)) by lia;rewrite Hn in HDw;clear Hn.
+         TFocus F0. 
             apply TensorComm'.
-            rewrite (Permutation_app_comm x).  
+            rewrite (Permutation_app_comm M1).  
           eapply  HDw with (n:= n) (m:= S (S n0)) (B:=D) (D:=B);try lia...
      rewrite P3...
     ++ 
        rewrite cxtDestruct.
        rewrite P3.
-       apply Remove_Permute in H4.
-       rewrite H4.
-       simplSignature.
-             
-       decide2l i F0 (getU BD ++ getL B' ++ getL D)...
-       apply Remove_app_in.
-
+       rewrite <- H2.
+       simpl...
+       BFocus i F0 (getU BD ++ getL B' ++ getL D)...
+      
        assert (IH' : RIndTensor (S m + S n0)) by ( apply IH; lia).
        destruct IH' as [HUp  HDw].
        assert(Hn : S m + S n0 - 1 = m + S n0) by lia;rewrite Hn in HDw;clear Hn.
             
        eapply  HDw with (n:= n0) (m:=S m) (B:=B') (D:=D);try lia... 
-       rewrite P1. rewrite H4. 
-       simplSignature...
-       rewrite P2. 
-       simplSignature...
-       firstorder.
+        all: repeat simplCtx.
+          all: repeat simplEmpty.
+          all: repeat simplFix...  
+          rewrite P1. rewrite <- H2...
+          simpl...
        Qed.
      (* =============================================== *)
     (* PROOF OF RUP *)
     (* =============================================== *)
     Theorem InvTensorUP: forall  nm , 
     (forall m : nat, m <= nm-> RIndTensor m) -> RUpTensor (S nm).
-    Proof with sauto;solveF;solveLL.
+    Proof with sauto;solveF; try solveLL.
       intros nm IH.
       unfold RUpTensor.
       intros BD B D L1  M1 L2 M2 F  G n' m' HNM  P1 P2 P3 HD1 HD2.
@@ -2275,71 +2153,34 @@ Qed.
          
           try(
               match goal with
-              | [ P3: Permutation (getL ?BD) (getL ?B ++ getL ?D)|- |-- ?BD; (?F ** ?G)::?M1 ++ ?M2; UP [] ]
-                => tryif (assert(HAFG : asynchronous F /\ asynchronous G) by (split;constructor;auto))
+              | [ P3: Permutation (getL ?BD) (getL ?B ++ getL ?D)|- |-- ?BD; (MAnd ?F ?G)::?M1 ++ ?M2; UP [] ]
+                => tryif (assert(HAFG : negativeFormula F /\ negativeFormula G) by (split;constructor;auto))
                 then
                   eapply ITCaseAsyncAsync with (B:=B) (D:=D);eauto
                 else idtac
               end)... 
  
-      
-        eapply ITAsyncSync with  (nm := nm) (n:= n') (m:=n0) (B:=B) (D:=D);try lia...
-        left;constructor.  
-
-        eapply ITAsyncSync with  (nm := nm) (n:= S n) (m:=n0) (B:=B) (D:=D);try lia...
-        left;constructor. 
-
-        eapply ITAsyncSync with  (nm := nm) (n:= S n) (m:=n0) (B:=B) (D:=D);try lia...
-        left;constructor. 
-
-        eapply ITAsyncSync with  (nm := nm) (n:= S n) (m:=n0) (B:=B) (D:=D);try lia...
-        left;constructor. 
-        
-        eapply ITAsyncSync with  (nm := nm) (n:= S n) (m:=n0) (B:=B) (D:=D);try lia...
-        left;constructor. 
-
-            apply TensorComm'.
-            rewrite (Permutation_app_comm M1).  
-
+       eapply ITAsyncSync with  (nm := nm) (n:= n') (m:=n0) (B:=B) (D:=D);try lia...
+       
+ 1-4:       eapply ITAsyncSync with  (nm := nm) (n:= S n) (m:=n0) (B:=B) (D:=D);try lia...
+     
+  1-5:          apply TensorComm'.
+  1-5:          rewrite (Permutation_app_comm M1).  
         eapply ITAsyncSync with  (nm := nm) (n:= m') (m:=n) (B:=D) (D:=B);try lia...
-        left;constructor.
         rewrite P3... 
-        
-            apply TensorComm'.
-            rewrite (Permutation_app_comm M1). 
-
+  1-4:
         eapply ITAsyncSync with  (nm := nm) (n:= S n0) (m:=n) (B:=D) (D:=B);try lia...
-        left;constructor.
-        rewrite P3... 
-        
-            apply TensorComm'.
-            rewrite (Permutation_app_comm M1). 
-        eapply ITAsyncSync with  (nm := nm) (n:= S n0) (m:=n) (B:=D) (D:=B);try lia...
-        left;constructor.
-        rewrite P3... 
-            apply TensorComm'.
-            rewrite (Permutation_app_comm M1). 
-        eapply ITAsyncSync with  (nm := nm) (n:= S n0) (m:=n) (B:=D) (D:=B);try lia...
-        left;constructor.
-        rewrite P3... 
-            apply TensorComm'.
-            rewrite (Permutation_app_comm M1). 
-        eapply ITAsyncSync with  (nm := nm) (n:= S n0) (m:=n) (B:=D) (D:=B);try lia...
-        left;constructor.
-        rewrite P3... 
-
-   
-        (* both F and G are not asynchronous formulas *)
+  1-4:      rewrite P3... 
+       
+        (* Both F and G are not asynchronous formulas *)
         eapply  ITSyncSync with (nm := nm) (n:=n) (m:=n0) (B:=B) (D:=D)...
 
             apply TensorComm'.
             rewrite (Permutation_app_comm M1). 
         eapply ITAsyncSync with  (nm := nm) (n:= S n0) (m:=n) (B:=D) (D:=B);try lia...
-        left;constructor.
         rewrite P3... 
 
         eapply ITAsyncSync with  (nm := nm) (n:=S n) (m:=n0) (B:=B) (D:=D);try lia...
-        left;constructor.
       + (* L1 is empty and L2 is not empty *)
         eapply InvTensorConsNil with (nm:=nm) (n':=n') (m':=m') (B:=B) (D:=D) (L1 := [])...
         
@@ -2359,12 +2200,11 @@ Qed.
     (* PROOF OF RDOWN *)
     (* =============================================== *)
     Theorem InvTensorDW: forall  n , (forall m : nat, m <= n -> RIndTensor m) -> RDownTensor (n).
-    Proof with sauto;solveF;solveLL.
+    Proof with sauto;solveF;try solveLL.
       intros n IH.
       unfold RDownTensor.
       intros *. intros Hnm HPosF P1 P2 P3 HD1 HD2.
       inversion HD1...
-      + inversion HPosF .
       +
       checkPermutationCases H1.
         ++ 
@@ -2375,15 +2215,14 @@ Qed.
            rewrite cxtDestruct.
            rewrite P3.
            rewrite H4.
-          tensor (F ** G::x ++ M') N (getU BD++(getL B0++getL D)) (getU BD++getL D0)...
-          rewrite <- H1. perm.
+          LLTensor (MAnd F G::x ++ M') N (getU BD++(getL B0++getL D)) (getU BD++getL D0)...
+          rewrite <- H1... 
+          1-3: repeat simplCtx.
+          1-3: repeat simplEmpty...
           eapply HDown with (m:=m) (n:=n1) (B:=B0) (D:=D) ;try lia...
-          simplSignature.
-          rewrite P1;auto.
-          rewrite H2...
-          simplSignature.
-          rewrite P2...
-          simplSignature...
+          1-3: repeat simplCtx.
+          1-3: repeat simplEmpty...
+          1-3: repeat simplFix...
           eapply exchangeLCN. 
            rewrite <- H0...
           auto.
@@ -2401,34 +2240,33 @@ Qed.
            rewrite cxtDestruct.
            rewrite P3.
            rewrite H4.
-          tensor M0 (F ** G::x ++ M' ) (getU BD++getL B0) (getU BD++(getL D0++getL D)). 
+          LLTensor M0 (MAnd F G::x ++ M' ) (getU BD++getL B0) (getU BD++(getL D0++getL D)). 
           rewrite <- H1. perm.
            apply seqNtoSeq in H5.
+           1-3: repeat simplCtx.
+          1-3: repeat simplEmpty...
           rewrite P1.
           rewrite H2.
           rewrite <- cxtDestruct;auto.
-        
+         HProof.
           eapply HDown with (m:=m) (n:=n1) (B:=D0) (D:=D) ;try lia...
-          simplSignature.
-          rewrite P1...
-          simplSignature...
-          simplSignature... 
+          1-3: repeat simplCtx.
+          1-3: repeat simplEmpty...
+          1-3: repeat simplFix...
           rewrite <- H0;auto.
       +
         assert(HRI: RIndTensor (S m +n1)) by (apply IH ; lia).
         destruct HRI as [HUp  HDown] ...
         assert(Hn : S m + n1 -1 =  m + n1) by lia;rewrite Hn in HDown;clear Hn.
-        oplus1. 
+        LLPlusL. 
         eapply HDown  with (n:=n1) (m:=m)  (B:=B) (D:=D) ... lia. 
       +
         assert(HRI: RIndTensor (S m +n1)) by (apply IH ; lia).
         destruct HRI as [HUp  HDown] ...
         assert(Hn : S m + n1 -1 =  m + n1) by lia;rewrite Hn in HDown;clear Hn.
-        oplus2. 
+        LLPlusR. 
         eapply HDown  with (n:=n1) (m:=m)  (B:=B) (D:=D)... lia. 
       +
- assert(~ asynchronous F). intro Hc.
-        inversion HPosF;subst;inversion Hc...
         apply UpExtension in H5 ...
         assert(HRI: RIndTensor (m + x)). apply IH. lia.
         destruct HRI as [HUp  HDown]. clear HDown.
@@ -2439,7 +2277,7 @@ Qed.
         assert(HRI: RIndTensor (m + S n1 )) by ( apply IH;lia).
         destruct HRI as [HUp  HDown] ...
         assert(Hn : m + S n1 -1 =  m + n1) by lia;rewrite Hn in HDown;clear Hn.
-        existential t. 
+        LLExists t. 
                 eapply HDown with (n:=n1) (m:=m) (B:=B) (D:=D)...  
         lia.
     Qed.
@@ -2466,7 +2304,7 @@ Qed.
        Permutation (getL BD) (getL B ++ getL D) ->  
         |-- B ; M ; UP (L++[F]) -> 
         |-- D ; M'; UP (L'++[G]) -> 
-        |-- BD ; F ** G :: M ++ M' ; UP (L ++ L') .
+        |-- BD ; MAnd F G :: M ++ M' ; UP (L ++ L') .
     Proof with sauto;solveF;solveLL.
       intros.
       assert(HRn:  forall n, RUpTensor n) by (apply InvTensorAux).
@@ -2479,7 +2317,7 @@ Qed.
     Qed.
 
     Theorem InvTensorC : forall i BD B D L L' F G M M', u i = true -> mt i = true ->
-       In (i,F ** G) BD ->
+       In (i,MAnd F G) BD ->
        Permutation (getU BD) (getU B) ->
        Permutation (getU BD) (getU D) ->
        Permutation (getL BD) (getL B ++ getL D) -> 
@@ -2489,65 +2327,68 @@ Qed.
     Proof.
       intros.
       eapply @AbsorptionClassic;eauto.
-      apply UpExtension'.
-      intro Hc. inversion Hc.
+      apply UpExtension'. auto.
       eapply InvTensor with (B:=B) (D:=D) (BD:=BD) ;auto.
     Qed.  
     
      Theorem InvTensorL1 : forall i BD B B' D L L' F G M M', u i = false -> mt i = true ->
-        Remove (i,F ** G) B B' ->
+        Permutation ((i,MAnd F G):: B') B ->
         Permutation (getU BD) (getU B) ->
         Permutation (getU BD) (getU D) ->
         Permutation (getL BD) (getL B ++ getL D) -> 
          |-- B' ; M ; UP (L++[F]) -> 
          |-- D ; M'; UP (L'++[G]) -> 
          |-- BD ; M ++ M' ; UP (L ++ L').
-    Proof.
+    Proof with sauto.
       intros.
       rewrite cxtDestruct.
       rewrite H2.
       rewrite H4.
-      apply Remove_Permute in H1;auto.
-      rewrite H1 in *.
-      CleanContext.
-      LLPerm((i, F ** G) :: getU B' ++ getL B' ++ getL D).
+      rewrite <- H1 in *.
+      simpl... 
+      LLPerm((i, MAnd F G) :: getU B' ++ getL B' ++ getL D).
       
-      eapply @AbsorptionLinear with (F:=F**G) (B':=getU B'++getL B'++getL D);eauto.
-      apply UpExtension'.
-      intro Hc. inversion Hc.
+      eapply @AbsorptionLinear with (F:=MAnd F G) (B':=getU B'++getL B'++getL D);eauto.
+      apply UpExtension'. auto.
       eapply InvTensor with (B:=B') (D:=D);auto.
-      CleanContext.
-      CleanContext.
-      rewrite <- H2.
-      CleanContext.
+      1-3: repeat simplCtx.
+          1-3: repeat simplEmpty...
+          1-3: repeat simplFix...
+      rewrite <- H3.
+      rewrite H2...
+      simpl...
     Qed.
   
     Theorem InvTensorL2 : forall i BD B D D' L L' F G M M', u i = false -> mt i = true ->
-        Remove (i,F ** G) D D' ->
+        Permutation ((i,MAnd F G)::D') D ->
         Permutation (getU BD) (getU B) ->
         Permutation (getU BD) (getU D) ->
         Permutation (getL BD) (getL B ++ getL D) -> 
          |-- B ; M ; UP (L++[F]) -> 
          |-- D' ; M'; UP (L'++[G]) -> 
          |-- BD ; M ++ M' ; UP (L ++ L').
-    Proof.
+    Proof with sauto.
       intros.
       rewrite cxtDestruct.
       rewrite H3.
       rewrite H4.
-      apply Remove_Permute in H1;auto.
-      rewrite H1 in *.
-      CleanContext.
-      LLPerm((i, F ** G) :: getU D' ++ getL D' ++ getL B).
+      rewrite <- H1 in *.
+      simpl...
+      LLPerm((i, MAnd F G) :: getU D' ++ getL D' ++ getL B).
       
-      eapply @AbsorptionLinear with (F:=F**G) (B':=getU D'++getL D'++getL B);eauto.
-      apply UpExtension'.
-      intro Hc. inversion Hc.
-      eapply InvTensor with (B:=B) (D:=D');CleanContext.
+      eapply @AbsorptionLinear with (F:=MAnd F G) (B':=getU D'++getL D'++getL B);eauto.
+      apply UpExtension'. auto.
+      eapply InvTensor with (B:=B) (D:=D')...
+      1-3: repeat simplCtx.
+          1-3: repeat simplEmpty...
+          1-3: repeat simplFix...
+        rewrite <- H2.
+        rewrite H3.  
+          simpl...
     Qed.
     
     Theorem InvTensorT : forall BD B D L L' F G M M', 
-       theory (F ** G) ->
+       theory (MAnd F G) ->
        Permutation (getU BD) (getU B) ->
        Permutation (getU BD) (getU D) ->
        Permutation (getL BD) (getL B ++ getL D) -> 
@@ -2558,9 +2399,7 @@ Qed.
       intros.
       eapply @AbsorptionTheory;eauto.
       intro Hc. inversion Hc.
-      intro Hc. inversion Hc.
-      apply UpExtension'.
-      intro Hc. inversion Hc.
+      apply UpExtension'. auto.
       eapply InvTensor with (B:=B) (D:=D) (BD:=BD) ;auto.
     Qed.  
       

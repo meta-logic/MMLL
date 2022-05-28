@@ -9,7 +9,7 @@ This file specifies a one-sided focused system for MMLL The system is
 
 
 Require Export MMLL.Misc.Utils. 
-Require Export MMLL.SL.Syntax.
+Require Export MMLL.SL.Locations.
 
 Export ListNotations.
 Set Implicit Arguments.
@@ -46,7 +46,7 @@ Section LLSequent.
   | tri_plus2 : forall B M F G n,
       n |-F- B ; M ; DW G -> S n |-F- B ; M ; DW (AOr F G)
   | tri_rel : forall B F L n,
-      release F -> n |-F- B ; L ; UP [F] ->  S n |-F- B ; L ; DW F
+      negativeFormula F -> n |-F- B ; L ; UP [F] ->  S n |-F- B ; L ; DW F
   | tri_top : forall B L M n,
       n |-F- B ; L ; UP (Top :: M)
   | tri_bot : forall B L M n,
@@ -59,13 +59,13 @@ Section LLSequent.
   | tri_quest : forall B L M F n i,
       n |-F- (i,F)::B ; L ; UP M -> S n  |-F- B ; L ; UP ((Quest i F) :: M)         
   | tri_store : forall B L M F n,
-      ~ asynchronous  F-> n |-F- B ; F::L ; UP M -> S n |-F- B ; L ; UP (F::M)
+      positiveLFormula  F-> n |-F- B ; F::L ; UP M -> S n |-F- B ; L ; UP (F::M)
   | tri_dec1 : forall B L L' F n,
-      ~IsPositiveAtom F -> Remove F L L' -> n |-F- B ; L' ; DW F -> S n |-F- B ; L ; UP []
+      positiveFormula F -> Permutation (F::L') L -> n |-F- B ; L' ; DW F -> S n |-F- B ; L ; UP []
   | tri_dec2u : forall B L F n i,
      u i = true -> mt i = true -> ~IsPositiveAtom F -> In (i,F) B -> n |-F- B ; L ; DW F -> S n |-F- B ; L ; UP []
   | tri_dec2l : forall B B' L F n i,
-     u i = false -> mt i = true -> ~IsPositiveAtom F -> Remove (i,F) B B' -> n |-F- B' ; L ; DW F -> S n |-F- B ; L ; UP []
+     u i = false -> mt i = true -> ~IsPositiveAtom F -> Permutation ((i,F)::B') B -> n |-F- B' ; L ; DW F -> S n |-F- B ; L ; UP []
   | tri_dec3 : forall B L F n,
       theory F -> ~IsPositiveAtom F -> n |-F- B ; L ; DW F -> S n |-F- B ; L ; UP []
   | tri_ex  : forall B FX M t n,
@@ -81,13 +81,13 @@ Section LLSequent.
      with
       tri_bangK4 : nat -> list TypedFormula -> subexp -> list TypedFormula -> multiset oo -> Arrow -> Prop :=
        | tri_copyK4 : forall b F n L M C B B' i, lt i b  -> m4 b = true -> 
-        Remove (b,F) B B' -> tri_bangK4 n B' i (C++[(plust b,F)]) L (UP M) -> 
+        Permutation ((b,F)::B') B -> tri_bangK4 n B' i (C++[(plust b,F)]) L (UP M) -> 
                                           tri_bangK4 (S n) B i C L (UP M)
        | tri_copyUK : forall b F n L M C B B' i, lt i b  -> m4 b = false -> u b = true ->
-        Remove (b,F) B B' -> tri_bangK4 n B' i (C++[(loc,F)]) L (UP M) -> 
+        Permutation ((b,F)::B') B -> tri_bangK4 n B' i (C++[(loc,F)]) L (UP M) -> 
                                           tri_bangK4 (S n) B i C L (UP M) 
        | tri_copyLK : forall b F n L M C B B' i, lt i b  -> m4 b = false -> u b = false ->
-        Remove (b,F) B B' -> tri_bangK4 n B' i C L (UP (M++[F])) -> 
+        Permutation ((b,F)::B') B -> tri_bangK4 n B' i C L (UP (M++[F])) -> 
                                           tri_bangK4 (S n) B i C L (UP M)                                    
        | tri_exp : forall B C i L M n, SetU B ->
                   n |-F- C; L; UP M -> tri_bangK4 (S n) B i C L (UP M)
@@ -124,7 +124,7 @@ Section LLSequent.
   | tri_plus2' : forall B M F G,
       |-f- B ; M ; DW G -> |-f- B ; M ; DW (AOr F G)
   | tri_rel' : forall B F L,
-      release F -> |-f- B ; L ; UP [F] ->  |-f- B ; L ; DW F
+      negativeFormula F -> |-f- B ; L ; UP [F] ->  |-f- B ; L ; DW F
   | tri_top' : forall B L M,
       |-f- B ; L ; UP (Top :: M)
   | tri_bot' : forall B L M,
@@ -137,13 +137,13 @@ Section LLSequent.
   | tri_quest' : forall B L M F i,
       |-f- (i,F)::B ; L ; UP M -> |-f- B ; L ; UP ((Quest i F) :: M)         
   | tri_store' : forall B L M F,
-      ~ asynchronous  F-> |-f- B ; F::L; UP M -> |-f- B ; L ; UP (F::M)
+      positiveLFormula  F-> |-f- B ; F::L; UP M -> |-f- B ; L ; UP (F::M)
   | tri_dec1' : forall B L L' F,
-      ~IsPositiveAtom F -> Remove F L L' -> |-f- B ; L' ; DW F -> |-f- B ; L ; UP []
+      positiveFormula F -> Permutation (F::L') L -> |-f- B ; L' ; DW F -> |-f- B ; L ; UP []
   | tri_dec2u' : forall B L F i,
      u i = true -> mt i = true -> ~IsPositiveAtom F -> In (i,F) B -> |-f- B ; L ; DW F -> |-f- B ; L ; UP []
   | tri_dec2l' : forall B B' L F i,
-     u i = false -> mt i = true -> ~IsPositiveAtom F -> Remove (i,F) B B' -> |-f- B' ; L ; DW F -> |-f- B ; L ; UP []
+     u i = false -> mt i = true -> ~IsPositiveAtom F -> Permutation ((i,F)::B') B -> |-f- B' ; L ; DW F -> |-f- B ; L ; UP []
 
   | tri_dec3' : forall B L F ,
       theory F -> ~IsPositiveAtom F -> |-f- B ; L ; DW F -> |-f- B ; L ; UP []
@@ -161,13 +161,13 @@ Section LLSequent.
      with
       tri_bangK4' : list TypedFormula -> subexp -> list TypedFormula -> multiset oo -> Arrow -> Prop :=
        | tri_copyK4' : forall b F L M C B B' i, lt i b  -> m4 b = true -> 
-        Remove (b,F) B B' -> tri_bangK4' B' i (C++[(plust b,F)]) L (UP M) -> 
+        Permutation ((b,F)::B') B-> tri_bangK4' B' i (C++[(plust b,F)]) L (UP M) -> 
                                       tri_bangK4' B i C L (UP M)
        | tri_copyUK' : forall b F L M C B B' i, lt i b  -> m4 b = false -> u b = true ->
-        Remove (b,F) B B' -> tri_bangK4' B' i (C++[(loc,F)]) L (UP M) -> 
+        Permutation ((b,F)::B') B -> tri_bangK4' B' i (C++[(loc,F)]) L (UP M) -> 
                                       tri_bangK4' B i C L (UP M) 
         | tri_copyLK' : forall b F L M C B B' i, lt i b  -> m4 b = false -> u b = false ->
-        Remove (b,F) B B' -> tri_bangK4' B' i C L (UP (M++[F])) -> 
+        Permutation ((b,F)::B') B -> tri_bangK4' B' i C L (UP (M++[F])) -> 
                                       tri_bangK4' B i C L (UP M)                                      
        | tri_exp' : forall B C i L M , SetU B ->
                   |-f- C; L; UP M -> tri_bangK4' B i C L (UP M)
@@ -177,28 +177,15 @@ Section LLSequent.
   
 End LLSequent .
 
-Module LLNotations .
-  Notation "'bot'" := Bot.
-  Notation "'top'" := Top.
-  Notation "'one'" := One.
-  Notation "'zero'" := Zero.
-  Notation "A ** B" := (MAnd A B ) (at level 50) .
-  Notation "A $ B" := (MOr A B) (at level 50) .
-  Notation "A 'op' B" := (AOr A B) (at level 50) . 
-  Notation "A & B" := (AAnd A B) (at level 50) .
-  Notation "a ! A" := (Bang a A) (at level 60) .
-  Notation "a ? A" := (Quest a A) (at level 60) .
-  Notation " A ^ " := (dual A) (at level 10) .
-  Notation " A -o B" := ( (A ^) $ (B) ) (at level 60).
-  Notation "'F{' FX '}'" := (All FX) (at level 10) .
-  Notation "'E{' FX '}'" := (Some FX) (at level 10) .
+Module FLLNotations .
 
-    
-  (** Notation for arrows *)
-  (**  Positive phase *)
-  Notation ">> F" := (DW F) (at level 80)  .
-  (** Negative phase *)
-  Notation "> L" := (UP L) (at level 80) .
-End LLNotations .
+Notation "n ⊢ B ';' L ⇕ X " := (seqN _ n B L X)  (at level 80).
+Notation "n ⊢ B ';' L ⇓ F " := (seqN _ n B L (DW F))  (at level 80).
+Notation "n ⊢ B ';' L ⇑ F " := (seqN _ n B L (UP F))  (at level 80).
+Notation "⊢ B ';' L ⇕ X " := (seq _ B L X)  (at level 80).
+Notation "⊢ B ';' L ⇓ F " := (seq _ B L (DW F))  (at level 80).
+Notation "⊢ B ';' L ⇑ F " := (seq _ B L (UP F))  (at level 80).
+
+End FLLNotations .
 
 Global Hint Constructors seqN seq: core .

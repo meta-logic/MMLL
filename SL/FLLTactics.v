@@ -74,7 +74,7 @@ auto; try
  | [ H : seqN _ ?n ?G ?M ?X |-  seq _ ?G' ?M' ?X ] =>
     eapply seqNtoSeq in H; LLExact H
 
- | [ H : tri_bangK4 _ ?n ?B ?i ?D ?M (> ?L) |- tri_bangK4' _ ?B ?i ?D ?M (> ?L)  ] =>
+ | [ H : tri_bangK4 _ ?n ?B ?i ?D ?M (UP ?L) |- tri_bangK4' _ ?B ?i ?D ?M (UP ?L)  ] =>
     eapply seqNtoSeq_mutual in H;[exact H;firstorder]    
   end.
 
@@ -82,18 +82,18 @@ Ltac solveLinearLogic :=
 solveLL;try solve [HProof];
 try
   match goal with
-  | [H: seqN _ ?n ?B ?L (>> ?F) |- seqN _ ?m ?B ?L (>> (?F op ?G))] =>
-      oplus1; HProof
-  | [H: seqN _ ?n ?B ?L (>> ?G) |- seqN _ ?m ?B ?L (>> (?F op ?G))] =>
-      oplus2; HProof 
-  | [H: seqN _ ?n ?B ?L (>> ?F) |- seq _ ?B ?L (>> (?F op ?G))] =>
-      oplus1; HProof
-  | [H: seqN _ ?n ?B ?L (>> ?G) |- seq _ ?B ?L (>> (?F op ?G))] =>
-      oplus2; HProof 
-  | [H: seq _ ?B ?L (>> ?F) |- seq _ ?B ?L (>> (?F op ?G))] =>
-      oplus1
-  | [H: seq _ ?B ?L (>> ?G) |- seq _ ?B ?L (>> (?F op ?G))] =>
-      oplus2       
+  | [H: seqN _ ?n ?B ?L (DW ?F) |- seqN _ ?m ?B ?L (DW (AOr ?F ?G))] =>
+      LLPlusL; HProof
+  | [H: seqN _ ?n ?B ?L (DW ?G) |- seqN _ ?m ?B ?L (DW (AOr ?F ?G))] =>
+      LLPlusR; HProof 
+  | [H: seqN _ ?n ?B ?L (DW ?F) |- seq _ ?B ?L (DW (AOr ?F ?G))] =>
+      LLPlusL; HProof
+  | [H: seqN _ ?n ?B ?L (DW ?G) |- seq _ ?B ?L (DW (AOr ?F ?G))] =>
+      LLPlusR; HProof 
+  | [H: seq _ ?B ?L (DW ?F) |- seq _ ?B ?L (DW (AOr ?F ?G))] =>
+      LLPlusL
+  | [H: seq _ ?B ?L (DW ?G) |- seq _ ?B ?L (DW (AOr ?F ?G))] =>
+      LLPlusR       
  end; try solveF.
 
 
@@ -107,34 +107,34 @@ Ltac invTriStep H :=
   let F := type of H in
   let H' := fresh "H" in
   match F with
-  | seqN _ _  _ _ (> []) => inversion H;subst;solveF (* decision rules *)
-  | seqN _ _  _ _ (> ((One ):: _)) => inversion H;subst (* Store *)
-  | seqN _ _  _ _ (> ((Zero ):: _)) => inversion H;subst (* Store *)
-  | seqN _ _  _ _ (> ((Bot ):: _)) => inversion H;[subst | solveF] (* Bot *)
-  | seqN _ _  _ _ (> ((atom _ ):: _)) => inversion H;subst (* Store *)
-  | seqN _ _  _ _ (> ((perp _ ):: _)) => inversion H;subst (* Store *)
-  | seqN _ _  _ _ (> ((AAnd _ _) :: _)) => inversion H;subst;[idtac | solveF ] (* with  *)
-  | seqN _ _  _ _ (> ((MOr _ _) :: _)) => inversion H;subst;[idtac | solveF ] (* with /release *)
-  | seqN _ _  _ _ (> ((AOr _ _) :: _)) => inversion H;subst (* store *)
-  | seqN _ _  _ _ (> ((MAnd _ _) :: _)) => inversion H;subst (* store *)
-  | seqN _ _  _ _ (> ((Bang _ _) :: _)) => inversion H;subst (* store *)
-  | seqN _ _  _ _ (> ((Quest _ _):: _) ) => inversion H;subst; [idtac | solveF];simpl in H (* quest *)
-  | seqN _ _  _ _ (> ((All _):: _) ) => inversion H;subst; [solveF | idtac] (* forall /release *)
-  | seqN _ _  _ _ (> ((Some _):: _) ) => inversion H;subst (* store *)
-  | seqN _ _  _ _ (> ((Top):: _) ) => inversion H;subst; [idtac | solveF];simpl in H (* top *)
-  | seqN _ _  _ _ (>> (MAnd _ _)) => inversion H;subst;[idtac | solveF] (* tensor --2nd branch contradictory/release*)
-  | seqN _ _  _ _ (>> (AOr _ _)) => inversion H;subst;[idtac | idtac | solveF]  (* oplus --2nd branch contradictory *)
-  | seqN _ _  _ _ (>> (Bang _ _)) => inversion H;subst;[idtac | solveF]  (* --2nd branch contradictory *)
-  | seqN _ _  _ _ (>>  (perp _)) => apply FocusAtomN in H as H';inversion H';solveF (* [solveF | intro; apply True]*)  (* focus on an atom*)
-  | seqN _ _  _ _ (>>  (atom _ )) => inversion H;subst (* release *)
-  | seqN _ _  _ _ (>>  (Top)) => inversion H;subst (* top *)
-  | seqN _ _  _ _ (>>  (Bot)) => inversion H;subst (* bot *)
-  | seqN _ _  _ _ (>>  (Quest _ _)) => inversion H;subst (* quest *)
-  | seqN _ _  _ _ (>>  (MOr _ _)) => inversion H;subst 
-  | seqN _ _  _ _ (>>  (AAnd _ _)) => inversion H;subst (* with /release *)
-  | seqN _ _  _ _ (>>  (All _) ) => inversion H;subst (* forall /release *)
-  | seqN _ _  _ _ (>> (Some _) ) => inversion H;subst; [solveF | ] (* exists *)
-  | seqN _ _  _ _ (>> (Zero) ) => inversion H;solveF 
+  | seqN _ _  _ _ (UP []) => inversion H;subst;solveF (* decision rules *)
+  | seqN _ _  _ _ (UP ((One ):: _)) => inversion H;subst (* Store *)
+  | seqN _ _  _ _ (UP ((Zero ):: _)) => inversion H;subst (* Store *)
+  | seqN _ _  _ _ (UP ((Bot ):: _)) => inversion H;[subst | solveF] (* Bot *)
+  | seqN _ _  _ _ (UP ((atom _ ):: _)) => inversion H;subst (* Store *)
+  | seqN _ _  _ _ (UP ((perp _ ):: _)) => inversion H;subst (* Store *)
+  | seqN _ _  _ _ (UP ((AAnd _ _) :: _)) => inversion H;subst;[idtac | solveF ] (* with  *)
+  | seqN _ _  _ _ (UP ((MOr _ _) :: _)) => inversion H;subst;[idtac | solveF ] (* with /release *)
+  | seqN _ _  _ _ (UP ((AOr _ _) :: _)) => inversion H;subst (* store *)
+  | seqN _ _  _ _ (UP ((MAnd _ _) :: _)) => inversion H;subst (* store *)
+  | seqN _ _  _ _ (UP ((Bang _ _) :: _)) => inversion H;subst (* store *)
+  | seqN _ _  _ _ (UP ((Quest _ _):: _) ) => inversion H;subst; [idtac | solveF];simpl in H (* quest *)
+  | seqN _ _  _ _ (UP ((All _):: _) ) => inversion H;subst; [solveF | idtac] (* forall /release *)
+  | seqN _ _  _ _ (UP ((Some _):: _) ) => inversion H;subst (* store *)
+  | seqN _ _  _ _ (UP ((Top):: _) ) => inversion H;subst; [idtac | solveF];simpl in H (* top *)
+  | seqN _ _  _ _ (DW (MAnd _ _)) => inversion H;subst;[idtac | solveF] (* tensor --2nd branch contradictory/release*)
+  | seqN _ _  _ _ (DW (AOr _ _)) => inversion H;subst;[idtac | idtac | solveF]  (* oplus --2nd branch contradictory *)
+  | seqN _ _  _ _ (DW (Bang _ _)) => inversion H;subst;[idtac | solveF]  (* --2nd branch contradictory *)
+  | seqN _ _  _ _ (DW  (perp _)) => apply FocusAtomN in H as H';inversion H';solveF (* [solveF | intro; apply True]*)  (* focus on an atom*)
+  | seqN _ _  _ _ (DW  (atom _ )) => inversion H;subst (* release *)
+  | seqN _ _  _ _ (DW  (Top)) => inversion H;subst (* top *)
+  | seqN _ _  _ _ (DW  (Bot)) => inversion H;subst (* bot *)
+  | seqN _ _  _ _ (DW  (Quest _ _)) => inversion H;subst (* quest *)
+  | seqN _ _  _ _ (DW  (MOr _ _)) => inversion H;subst 
+  | seqN _ _  _ _ (DW  (AAnd _ _)) => inversion H;subst (* with /release *)
+  | seqN _ _  _ _ (DW  (All _) ) => inversion H;subst (* forall /release *)
+  | seqN _ _  _ _ (DW (Some _) ) => inversion H;subst; [solveF | ] (* exists *)
+  | seqN _ _  _ _ (DW (Zero) ) => inversion H;solveF 
   end.
 
 Ltac invTri H := invTriStep H ; clear H.
@@ -146,34 +146,34 @@ Ltac invTri' H :=
   let F := type of H in
   let H' := fresh "H" in
   match F with
-  | seq _  _ _ (> []) => inversion H;subst;solveF (* decision rules *)
-  | seq _  _ _ (> ((One ):: _)) => inversion H;subst (* Store *)
-  | seq _  _ _ (> ((Zero ):: _)) => inversion H;subst (* Store *)
-  | seq _  _ _ (> ((Bot ):: _)) => inversion H;[subst | solveF] (* Bot *)
-  | seq _  _ _ (> ((Top):: _) ) => inversion H;subst; [idtac | solveF];simpl in H (* top *)
-  | seq _  _ _ (> ((atom _ ):: _)) => inversion H;subst (* Store *)
-  | seq _  _ _ (> ((perp _ ):: _)) => inversion H;subst (* Store *)
-  | seq _  _ _ (> ((AAnd _ _) :: _)) => inversion H;subst;[idtac | solveF ] (* with  *)
-  | seq _  _ _ (> ((MOr _ _) :: _)) => inversion H;subst;[idtac | solveF ] (* with /release *)
-  | seq _  _ _ (> ((AOr _ _) :: _)) => inversion H;subst (* store *)
-  | seq _  _ _ (> ((MAnd _ _) :: _)) => inversion H;subst (* store *)
-  | seq _  _ _ (> ((Bang _ _) :: _)) => inversion H;subst (* store *)
-  | seq _  _ _ (> ((Quest _ _):: _) ) => inversion H;subst; [idtac | solveF];simpl in H (* quest *)
-  | seq _  _ _ (> ((All _):: _) ) => inversion H;subst; [solveF | idtac] (* forall /release *)
-  | seq _  _ _ (> ((Some _):: _) ) => inversion H;subst (* store *)
-  | seq _  _ _ (>> (MAnd _ _)) => inversion H;subst;[idtac | solveF] (* tensor --2nd branch contradictory/release*)
-  | seq _  _ _ (>> (AOr _ _)) => inversion H;subst;[idtac | idtac |  solveF] (* oplus --2nd branch contradictory/release*)
-  | seq _  _ _ (>> (Bang _ _)) => inversion H;subst;[idtac | solveF] (* 2nd branch contradictory/release*)
-(*  | seq _  _ _ (>>  (perp _)) => apply FocusAtom in H as H'; inversion H'; solveF  *)  (* focus on an atom*)
-  | seq _  _ _ (>>  (atom _ )) => inversion H;subst (* release *)
-  | seq _  _ _ (>>  (Top)) => inversion H;subst (* top *)
-  | seq _  _ _ (>>  (Bot)) => inversion H;subst (* bot *)
-  | seq _  _ _ (>>  (Quest _ _)) => inversion H;subst (* quest *)
-  | seq _  _ _ (>>  (MOr _ _)) => inversion H;subst 
-  | seq _  _ _ (>>  (AAnd _ _)) => inversion H;subst (* with /release *)
-  | seq _  _ _ (>>  (All _) ) => inversion H;subst (* forall /release *)
-  | seq _  _ _ (>> (Some _) ) => inversion H;subst; [solveF | ] (* exists *)
-  | seq _  _ _ (>> (Zero ) ) => inversion H;solveF
+  | seq _  _ _ (UP []) => inversion H;subst;solveF (* decision rules *)
+  | seq _  _ _ (UP ((One ):: _)) => inversion H;subst (* Store *)
+  | seq _  _ _ (UP ((Zero ):: _)) => inversion H;subst (* Store *)
+  | seq _  _ _ (UP ((Bot ):: _)) => inversion H;[subst | solveF] (* Bot *)
+  | seq _  _ _ (UP ((Top):: _) ) => inversion H;subst; [idtac | solveF];simpl in H (* top *)
+  | seq _  _ _ (UP ((atom _ ):: _)) => inversion H;subst (* Store *)
+  | seq _  _ _ (UP ((perp _ ):: _)) => inversion H;subst (* Store *)
+  | seq _  _ _ (UP ((AAnd _ _) :: _)) => inversion H;subst;[idtac | solveF ] (* with  *)
+  | seq _  _ _ (UP ((MOr _ _) :: _)) => inversion H;subst;[idtac | solveF ] (* with /release *)
+  | seq _  _ _ (UP ((AOr _ _) :: _)) => inversion H;subst (* store *)
+  | seq _  _ _ (UP ((MAnd _ _) :: _)) => inversion H;subst (* store *)
+  | seq _  _ _ (UP ((Bang _ _) :: _)) => inversion H;subst (* store *)
+  | seq _  _ _ (UP ((Quest _ _):: _) ) => inversion H;subst; [idtac | solveF];simpl in H (* quest *)
+  | seq _  _ _ (UP ((All _):: _) ) => inversion H;subst; [solveF | idtac] (* forall /release *)
+  | seq _  _ _ (UP ((Some _):: _) ) => inversion H;subst (* store *)
+  | seq _  _ _ (DW (MAnd _ _)) => inversion H;subst;[idtac | solveF] (* tensor --2nd branch contradictory/release*)
+  | seq _  _ _ (DW (AOr _ _)) => inversion H;subst;[idtac | idtac |  solveF] (* oplus --2nd branch contradictory/release*)
+  | seq _  _ _ (DW (Bang _ _)) => inversion H;subst;[idtac | solveF] (* 2nd branch contradictory/release*)
+(*  | seq _  _ _ (DW  (perp _)) => apply FocusAtom in H as H'; inversion H'; solveF  *)  (* focus on an atom*)
+  | seq _  _ _ (DW  (atom _ )) => inversion H;subst (* release *)
+  | seq _  _ _ (DW  (Top)) => inversion H;subst (* top *)
+  | seq _  _ _ (DW  (Bot)) => inversion H;subst (* bot *)
+  | seq _  _ _ (DW  (Quest _ _)) => inversion H;subst (* quest *)
+  | seq _  _ _ (DW  (MOr _ _)) => inversion H;subst 
+  | seq _  _ _ (DW  (AAnd _ _)) => inversion H;subst (* with /release *)
+  | seq _  _ _ (DW  (All _) ) => inversion H;subst (* forall /release *)
+  | seq _  _ _ (DW (Some _) ) => inversion H;subst; [solveF | ] (* exists *)
+  | seq _  _ _ (DW (Zero ) ) => inversion H;solveF
   end;
   clear H.
 
@@ -193,10 +193,10 @@ end.
 Ltac FLLInversionAll :=
   repeat
     match goal with
-    | [H : seqN _ _ _ _ (>> _) |- _ ] => invTri H
-    | [H : seqN _ _ _ _ (> (?C :: _)) |- _ ] => invTri H
-    | [H : seq _ _ _ (>> _) |- _ ] => invTri' H
-    | [H : seq _ _ _ (> (?C :: _)) |- _ ] => invTri' H
+    | [H : seqN _ _ _ _ (DW _) |- _ ] => invTri H
+    | [H : seqN _ _ _ _ (UP (?C :: _)) |- _ ] => invTri H
+    | [H : seq _ _ _ (DW _) |- _ ] => invTri' H
+    | [H : seq _ _ _ (UP (?C :: _)) |- _ ] => invTri' H
     end.
   
 
@@ -204,17 +204,17 @@ Ltac FLLInversionAll :=
 Ltac LLPermH H LI :=
   match goal with
   | [ H : seqN _ _ _ _ _ |- _] =>
-          first[ apply exchangeLCN with (LC' := LI) in H ;[|perm]
-               | apply exchangeCCN with (CC' := LI) in H ;[|perm]]
+          first[ apply exchangeLCN with (LC' := LI) in H ;[|sauto]
+               | apply exchangeCCN with (CC' := LI) in H ;[|sauto]]
   | [ H : seq _ _ _ _ |- _] =>
-          first[ apply exchangeLC with (LC' := LI) in H ;[|perm]
-               | apply exchangeCC with (CC' := LI) in H ;[|perm]]
+          first[ apply exchangeLC with (LC' := LI) in H ;[|sauto]
+               | apply exchangeCC with (CC' := LI) in H ;[|sauto]]
   | [ H : tri_bangK4 _ _ _ _ _ _ _ |- _] =>
-          first[ apply exchangeCCNK4 with (CC' := LI) in H ;[|perm]
-               | apply exchangeCCNKK4 with (CC' := LI) in H ;[|perm]]
+          first[ apply exchangeCCNK4 with (CC' := LI) in H ;[|sauto]
+               | apply exchangeCCNKK4 with (CC' := LI) in H ;[|sauto]]
   | [ H : tri_bangK4' _ _ _ _ _ _ |- _] =>
-          first[ apply exchangeCCK4 with (CC' := LI) in H ;[|perm]
-               | apply exchangeCCKK4 with (CC' := LI) in H ;[|perm]]
+          first[ apply exchangeCCK4 with (CC' := LI) in H ;[|sauto]
+               | apply exchangeCCKK4 with (CC' := LI) in H ;[|sauto]]
   end.
 
 
@@ -300,17 +300,17 @@ Ltac LLrew2 H :=
 Ltac LLPerm LI :=
   match goal with
   | [ |- seqN _ _ _ _ _ ] =>
-          first[ apply exchangeLCN with (LC := LI);[perm|]
-               | apply exchangeCCN with (CC := LI);[perm|]]
+          first[ apply exchangeLCN with (LC := LI);[sauto|]
+               | apply exchangeCCN with (CC := LI);[sauto|]]
   | [ |- seq _ _ _ _ ] =>
-          first[ apply exchangeLC with (LC := LI);[perm|]
-               | apply exchangeCC with (CC := LI);[perm|]]
+          first[ apply exchangeLC with (LC := LI);[sauto|]
+               | apply exchangeCC with (CC := LI);[sauto|]]
   | [ |- tri_bangK4 _ _ _ _ _ _ _ ] =>
-          first[ apply exchangeCCNK4 with (CC := LI);[perm|]
+          first[ apply exchangeCCNK4 with (CC := LI);[sauto|]
                | apply exchangeCCNKK4 with (CC := LI);[perm|]]
   | [ |- tri_bangK4' _ _ _ _ _ _ ] =>
-          first[ apply exchangeCCK4 with (CC := LI);[perm|]
-               | apply exchangeCCKK4 with (CC := LI);[perm|]]
+          first[ apply exchangeCCK4 with (CC := LI);[sauto|]
+               | apply exchangeCCKK4 with (CC := LI);[sauto|]]
 end.
   
 (** This version of [LLPerm] first simplifies the parameter LI *)
@@ -345,14 +345,14 @@ Ltac LLSwap :=
   end.
 
 Ltac finishExponential :=  match goal with
-  | [ H: tri_bangK4 ?th ?n ?B ?a ?D ?O (> ?L), H2: m4 ?a = true, H3: u ?a = true |- _ ] => 
+  | [ H: tri_bangK4 ?th ?n ?B ?a ?D ?O (UP ?L), H2: m4 ?a = true, H3: u ?a = true |- _ ] => 
        let a := fresh "CK4" in
        let c := fresh "CN" in
         apply InvSubExpPhaseUK4 in H; 
         [ destruct H as [a H];
           destruct H as [c H];CleanContext | auto | auto | try solve[auto | intro;subst;solveSubExp] ]           
 
-    | [ H: tri_bangK4 ?th ?n ?B ?a ?D ?O (> ?L), H2: u ?a = true |- _ ] => 
+    | [ H: tri_bangK4 ?th ?n ?B ?a ?D ?O (UP ?L), H2: u ?a = true |- _ ] => 
      let a := fresh "CK4" in
      let b := fresh "CK" in
      let c := fresh "CN" in
@@ -360,13 +360,13 @@ Ltac finishExponential :=  match goal with
         [ destruct H as [a H];
           destruct H as [b H];
           destruct H as [c H];CleanContext | auto | try solve[auto | intro;subst;solveSubExp] ]; idtac H2    
-    | [ H: tri_bangK4 ?th ?n ?B ?a ?D ?O (> ?L), H2: m4 ?a = true |- _ ] => 
+    | [ H: tri_bangK4 ?th ?n ?B ?a ?D ?O (UP ?L), H2: m4 ?a = true |- _ ] => 
        let a := fresh "CK4" in
        let c := fresh "CN" in
         apply InvSubExpPhaseK4 in H; 
         [ destruct H as [a H];
           destruct H as [c H];CleanContext | auto | try solve[auto | intro;subst;solveSubExp] ]           
-    | [ H: tri_bangK4 ?th ?n ?B ?a ?D ?O (> ?L) |- _ ] => 
+    | [ H: tri_bangK4 ?th ?n ?B ?a ?D ?O (UP ?L) |- _ ] => 
      let a := fresh "CK4" in
      let b := fresh "CK" in
      let c := fresh "CN" in

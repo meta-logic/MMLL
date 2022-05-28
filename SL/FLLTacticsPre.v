@@ -1,4 +1,4 @@
-(** * Tactics for the focused system
+  (** * Tactics for the focused system
 
 The tactics defined in this module solves some of the repetitive goals
 generated when the system is used. In particular those related
@@ -18,154 +18,19 @@ Set Implicit Arguments.
 (* Remove Hints Equivalence.pointwise_equivalence : typeclass_instances. *)
 #[global] Existing Instance Equivalence.pointwise_equivalence | 11.
 
-Ltac simplSignature := simplSignature1; 
- repeat    
-  multimatch goal with
-  | [ H: SetU ?K |- context[getL ?K] ] => rewrite (SetU_then_empty H)
-  | [ H1: SetU ?K, H2: context[getL ?K] |- _ ] => rewrite (SetU_then_empty H1) in H2
- 
- (* About Loc *)
-  | [  |- context[Loc(_++_)] ] => setoid_rewrite locApp
-  | [  |- context[getL (Loc _)] ] => rewrite getLELoc
-  | [  |- context[getU (Loc _)] ] => rewrite getULoc
-  | [ H: context[Loc(_++_)] |- _ ] => setoid_rewrite locApp in H 
-  | [ H: context[getL (Loc _)] |- _  ] => rewrite getLELoc in H
-  | [ H: context[getU (Loc _)] |- _  ] => rewrite getULoc in H
-
- (* | [ H: SetU ?K |- context[Loc (getU ?K)] ] => rewrite setULocgetU;auto 
- | [ H1: SetU ?K, H2: context[Loc (getU ?K)] |- _ ] => rewrite setULocgetU in H2;auto 
-  *) 
- 
- (* About PlusT *)
- | [  |- context[PlusT(_++_)] ] => setoid_rewrite PlusTApp
- | [  |- context[PlusT (PlusT _)] ] => rewrite PlusT_fixpoint 
- | [ H1: SetT ?K, H2: context[PlusT ?K] |- _ ] => rewrite SetTPlusT in H2;auto 
- | [ H: SetT ?K |- context[PlusT ?K] ] => rewrite SetTPlusT;auto 
-  
- | [ H: context[PlusT(_++_)] |- _ ] => setoid_rewrite PlusTApp in H 
- | [ H: context[PlusT (PlusT _)]  |- _ ] => rewrite PlusT_fixpoint in H
- | [ H: SetU (PlusT _)  |- _ ] => apply PlusTSetU in H
-
-   
- (* About getU and getL *)
- | [  |- context[getU(_++_)] ] => setoid_rewrite getUApp
- | [  |- context[getL(_++_)] ] => setoid_rewrite getLApp
- | [  |- context[getU(getU _)] ] => rewrite getU_fixpoint
- | [  |- context[getL(getL _)] ] => rewrite getL_fixpoint
- | [  |- context[getU(getL _)] ] => rewrite getUgetL
- | [  |- context[getL(getU _)] ] => rewrite getLgetU
- | [ H: context[getU(_++_)] |- _ ] => setoid_rewrite getUApp in H
- | [ H: context[getL(_++_)] |- _ ] => setoid_rewrite getLApp in H
- | [ H: context[getU(getU _)] |- _ ] => rewrite getU_fixpoint in H
- | [ H: context[getL(getL _)] |- _ ] => rewrite getL_fixpoint in H
- | [ H: context[getU(getL _)] |- _ ] => rewrite getUgetL in H
- | [ H: context[getL(getU _)] |- _ ] => rewrite getLgetU in H
- 
-(*  | [ H: SetU ?K  |- context[getU ?K] ] => rewrite setUtoGetU;auto
- | [ H1: SetU ?K, H2:context[getU ?K]  |- _ ] => rewrite setUtoGetU in H2;auto  *)
-
- (* About getU, getL and PlusT *)
- | [  |- context[getU (PlusT (getL _))] ] => rewrite getUgetLPlusT
- | [  |- context[getL (PlusT (getU _))] ] => rewrite getLgetUPlusT
- | [  |- context[getU (PlusT (getU _))] ] => rewrite getUPlusTgetU'
- | [  |- context[getL (PlusT (getL _))] ] => rewrite getUPlusTgetL'
- | [ H: context[getU (PlusT (getL _))]  |- _ ] => rewrite getUgetLPlusT in H
- | [ H: context[getL (PlusT (getU _))]  |- _ ] => rewrite getLgetUPlusT in H  
- | [ H: context[getU (PlusT (getU _))]  |- _ ] => rewrite getUPlusTgetU' in H  
- | [ H: context[getL (PlusT (getL _))]  |- _ ] => rewrite getUPlusTgetL' in H 
-  
- | [ H: SetU ?K |- context[getL (PlusT ?K)] ] => rewrite (getLgetUPlusT' H);auto  
- | [ H: SetT ?K |- context[getU (PlusT ?K)] ] => rewrite <- (getUPlusT H);auto  
- | [ H: SetT ?K |- context[getL (PlusT ?K)] ] => rewrite <- (getLPlusT H);auto
- | [ H1: SetU ?K, H2: context[PlusT (getU ?K)] |- _ ] => rewrite (setUPlusTgetU H1) in H2;auto 
- | [ H1: SetU ?K, H2: context[getL (PlusT ?K)] |- _ ] => rewrite (getLgetUPlusT' H1) in H2;auto  
- | [ H1: SetT ?K, H2: context[getU (PlusT ?K)] |- _ ] => rewrite <- (getUPlusT H1) in H2;auto  
- | [ H1: SetT ?K, H2:context[getL (PlusT ?K)]  |- _] => rewrite <- (getLPlusT H1) in H2;auto
-  | [  |- context[(second (getU ?K++getL ?K))] ] => rewrite <- cxtDestructSecond
- | [ H:context[(second (getU ?K++getL ?K))] |- _ ] => rewrite <- cxtDestructSecond in H
-
- 
-end. 
-
-Ltac solveSignature2 :=
- match goal with
-  | [ |- SetU (getU _) ] => apply getUtoSetU
-  | [ |- SetU (Loc _) ] => apply SetULoc  
-  | [ |- SetT (Loc _) ] => apply SetTLoc    
-  | [ |- SetL (getL _) ] => apply getLtoSetL
-  | [ H: SetK4 ?i ?K |- SetK4 ?i (getU ?K)] => apply SetK4Destruct in H;sauto
-  | [ H: SetK4 ?i ?K |- SetK4 ?i (getL ?K)] => apply SetK4Destruct in H;sauto
-  | [ H: SetK ?i ?K |- SetK ?i (getU ?K)] => apply SetKDestruct in H;sauto
-  | [ H: SetK ?i ?K |- SetK ?i (getL ?K)] => apply SetKDestruct in H;sauto
-
-| [ H: SetK4 ?i ?K, H2: Permutation (getU ?K) (?K2 ++ _) |- SetK4 ?i ?K2] => 
-   let H' := fresh "H" in
-          apply SetK4Destruct in H; destruct H as [H H'];rewrite H2 in H;solveSignature2
- | [ H: SetK4 ?i ?K, H2: Permutation (getU ?K) (_ ++ ?K2) |- SetK4 ?i ?K2] => 
-   let H' := fresh "H" in
-          apply SetK4Destruct in H; destruct H as [H H'];rewrite H2 in H;solveSignature2
-
- | [ H: SetK ?i ?K, H2: Permutation (getU ?K) (?K2 ++ _) |- SetK ?i ?K2] => 
-   let H' := fresh "H" in
-          apply SetKDestruct in H; destruct H as [H H'];rewrite H2 in H;solveSignature2
- | [ H: SetK ?i ?K, H2: Permutation (getU ?K) (_ ++ ?K2) |- SetK ?i ?K2] => 
-   let H' := fresh "H" in
-          apply SetKDestruct in H; destruct H as [H H'];rewrite H2 in H;solveSignature2
- 
- | [ H: SetU (PlusT ?K) |- SetU ?K ] => apply PlusTSetU;auto 
- | [  |- SetU (PlusT _ )] => apply SetUPlusT;solveSignature2
-
-  | [H: Permutation (getU ?CN) (_ ++ ?M) |- SetU ?N] =>  apply getUPerm_SetU in H;solveSignature2
-  | [H: Permutation (getU ?CN) (?M ++ _) |- SetU ?M] =>  apply getUPerm_SetU in H;solveSignature2
-
- | [ H: SetT ?K |- SetT (getU ?K)] => rewrite cxtDestruct in H;solveSignature2
- | [ H: SetT ?K |- SetT (getL ?K)] => rewrite cxtDestruct in H;solveSignature2
- 
-
-  | [ |- SetU (PlusT _) ] => apply SetUPlusT
-  | [ |- SetK4 (plust _) (PlusT _) ] => apply SetK4PlusT
-  | [ |- SetK (plust _) (PlusT _) ] => apply SetKPlusT 
-  
- | [ H1: u ?i = false, H2: In (?i, ?F) ?B  |- In (?i, ?F) (getL ?B) ] => apply lIngetL;auto
-
- | [ H1: u ?i = true, H2: SetK ?i ?K  |- SetU ?K  ] => eapply (SetUKClosure H1);auto
- | [ H1: mt ?i = true, H2: SetK ?i ?K  |- SetT ?K  ] => eapply (SetTKClosure H1);auto 
- | [ H1: u ?i = true, H2: SetK4 ?i ?K  |- SetU ?K  ] => eapply (SetUK4Closure H1);auto
- | [ H1: mt ?i = true, H2: SetK4 ?i ?K  |- SetT ?K  ] => eapply (SetTK4Closure H1);auto 
-
- | [ H1: u ?i = true, H2: SetK ?i ?K  |- SetU (_ ?K)  ] => eapply (SetUKClosure H1);simplSignature
- | [ H1: mt ?i = true, H2: SetK ?i ?K  |- SetT (_ ?K)  ] => eapply (SetTKClosure H1);simplSignature 
- | [ H1: u ?i = true, H2: SetK4 ?i ?K  |- SetU (_ ?K)  ] => eapply (SetUK4Closure H1);simplSignature
- | [ H1: mt ?i = true, H2: SetK4 ?i ?K  |- SetT (_ ?K)  ] => eapply (SetTK4Closure H1);simplSignature 
- | [ H: SetU ?K |- context[PlusT (getU ?K)] ] => try solve [rewrite setUPlusTgetU;auto]
-
-end.
-
-Ltac solveSignature :=
-simplSignature;
-try solve [solveSignature1];
-try solve [solveSignature2];
-try
-match goal with
- | [ |- SetK ?i ?K] => solveFoldFALL2 (fun k :subexp*oo => m4 (fst k) = false /\ lt i (fst k) )
- | [ |- SetK4 ?i ?K] => solveFoldFALL2  (fun k :subexp*oo => m4 (fst k) = true /\ lt i (fst k) )
- | [ |- SetT ?K] => solveFoldFALL1 (fun k :subexp*oo => mt (fst k) = true)
- | [ |- SetU ?K] => solveFoldFALL1 (fun k :subexp*oo => u (fst k) = true)
- | [ |- SetL ?K] => solveFoldFALL1 (fun k :subexp*oo => u (fst k) = false)
- end;try sfold.  
 
 Ltac solveIsFormula1 := auto;try
   match goal with
-  | [ H1: isFormulaL (second ?L), H2: In (_,?P) ?L  |- isFormula ?P ] => apply isFormulaInS1 in H2;auto
-  | [ H1: isFormulaL (second ?L), H2: In (_,_ ?A _) ?L  |- isFormula ?A ] => apply isFormulaInS1 in H2;solveIsFormula1
+(*   | [ H1: isFormulaL (second ?L), H2: In (_,?P) ?L  |- isFormula ?P ] => apply isFormulaInS1 in H2;auto
+ *) (*  | [ H1: isFormulaL (second ?L), H2: In (_,_ ?A _) ?L  |- isFormula ?A ] => apply isFormulaInS1 in H2;solveIsFormula1
   | [ H1: isFormulaL (second ?L), H2: In (_,_ _ ?A) ?L  |- isFormula ?A ] => apply isFormulaInS1 in H2;solveIsFormula1
   | [ H1: isFormulaL (second ?L), H2: In (_,_ ?A) ?L  |- isFormula (?A _) ] => apply isFormulaInS1 in H2;solveIsFormula1
- 
-  | [ H1: isFormulaL (second ?L), H2: Permutation ?L ((_,?P)::_)  |- isFormula ?P ] => apply isFormulaInS2 in H2;auto
+  *)
+ (*  | [ H1: isFormulaL (second ?L), H2: Permutation ?L ((_,?P)::_)  |- isFormula ?P ] => apply isFormulaInS2 in H2;auto
   | [ H1: isFormulaL (second ?L), H2: Permutation ?L ((_,_ ?A _)::_)  |- isFormula ?A ] => apply isFormulaInS2 in H2;solveIsFormula1
-  | [ H1: isFormulaL (second ?L), H2: Permutation ?L ((_,_ _ ?A)::_)  |- isFormula ?A ] => apply isFormulaInS2 in H2;solveIsFormula1
-  | [ H1: isFormulaL (second ?L), H2: Permutation ?L ((_,_ ?A)::_)  |- isFormula (?A _) ] => apply isFormulaInS2 in H2;solveIsFormula1
-
+  *)(*  | [ H1: isFormulaL (second ?L), H2: Permutation ?L ((_,_ _ ?A)::_)  |- isFormula ?A ] => apply isFormulaInS2 in H2;solveIsFormula1
+  *)(*  | [ H1: isFormulaL (second ?L), H2: Permutation ?L ((_,_ ?A)::_)  |- isFormula (?A _) ] => apply isFormulaInS2 in H2;solveIsFormula1
+ *)
   | [ H1: forall P:oo, ?th P -> isFormula P, H2: ?th ?P  |- isFormula ?P ] => apply H1 in H2;auto
   | [ H1: forall P:oo, ?th P -> isFormula P, H2: ?th (_ ?A _)  |- isFormula ?A ] => apply H1 in H2;solveIsFormula1
   | [ H1: forall P:oo, ?th P -> isFormula P, H2: ?th (_ _ ?A)  |- isFormula ?A ] => apply H1 in H2;solveIsFormula1
@@ -208,12 +73,11 @@ match goal with
  | [ |- isFormulaL ?K] => simpl;solveFoldFALL1 isFormula;solveIsFormula1
 end.
 
-Ltac SLSolve := do 2 
- solveSignature; try
+Ltac SLSolve := try
  match goal with
- | |- isFormulaL (second ?K) => simplSignature;solveIsFormula2;SLFormulaSolve
- | |- isFormulaL ?K => simplSignature;SLFormulaSolve
-    end;sfold.
+ | |- isFormulaL (second ?K) => solveIsFormula2;SLFormulaSolve
+ | |- isFormulaL ?K => SLFormulaSolve
+    end.
  
 Ltac solveUniform :=
   auto;
@@ -230,29 +94,31 @@ Ltac solveUniform :=
 Ltac cleanF :=
  repeat
  match goal with
- | [H: release top  |- _] => clear H
- | [H: release bot  |- _] => clear H
- | [H: release (MOr _ _)  |- _] => clear H
- | [H: release (atom _)  |- _] => clear H
- | [H: release (All _)  |- _] => clear H
- | [H: release (AAnd _ _)  |- _] => clear H
- | [H: release (Quest _ _)  |- _] => clear H
+  | [H: negativeFormula Top  |- _] => clear H
+ | [H: negativeFormula Bot  |- _] => clear H
+ | [H: negativeFormula (MOr _ _)  |- _] => clear H
+ | [H: negativeFormula (atom _)  |- _] => clear H
+ | [H: negativeFormula (All _)  |- _] => clear H
+ | [H: negativeFormula (AAnd _ _)  |- _] => clear H
+ | [H: negativeFormula (Quest _ _)  |- _] => clear H
  
- | [H: asynchronous top  |- _] => clear H
- | [H: asynchronous bot  |- _] => clear H
- | [H: asynchronous (MOr _ _)  |- _] => clear H
- | [H: asynchronous (All _)  |- _] => clear H
- | [H: asynchronous (AAnd _ _)  |- _] => clear H
- | [H: asynchronous (Quest _ _)  |- _] => clear H 
+ | [H: positiveFormula (perp _)  |- _] => clear H
+ | [H: positiveFormula Zero  |- _] => clear H
+ | [H: positiveFormula One  |- _] => clear H
+ | [H: positiveFormula (MAnd _ _)  |- _] => clear H
+ | [H: positiveFormula (Some _)  |- _] => clear H
+ | [H: positiveFormula (AOr _ _)  |- _] => clear H
+ | [H: positiveFormula (Bang _ _ )  |- _] => clear H 
+
+ | [H: positiveLFormula (atom _)  |- _] => clear H
+ | [H: positiveLFormula (perp _)  |- _] => clear H
+ | [H: positiveLFormula Zero  |- _] => clear H
+ | [H: positiveLFormula One  |- _] => clear H
+ | [H: positiveLFormula (MAnd _ _)  |- _] => clear H
+ | [H: positiveLFormula (Some _)  |- _] => clear H
+ | [H: positiveLFormula (AOr _ _)  |- _] => clear H
+ | [H: positiveLFormula (Bang _ _)  |- _] => clear H 
  
- | [H: ~ asynchronous (atom _)  |- _] => clear H
- | [H: ~ asynchronous (perp _)  |- _] => clear H
- | [H: ~ asynchronous zero  |- _] => clear H
- | [H: ~ asynchronous one  |- _] => clear H
- | [H: ~ asynchronous (MAnd _ _)  |- _] => clear H
- | [H: ~ asynchronous (Some _)  |- _] => clear H
- | [H: ~ asynchronous (AOr _ _)  |- _] => clear H
- | [H: ~ asynchronous (Bang _ _)  |- _] => clear H 
  
  | [H : ~ IsPositiveAtom (perp _ ) |- _ ] => clear H 
  | [H : ~ IsPositiveAtom (MOr _ _ ) |- _ ] => clear H 
@@ -263,66 +129,100 @@ Ltac cleanF :=
  | [H : ~ IsPositiveAtom (Quest _ _) |- _ ] => clear H 
  | [H : ~ IsPositiveAtom (All _ ) |- _ ] => clear H 
  | [H : ~ IsPositiveAtom (Some _ ) |- _ ] => clear H 
- | [H : ~ IsPositiveAtom top |- _ ] => clear H    
- | [H : ~ IsPositiveAtom bot |- _ ] => clear H 
- | [H : ~ IsPositiveAtom one |- _ ] => clear H 
- | [H : ~ IsPositiveAtom zero |- _ ] => clear H  
+ | [H : ~ IsPositiveAtom Top |- _ ] => clear H    
+ | [H : ~ IsPositiveAtom Bot |- _ ] => clear H 
+ | [H : ~ IsPositiveAtom One |- _ ] => clear H 
+ | [H : ~ IsPositiveAtom Zero |- _ ] => clear H  
     
-    | [H : SetK _ [] |- _ ] => clear H
-    | [H : SetK4 _ [] |- _ ] => clear H
+    | [H : SetK [] |- _ ] => clear H
+    | [H : SetK4 [] |- _ ] => clear H
     | [H : SetT [] |- _ ] => clear H
     | [H : SetU [] |- _ ] => clear H
     | [H : SetL [] |- _ ] => clear H   
+  | [H : LtX ?a [] |- _ ] => clear H
+  | [H : lt ?a ?a |- _ ] => clear H
+  
  end.
  
 (** This tactic solves most of the irrelevant goals in a focused
   proof (e.g., proving whether a formula is positive or not) *)
 Ltac solveF :=
-  simpl;auto;subst;
+  sauto;
   let H := fresh "H" in
-  repeat
     match goal with
-     | [ |- Arrow ] =>  exact (UP nil)
-    | [ |- uniform _ ] => solve [solveUniform]
-    | [ |- _ <= _ ] => lia
-    | [ |- _ >= _ ] => lia
-    | [ |- _ < _ ] => lia
-    | [ |- _ > _ ] => lia                       
-    | [|- ~ asynchronous _] => first [solve [intro H; inversion H;auto] | auto] 
-    | [|- ~ IsPositiveAtom _ ] => first [solve [intro H; inversion H;auto] | auto] 
-    | [|- IsPositiveAtom _ ] => repeat constructor
-    | [|- release _] => first [solve [constructor] | auto]  
-    | [|- asynchronous _] => first [solve [constructor] | auto]
-
-    | [H: release ?F  |- _] =>
+    | [|- ~ negativeFormula _] => intro H; solveF 
+    | [|- ~ positiveFormula _] => intro H; solveF
+    | [|- ~ positiveLFormula _] => intro H; solveF
+    | [|- ~ IsPositiveAtom _ ] => intro H; solveF
+    | [|- ~ IsNegativeAtom _ ] => intro H; solveF
+    
+    | [H: negativeFormula ?F  |- _] =>
+      match F with
+      | perp _ => inversion H      
+      | MAnd _ _ => inversion H
+      | AOr _ _ => inversion H
+      | Some _ => inversion H
+      | Bang _ _ => inversion H
+      | Zero => inversion H
+      | One => inversion H
+      end
+    | [H : positiveFormula ?F |- _ ] =>
+      match F with
+      | atom _ => inversion H
+      | AAnd _ _ => inversion H
+      | MOr _ _ => inversion H      
+      | All _ => inversion H
+      | Quest _ _ => inversion H
+      | Bot => inversion H
+      | Top => inversion H
+      end
+    | [H : positiveLFormula ?F |- _ ] =>
+      match F with
+      | AAnd _ _ => inversion H
+      | MOr _ _ => inversion H
+      | All _ => inversion H
+      | Quest _ _ => inversion H
+      | Bot => inversion H
+      | Top => inversion H
+    end
+    | [H : IsPositiveAtom ?F |- _ ] =>
       match F with
       | MAnd _ _ => inversion H
+      | AAnd _ _ => inversion H
+      | MOr _ _ => inversion H
+      | AOr _ _ => inversion H
+      | Bang _ => inversion H
+      | Quest _ _ => inversion H
       | perp _ => inversion H
       | Some _ => inversion H
-      | zero => inversion H
-      | one => inversion H
+      | All _ => inversion H
+      | Zero => inversion H
+      | One => inversion H
+      | Bot => inversion H
+      | Top => inversion H
+      end
+    | [H : IsNegativeAtom ?F |- _ ] =>
+      match F with
+      | MAnd _ _ => inversion H
+      | AAnd _ _ => inversion H
+      | MOr _ _ => inversion H
       | AOr _ _ => inversion H
       | Bang _ _ => inversion H
+      | Quest _ _ => inversion H
+      | atom _ => inversion H
+      | Some _ => inversion H
+      | All _ => inversion H
+      | Zero => inversion H
+      | One => inversion H
+      | Bot => inversion H
+      | Top => inversion H
       end
-    | [H : ~ asynchronous ?F |- _ ] =>
-      match F with
-      | AAnd _ _ => contradict H;constructor
-      | MOr _ _ => contradict H;constructor
-      | All _ => contradict H;constructor
-      | Quest _ _ => contradict H;constructor
-      | Bot => contradict H;constructor
-      | Top => contradict H;constructor
-      end
-    | [H : ~ IsPositiveAtom (atom _ ) |- _ ] => contradict H;constructor
-    | [H: (atom _ ) = (atom _ ) |- _ ] => inversion H;clear H
-    | [H: seqN _ _ _ _  (>> zero) |- _ ] => inversion H
-    | [H: seq  _ _ _  (>> zero) |- _ ] => inversion H
-    | [ |- _ >= _] => subst; lia
-    | [ |- _ <= _] => subst; lia
-    end;auto;
-  try(match goal with
-      | [ |- Permutation _ _] => simplSignature; perm
-      end).
+    | [H : ~ IsPositiveAtom (atom _ ) |- _ ] => contradict H;auto
+    | [H : ~ positiveLFormula (atom _ ) |- _ ] => contradict H;auto
+    | [H : ~ positiveLFormula (perp _ ) |- _ ] => contradict H;auto
+  
+    | _  => idtac
+    end;auto.
 
 (** Splits the linear context L into L1 ++ L2 where L1 contains the first n elements of L *)
 Ltac SplitContext n :=
@@ -350,280 +250,74 @@ Ltac SplitContext' n :=
   end.
 
 
+(** Notation for forward reasoning on  sequents *)
 
-Tactic Notation "store" := match goal with
-                           | [ |- seq _ _ _ _ ] =>  apply tri_store' ;solveF
-                           | [|- seqN _ _ _ _ _] => apply tri_store ;solveF
-                           end.
+(* Focusing on positive formulas *)
+Tactic Notation "LFocus" := match goal with
+    | [ |- seq _ _ (?P::?PL) _ ] =>  eapply @tri_dec1' with (F:= P) (L':=PL);[solveF | sauto | sauto ]
+    | [|- seqN _ _ _ (?P::?PL) _] => eapply @tri_dec1 with (F:= P) (L':=PL);[solveF | sauto | sauto ]
+end.
 
-Tactic Notation "par" := match goal with
-                         | [ |- seq _ _ _ _ ] =>  apply tri_par'
-                         | [|- seqN _ _ _ _ _] => apply tri_par
-                         end.
+Tactic Notation "LFocus"  constr(R) := match goal with
+    | [ |- seq _ _ _ _ ] =>  eapply @tri_dec1' with (F:= R);[solveF | sauto | sauto ]
+    | [|- seqN _ _ _ _ _] => eapply @tri_dec1 with (F:= R);[solveF | sauto | sauto]
+end.
 
-Tactic Notation "release" := match goal with
-                         | [ |- seq _ _ _ _ ] =>  apply tri_rel' ;solveF
-                         | [|- seqN _ _ _ _ _] => apply tri_rel ;solveF
-                         end.
+Tactic Notation "LFocus"  constr(R) constr(T) := match goal with
+    | [ |- seq _ _ _ _ ] =>  eapply @tri_dec1' with (F:= R) (L':=T);[solveF | sauto | sauto ]
+    | [|- seqN _ _ _ _ _] => eapply @tri_dec1 with (F:= R) (L':=T);[solveF | sauto | sauto]
+end.
 
-  
-Tactic Notation "init1"  := match goal with
-                          | [ |- seq _ _ _ _ ] =>  apply tri_init1';try SLSolve;auto
-                          | [|- seqN _ _ _ _ _] => apply tri_init1;try SLSolve;auto
-                          end.
+(* Focusing on unbounded formulas *)
+Tactic Notation "UFocus" := match goal with
+    | [ |- seq _ ((?a,?P)::_) _ _ ] =>  eapply @tri_dec2u' with (F:= P) (i:=a);[sauto | sauto | solveF | sauto | sauto ]
+    | [|- seqN _ _ ((?a,?P)::_) _ _] => eapply @tri_dec2u with (F:= P) (i:=a);[sauto | sauto | solveF | sauto | sauto ]
+end.
+                                                                     
+Tactic Notation "UFocus"  constr(a) constr(S) := match goal with
+    | [ |- seq _ _ _ _ ] =>  eapply @tri_dec2u' with (F:= S) (i:=a);[sauto | sauto | solveF | sauto | sauto ]
+    | [|- seqN _ _ _ _ _] => eapply @tri_dec2u with (F:= S) (i:=a);[sauto | sauto | solveF | sauto | sauto ]
+end.
 
+(* Focusing on bounded formulas *)
+Tactic Notation "BFocus" := match goal with
+    | [ |- seq _ ((?a,?P)::_) _ _ ] =>  eapply @tri_dec2l' with (F:= P) (i:=a);[sauto | sauto | solveF | sauto | sauto ]
+    | [|- seqN _ _ ((?a,?P)::_) _ _] => eapply @tri_dec2l with (F:= P) (i:=a);[sauto | sauto | solveF | sauto | sauto ]
+end.
 
-Tactic Notation "init2" constr(a) constr(b) := match goal with
-                          | [ |- seq _ _ _ _ ] =>  eapply @tri_init2' with (i:=a) (C:=b);[try SLSolve | auto | try perm ];auto
-                          | [|- seqN _ _ _ _ _] => eapply @tri_init2 with (i:=a) (C:=b);[try SLSolve | auto | try perm ];auto
-                          end.
+Tactic Notation "BFocus"  constr(a) constr(S) := match goal with
+    | [ |- seq _ _ _ _ ] =>  eapply @tri_dec2l' with (F:= S) (i:=a);[sauto | sauto | solveF | sauto | sauto ]
+    | [|- seqN _ _ _ _ _] => eapply @tri_dec2l with (F:= S) (i:=a);[sauto | sauto | solveF | sauto | sauto ]
+end.
+                                                                     
+Tactic Notation "BFocus"  constr(a) constr(S) constr(T):= match goal with
+    | [ |- seq _ _ _ _ ] =>  eapply @tri_dec2l' with (F:= S) (i:=a) (B':= T);[sauto | sauto | solveF | sauto | sauto ]
+    | [|- seqN _ _ _ _ _] => eapply @tri_dec2l with (F:= S) (i:=a) (B':= T);[sauto | sauto | solveF | sauto | sauto ]
+end.
 
-Tactic Notation "init2" constr(a) := match goal with
-                          | [ |- seq _ _ _ _ ] =>  eapply @tri_init2' with (i:=a) 
-                          | [|- seqN _ _ _ _ _] => eapply @tri_init2 with (i:=a) 
-                          end.
-                          
-Tactic Notation "init2" := match goal with
-                          | [ |- seq _ _ _ _ ] =>  eapply @tri_init2'
-                          | [|- seqN _ _ _ _ _] => eapply @tri_init2
-                          end.
+(* Focusing on formulas in theory *)
+Tactic Notation "TFocus"  constr(S) := match goal with
+    | [ |- seq _ _ _ _ ] =>  eapply @tri_dec3' with (F:= S);[sauto | solveF | sauto]
+    | [|- seqN _ _ _ _ _] => eapply @tri_dec3 with (F:= S);[ sauto | solveF | sauto]
+end.
 
-                          
-                          
-(** This tactic applies as many positive/negative rules as
-  possible. Connectives as exists and tensor are not automatically
-  introduced (due to the decision on the contexts/terms ) *)
-
-
-  
-Ltac solvell :=
-  try
-    match goal with
-    (* initial Rules *)
-    | [ |- seqN _ _ _ [atom ?A] (>> (perp ?A))] => init1
-  
-    | [ |- seqN _ _ ((?a,atom ?A)::?B) [] (>> (perp ?A))] => init2 a B
-    | [ |- seqN _ _ (?B++[(?a,atom ?A)]) [] (>> (perp ?A))] => init2 a B
-    | [ |- seqN _ _ (?X::?B++[(?a,atom ?A)]) [] (>> (perp ?A))] => init2 a (X::B)
-    | [ |- seqN _ _ (?B++(?a,atom ?A)::?E) [] (>> (perp ?A))] => init2 a (B++E)    
-    | [ |- seqN _ _ (?X::?B++(?a,atom ?A)::?E) [] (>> (perp ?A))] => init2 a (X::B++E)       
-    | [ H: Permutation ((?a,atom ?A)::?B) ?D |- seqN _ _ ?D [] (>> (perp ?A))] => init2 a B
-    | [ H: Permutation (?B++[(?a,atom ?A)]) ?D |- seqN _ _ ?D [] (>> (perp ?A))] => init2 a B
-    | [ H: Permutation (?B++(?a,atom ?A)::?E) ?D |- seqN _ _ ?D [] (>> (perp ?A))] => init2 a (B++E)
-
-    | [ H: Permutation ?D ((?a,atom ?A)::?B)  |- seqN _ _ ?D [] (>> (perp ?A))] => init2 a B
-    | [ H: Permutation ?D (?B++[(?a,atom ?A)])  |- seqN _ _ ?D [] (>> (perp ?A))] => init2 a B
-    | [ H: Permutation ?D (?B++(?a,atom ?A)::?E)  |- seqN _ _ ?D [] (>> (perp ?A))] => init2 a (B++E)
-
-    
-    | [H: seqN _ _ _ _ (>> zero) |- _ ] => inversion H;subst;solveF
-          
-    | [|- seqN _ _ _ [] (>>  One)] => apply tri_one;try SLSolve;auto
-    | [H: tri_bangK4 _ 0 _ _ _ _ _ |- _ ] => inversion H 
-    
-    | [H: seqN _ 0 _ _ (> AAnd _ _::?L) |- _ ] => inversion H 
-    | [H: seqN _ 0 _ _ (> Bot ::?L) |- _ ] => inversion H 
-    | [H: seqN _ 0 _ _ (> MOr _ _::?L) |- _ ] => inversion H 
-    | [H: seqN _ 0 _ _ (> All _ ::?L) |- _ ] => inversion H 
-    | [H: seqN _ 0 _ _ (> atom _::?L) |- _ ] => inversion H 
-    | [H: seqN _ 0 _ _ (> perp _::?L) |- _ ] => inversion H 
-    
-    | [H: seqN _ 0 _ _ (> Quest _ _::?L) |- _ ] => inversion H 
-    
-    | [H: seqN _ 0 _ _ (>> (MAnd _ _)) |- _ ] => inversion H 
-    | [H: seqN _ 0 _ _ (>> (AOr _ _)) |- _ ] => inversion H 
-    | [H: seqN _ 0 _ _ (>> (Bang _ _)) |- _ ] => inversion H 
-    | [H: seqN _ 0 _ _ (>> (Some _)) |- _ ] => inversion H 
-    | [H: seqN _ 0 _ _ (>> (atom _)) |- _ ] => inversion H 
-    
-   
-    (* Change of polarity *)
-    | [H: release ?F |- seqN _ _ _ _ (>>  ?F)] => release;solvell
-    | [|- seqN _ _ _ _ (>>  ?F)] =>
-      match F with
-      | MOr _ _ => release;solvell
-      | All _ =>release;solvell
-      | Bot  => release;solvell
-      | (atom _)  => release;solvell
-      | Top  => release;solvell
-      | AAnd _ _  => release;solvell
-      | Quest _ _ => release;solvell
-      | Bang loc _ => apply tri_bangL;try SLSolve;solvell
-      | Bang _ _ => apply tri_bang;solvell
-      end
-    (* Negative Phase *)
-    | [ H: ~ asynchronous ?F |- seqN _ _ _ _ (> (?F:: _ ))] => store;auto;solvell
-    | [ |- seqN _ _ _ _ (> ((One ) :: _ ))] => store ;solvell
-    | [ |- seqN _ _ _ _ (> ((Zero ) :: _ ))] => store ;solvell
-    | [ |- seqN _ _ _ _ (> ((atom _ ) :: _ ))] => store ;solvell
-    | [ |- seqN _ _ _ _ (> ((perp _ ) :: _ ))] => store ;solvell
-    | [ |- seqN _ _ _ _ (> ( (Bang _ _) :: _)) ] => store ;solvell
-    | [ |- seqN _ _ _ _ (> ( (Quest _ _) :: _)) ] => apply tri_quest ;solvell
-    | [ |- seqN _ _ _ _ (> ( (Top) :: _))  ] => apply tri_top
-    | [ |- seqN _ _ _ _ (> ( (MOr _ _) :: _)) ] => par ;solvell
-    | [ |- seqN _ _ _ _ (> ( (AOr _ _) :: _)) ] => store ;solvell
-    | [ |- seqN _ _ _ _ (> ( (AAnd _ _) :: _)) ] => apply tri_with ;solvell
-    | [ |- seqN _ _ _ _ (> ( (Bot) :: _)) ] => apply tri_bot ;solvell
-    | [ |- seqN _ _ _ _ (> ( (MAnd _ _) :: _)) ] => store ;solvell
-    | [ |- seqN _ _ _ _ (> ( (All _) :: _)) ] => let x:= fresh "x" in
-                                                 let xp := fresh "properX" in
-                                                 apply tri_fx ;try solveUniform; intros x xp ; solvell
-    | [ |- seqN _ _ _ _ (> ((Some _ ) :: _ ))] => store ;solvell
-    end.
-  
-  
-Lemma init2Cut (OLS : OLSig) (SI:Signature) i A L th :
-SetU L -> mt i = true ->
-In (i,atom A) L -> seq th L [] (>> perp A).
- Proof .
- intros. 
- apply InPermutation in H1;sauto...
- rewrite H1 in H. 
- init2 i x.
- Qed.
-  
-Ltac solvell' :=
-  try
-    match goal with
-    (* initial Rules *)
-    | [ |- seq _ _ [atom ?A] (>> (perp ?A))] => init1
-    
-    | [ H: SetU ?L, Hm: mt ?i = true, HIn: In (?i,atom ?A) ?L |- seq _ ?L [] (>> (perp ?A))] =>  try solve [refine (init2Cut i _ _ _ _ _);auto]
-   
-    | [ |- seq _ ((?a,atom ?A)::?B) [] (>> (perp ?A))] => init2 a B
-    | [ |- seq _ (?B++[(?a,atom ?A)]) [] (>> (perp ?A))] => init2 a B
-    | [ |- seq _ (?X::?B++[(?a,atom ?A)]) [] (>> (perp ?A))] => init2 a (X::B)
-    | [ |- seq _ (?B++(?a,atom ?A)::?E) [] (>> (perp ?A))] => init2 a (B++E)   
-    | [ |- seq _ (?X::?B++(?a,atom ?A)::?E) [] (>> (perp ?A))] => init2 a (X::B++E)   
-    
-    | [ H: Permutation ((?a,atom _)::?B) ?D |- seq  _ ?D [] (>> (perp ?A))] => init2 a B
-    | [ H: Permutation (?B++[(?a,atom ?A)]) ?D |- seq _ ?D [] (>> (perp ?A))] => init2 a B
-    | [ H: Permutation (?B++(?a,atom ?A)::?E) ?D |- seq _ ?D [] (>> (perp ?A))] => init2 a (B++E)
-
-    | [ H: Permutation ?D ((?a,atom ?A)::?B)  |- seq _ ?D [] (>> (perp ?A))] => init2 a B
-    | [ H: Permutation ?D (?B++[(?a,atom ?A)])  |- seq _ ?D [] (>> (perp ?A))] => init2 a B
-    | [ H: Permutation ?D (?B++(?a,atom ?A)::?E)  |- seq _ ?D [] (>> (perp ?A))] => init2 a (B++E)
-
-    | [H: seq _ _ _ (>> zero) |- _ ] => inversion H;subst;solveF
-    
-    | [|- seq _ _ [] (>>  One)] => apply tri_one';try SLSolve;auto
-    | [|- seq _ _ [] (>>  MAnd _ _)] => apply tri_tensor' with (M:=[]) (N:=[]); [perm|solvell'|solvell'] (* tensor with the empty context *)
-     (* Change of polarity *)
-    | [H: release ?F |- seq _ _ _ (>>  ?F)] => release;solvell'
-    | [|- seq _ _ _ (>>  ?F)] =>
-      match F with
-      | MOr _ _ => release;solvell'
-      | All _ =>release;solvell'
-      | Bot  => release;solvell'
-      | (atom _)  => release;solvell'
-      | Top  => release;solvell'
-      | AAnd _ _  => release;solvell'
-      | Quest _ _ => release;solvell'
-      | Bang loc _ => apply tri_bangL';try SLSolve;solvell'
-      | Bang _ _ => apply tri_bang';solvell'
-      end
-    (* Negative Phase *)
-    | [ H: ~ asynchronous ?F |- seq _ _ _ (> (?F:: _ ))] => store;auto;solvell'
-    | [ |- seq _ _ _ (> ((One) :: _ ))] => store ;solvell'
-    | [ |- seq _ _ _ (> ((Zero) :: _ ))] => store ;solvell'
-    | [ |- seq _ _ _ (> ((atom _ ) :: _ ))] => store ;solvell'
-    | [ |- seq _ _ _ (> ((perp _ ) :: _ ))] => store ;solvell'
-    | [ |- seq _ _ _ (> ((Bang _ _) :: _ ))] => store ;solvell'
-    | [ |- seq _ _ _ (> ( (Quest _ _) :: _)) ] => apply tri_quest' ;solvell'
-    | [ |- seq _ _ _ (> ( (Top) :: _))  ] => apply tri_top'
-    | [ |- seq _ _ _ (> ( (MOr _ _) :: _)) ] => par ;solvell'
-    | [ |- seq _ _ _ (> ( (AOr _ _) :: _)) ] => store ;solvell'
-    | [ |- seq _ _ _ (> ( (AAnd _ _) :: _)) ] => apply tri_with' ;solvell'
-    | [ |- seq _ _ _ (> ( (Bot) :: _)) ] => apply tri_bot' ;solvell'
-    | [ |- seq _ _ _ (> ( (MAnd _ _) :: _)) ] => store ;solvell'
-    | [ |- seq _ _ _ (> ( (All _) :: _)) ] => let x:= fresh "x" in
-                                              let xp := fresh "properX" in
-                                              apply tri_fx' ; try solveUniform ; intros x xp  ;solvell'
-    | [ |- seq _ _ _ (> ((Some _ ) :: _ ))] => store ;solvell'
-    end.
-
-Ltac solveLL :=
-   match goal with
-   | [ |- seq _ _ _ _ ] =>  solvell'
-   | [|- seqN _ _ _ _ _] => solvell
-   | _ => solveF
-   end;auto.
-  
-(*
-(** Decision rule on the linear context based on the position of the formula *) 
-Ltac dec1' n :=
-  ExchangeFront' n;
-  match goal with
-    [|- seq _ _ (?G :: _) (> []) ] =>
-    eapply tri_dec1' with (F:= G);solveF
-  end.
-(** Decision rule on the linear context based on the position of the formula *) 
-Ltac dec1 n :=
-  ExchangeFront n;
-  match goal with
-    [|- seqN _ _ _ (?G :: _) (> []) ] =>
-    eapply tri_dec1 with (F:= G);solveF
-  end.
-*)
-
-
-(** Notation for forward reasoning on FLL sequents *)
-Tactic Notation "decide1" := match goal with
-                                        | [ |- seq _ _ (?P::_) _ ] =>  eapply @tri_dec1' with (F:= P);solveF;solveLL
-                                        | [|- seqN _ _ _ (?P::_) _] => eapply @tri_dec1 with (F:= P);solveF;solveLL 
-                                        end;solveF.
-                      
-Tactic Notation "decide1"  constr(R) := match goal with
-                                        | [ |- seq _ _ _ _ ] =>  eapply @tri_dec1' with (F:= R);solveF;solveLL
-                                        | [|- seqN _ _ _ _ _] => eapply @tri_dec1 with (F:= R);solveF;solveLL 
-                                        end;solveF.
-
-Tactic Notation "decide1"  constr(R) constr(T) := match goal with
-                                        | [ |- seq _ _ _ _ ] =>  eapply @tri_dec1' with (F:= R) (L':=T);solveF;solveLL
-                                        | [|- seqN _ _ _ _ _] => eapply @tri_dec1 with (F:= R) (L':=T);solveF;solveLL 
-                                        end;solveF.
-                                        
-                                        
-
-Tactic Notation "decide2l"  constr(R) constr(S)  constr(T) := match goal with
-                                        | [ |- seq _ _ _ _ ] =>  eapply @tri_dec2l' with (F:= S) (i:= R) (B':= T);solveF;solveLL
-                                        | [|- seqN _ _ _ _ _] => eapply @tri_dec2l with (F:= S)(i:= R) (B':= T);solveF;solveLL
-                                        end;solveF.
-  
- Tactic Notation "decide2l"  constr(R) constr(S)   := match goal with
-                                        | [ |- seq _ _ _ _ ] =>  eapply @tri_dec2l' with (F:= S) (i:= R) ;solveF;solveLL
-                                        | [|- seqN _ _ _ _ _] => eapply @tri_dec2l with (F:= S)(i:= R) ;solveF;solveLL
-                                        end;solveF.
-                                        
-   
-                                                                                
-Tactic Notation "decide2u"  constr(R) constr(S) := match goal with
-                                        | [ |- seq _ _ _ _ ] =>  eapply @tri_dec2u' with (F:= S) (i:= R);solveF;solveLL
-                                        | [|- seqN _ _ _ _ _] => eapply @tri_dec2u with (F:= S)(i:= R);solveF;solveLL
-                                        end;solveF.
-                                        
-                                        
-Tactic Notation "decide3"  constr(R) := match goal with
-                                        | [ |- seq _ _ _ _ ] =>  eapply @tri_dec3' with (F:= R);solveF;solveLL
-                                        | [|- seqN _ _ _ _ _] => eapply @tri_dec3 with (F:= R);solveF;solveLL
-                                        end;solveF.
-
-
-Tactic Notation "tensor"  constr(Ctx1) constr(Ctx2) constr(Ctx3) constr(Ctx4) := match goal with
-                                                       | [ |- seq _ _ _ _ ] =>  eapply @tri_tensor' with (M:=Ctx1) (N:=Ctx2) (B:=Ctx3) (D:=Ctx4);solveF;solveLL
-                                                       | [|- seqN _ _ _ _ _] => eapply @tri_tensor with (M:=Ctx1) (N:=Ctx2) (B:=Ctx3) (D:=Ctx4);solveF;solveLL
+(* Multiplicative conjuction with bounded formulas *)
+Tactic Notation "LLTensor"  constr(Ctx1) constr(Ctx2) constr(Ctx3) constr(Ctx4) := match goal with
+                                                       | [ |- seq _ _ _ _ ] =>  eapply @tri_tensor' with (M:=Ctx1) (N:=Ctx2) (B:=Ctx3) (D:=Ctx4);solveF
+                                                       | [|- seqN _ _ _ _ _] => eapply @tri_tensor with (M:=Ctx1) (N:=Ctx2) (B:=Ctx3) (D:=Ctx4);solveF
                                                        end.
 
-Tactic Notation "tensor"  constr(Ctx1) constr(Ctx2) := match goal with
-               | [ |- seq _ ?C _ _ ] =>  eapply @tri_tensor' with (M:=Ctx1) (N:=Ctx2) (B:=C) (D:=C);solveF;solveLL
-               | [|- seqN _ _ ?C _ _] => eapply @tri_tensor with (M:=Ctx1) (N:=Ctx2) (B:=C) (D:=C);solveF;solveLL
+
+(* Multiplicative conjuction with no bounded formulas *)
+Tactic Notation "LLTensor"  constr(Ctx1) constr(Ctx2) := match goal with
+               | [ |- seq _ ?C _ _ ] =>  eapply @tri_tensor' with (M:=Ctx1) (N:=Ctx2) (B:=C) (D:=C);solveF
+               | [|- seqN _ _ ?C _ _] => eapply @tri_tensor with (M:=Ctx1) (N:=Ctx2) (B:=C) (D:=C);solveF
                  end.
 
-Tactic Notation "tensor"  := match goal with
-               | [ |- seq _ ?C [] _ ] =>  eapply @tri_tensor' with (M:=nil) (N:=nil) (B:=C) (D:=C);solveF;solveLL
-               | [|- seqN _ _ ?C [] _] => eapply @tri_tensor with (M:=nil) (N:=nil) (B:=C) (D:=C);solveF;solveLL
+Tactic Notation "LLTensor"  := match goal with
+               | [ |- seq _ ?C [] _ ] =>  eapply @tri_tensor' with (M:=nil) (N:=nil) (B:=C) (D:=C);solveF
+               | [|- seqN _ _ ?C [] _] => eapply @tri_tensor with (M:=nil) (N:=nil) (B:=C) (D:=C);solveF
                  end.
-
 
 Lemma allSeTU (OLS: OLSig) (SI: Signature) (SIU: UnbSignature) B : SetU B.
 Proof with auto.
@@ -634,7 +328,7 @@ Qed.
 
 Lemma allSeTLEmpty (OLS: OLSig) (SI: Signature) (SIU: UnbSignature) (B : list TypedFormula) : getL B = (@nil TypedFormula).
 Proof with auto.
- rewrite (SetU_then_empty (allSeTU SIU B));auto.
+ rewrite (SetU_then_empty _ (allSeTU SIU B));auto.
 Qed.
 
 Lemma permSeTL (OLS: OLSig) (SI: Signature) (SIU: UnbSignature) (B : list TypedFormula) : Permutation (getL B) (getL B ++ getL B).
@@ -642,79 +336,125 @@ Proof with auto.
  rewrite allSeTLEmpty...
 Qed.
 
-Global Hint Resolve allSeTU permSeTL : core. 
+Lemma permSeTL' (OLS: OLSig) (SI: Signature)  (B : list TypedFormula) : SetU B -> Permutation (getL B) (getL B ++ getL B).
+Proof with auto.
+  intros.
+  simplEmpty...
+Qed.
+
+Global Hint Resolve allSeTU permSeTL permSeTL': core. 
 
  Lemma tensorU (OLS: OLSig) (SI : Signature) (USI : UnbSignature) n th B MN M N F G:          
   Permutation MN (M ++ N) ->
-  seqN th n B M (>> F) ->
-  seqN th n B N (>> G) -> seqN th (S n) B MN (>> F ** G).
+  seqN th n B M (DW F) ->
+  seqN th n B N (DW G) -> seqN th (S n) B MN (DW (MAnd F  G)).
   Proof.   
   intros.
-  tensor M N.
+  LLTensor M N.
   Qed.
 
- Lemma tensorU' (OLS: OLSig) (SI : Signature) (USI : UnbSignature) th B MN M N F G:          
+ Lemma tensorU' (OLS: OLSig) (SI : Signature) th B MN M N F G:    SetU B ->    
   Permutation MN (M ++ N) ->
-  seq th B M (>> F) ->
-  seq th B N (>> G) -> seq th B MN (>> F ** G).
+  seq th B M (DW F) ->
+  seq th B N (DW G) -> seq th B MN (DW (MAnd F G)).
   Proof.   
   intros.
-  tensor M N.
+  LLTensor M N.
   Qed.
 
-Tactic Notation "tensorUnb"  constr(Ctx1) constr(Ctx2) := match goal with
-               | [ |- seq _ _ _ _ ] =>  eapply @tensorU' with (M:=Ctx1) (N:=Ctx2);solveF;solveLL
-               | [|- seqN _ _ _ _ _] => eapply @tensorU with (M:=Ctx1) (N:=Ctx2);solveF;solveLL
-                 end.
+(* Additive conjuction *)
+Tactic Notation "LLWith" := match goal with
+    | [ |- seq _ _ _ _ ] =>  eapply @tri_with';sauto
+    | [|- seqN _ _ _ _ _] => eapply @tri_with;sauto
+end.
 
-Tactic Notation "tensorUnb"   := match goal with
-               | [ |- seq _ _ _ _ ] =>  eapply @tensorU' with (M:=nil) (N:=nil);solveF;solveLL
-               | [|- seqN _ _ _ _ _] => eapply @tensorU with (M:=nil) (N:=nil);solveF;solveLL
-                 end.
-
-
-Tactic Notation "copyK4"  constr(i) constr(P) constr(B) := match goal with
-                                                       | [ |- tri_bangK4' _ _ _ _ _ _ ] => eapply @tri_copyK4' with (b:=i) (F:=P) (B':=B);try SLSolve;solveF;solveLL
-                                                       | [|- tri_bangK4 _ _ _ _ _ _ _] => eapply @tri_copyK4 with (b:=i) (F:=P) (B':=B);try SLSolve;solveF;solveLL
-                                                       end.
-                                                      
-Tactic Notation "copyUK"  constr(i) constr(P) constr(B) := match goal with
-                                                       | [ |- tri_bangK4' _ _ _ _ _ _] => eapply @tri_copyUK' with (b:=i) (F:=P) (B':=B);try SLSolve;solveF;solveLL
-                                                       | [|- tri_bangK4 _ _ _ _ _ _ _] => eapply @tri_copyUK with (b:=i) (F:=P) (B':=B);try SLSolve;solveF;solveLL
-                                                       end. 
-                                                       
-Tactic Notation "copyLK"  constr(i) constr(P) constr(B) := match goal with
-                                                       | [ |- tri_bangK4' _ _ _ _ _ _] => eapply @tri_copyLK' with (b:=i) (F:=P) (B':=B);try SLSolve;solveF;solveLL
-                                                       | [|- tri_bangK4 _ _ _ _ _ _ _] => eapply @tri_copyLK with (b:=i) (F:=P) (B':=B);try SLSolve;solveF;solveLL
-                                                       end.   
-                                                                                                            
-   
-Tactic Notation "finishExp"  := match goal with
-                                                       | [ |- tri_bangK4' _ _ _ _ _ _] => eapply @tri_exp';solveF;solveLL
-                                                       | [|- tri_bangK4 _ _ _ _ _ _ _] => eapply @tri_exp;solveF;solveLL
-                                                       end. 
-                                                                                                           
-Tactic Notation "oplus1" := match goal with
-                           | [ |- seq _ _ _ _ ] =>   apply tri_plus1';solveLL
-                           | [|- seqN _ _ _ _ _] =>  apply tri_plus1;solveLL
+(* Additive disjuction *)
+Tactic Notation "LLPlusL" := match goal with
+                           | [ |- seq _ _ _ _ ] =>   apply tri_plus1';sauto
+                           | [|- seqN _ _ _ _ _] =>  apply tri_plus1;sauto
                             end.
 
-Tactic Notation "oplus2" := match goal with
-                           | [ |- seq _ _ _ _ ] =>   apply tri_plus2';solveLL
-                           | [|- seqN _ _ _ _ _] =>  apply tri_plus2;solveLL
-                            end.
+Tactic Notation "LLPlusR" := match goal with
+   | [ |- seq _ _ _ _ ] =>   apply tri_plus2';sauto
+   | [|- seqN _ _ _ _ _] =>  apply tri_plus2;sauto
+end.
+
+(* Multiplicative disjuction *)
+Tactic Notation "LLPar" := match goal with
+                         | [ |- seq _ _ _ _ ] =>  apply tri_par';sauto
+                         | [|- seqN _ _ _ _ _] => apply tri_par;sauto
+                         end.
+
+(* Quantifiers *)
+Tactic Notation "LLExists" constr(tt) :=  match goal with
+   | [ |- seq _ _ _ _ ] => eapply @tri_ex' with (t:=tt);try solveUniform;sauto
+   | [|- seqN _ _ _ _ _] => eapply @tri_ex with (t:=tt);try solveUniform;sauto
+end.
+
+Tactic Notation "LLForall" := match goal with
+   | [ |- seq _ _ _ _ ] => eapply @tri_fx'; intros;sauto
+   | [|- seqN _ _ _ _ _] => eapply @tri_fx; intros;sauto
+end.
+
+(* Storing formulas *)
+Tactic Notation "LLStore" := match goal with
+       | [ |- seq _ _ _ _ ] =>  apply tri_store';[solveF | auto]
+       | [|- seqN _ _ _ _ _] => apply tri_store;[solveF | auto]
+                           end. 
+
+Tactic Notation "LLStoreC" := match goal with
+       | [ |- seq _ _ _ _ ] =>  apply tri_quest';sauto
+       | [|- seqN _ _ _ _ _] => apply tri_quest;sauto
+                           end.
+
+(* Changing to the negative phase *)
+Tactic Notation "LLRelease" := match goal with
+                         | [ |- seq _ _ _ _ ] =>  apply tri_rel';[solveF | auto]
+                         | [|- seqN _ _ _ _ _] => apply tri_rel;[solveF | auto]
+                         end. 
+
+(* Axioms *)   
+Tactic Notation "init1"  := match goal with
+     | [ |- seq _ _ _ _ ] =>  apply tri_init1';try SLSolve;auto
+     | [|- seqN _ _ _ _ _] => apply tri_init1;try SLSolve;auto
+                          end.
 
 
+Tactic Notation "init2" constr(a) constr(b) := match goal with
+    | [ |- seq _ _ _ _ ] =>  eapply @tri_init2' with (i:=a) (C:=b);[try SLSolve | auto | try perm ];auto
+    | [|- seqN _ _ _ _ _] => eapply @tri_init2 with (i:=a) (C:=b);[try SLSolve | auto | try perm ];auto
+                          end.
 
-Tactic Notation "existential" constr(tt) := match goal with
-                                            | [ |- seq _ _ _ _ ] => eapply @tri_ex' with (t:=tt);try solveUniform ; auto;solveLL 
-                                            | [|- seqN _ _ _ _ _] => eapply @tri_ex with (t:=tt);try solveUniform; auto;solveLL
-                                            end.
+Tactic Notation "init2" constr(a) := match goal with
+    | [ |- seq _ _ _ _ ] =>  eapply @tri_init2' with (i:=a)
+   | [|- seqN _ _ _ _ _] => eapply @tri_init2 with (i:=a) 
+                          end.
+                          
+Tactic Notation "init2" := match goal with
+     | [ |- seq _ _ _ _ ] =>  eapply @tri_init2'
+    | [|- seqN _ _ _ _ _] => eapply @tri_init2
+                          end.
 
-Tactic Notation "foraLL" := match goal with
-                                | [ |- seq _ _ _ _ ] => eapply @tri_fx'; intros; auto
-                                | [|- seqN _ _ _ _ _] => eapply @tri_fx; intros; auto
-                                end.
+Tactic Notation "LLOne"  := match goal with
+                          | [ |- seq _ _ _ _ ] =>  apply tri_one';SLSolve
+                          | [|- seqN _ _ _ _ _] => apply tri_one;SLSolve
+                          end.
+
+Tactic Notation "LLTop"  := match goal with
+                          | [ |- seq _ _ _ _ ] =>  apply tri_top'
+                          | [|- seqN _ _ _ _ _] => apply tri_top
+                          end.
+
+(* Others rules *)
+Tactic Notation "LLBot"  := match goal with
+                          | [ |- seq _ _ _ _ ] =>  apply tri_bot';sauto
+                          | [|- seqN _ _ _ _ _] => apply tri_bot;sauto
+                          end.
+                          
+Tactic Notation "LLBang"  := match goal with
+                          | [ |- seq _ _ _ _ ] =>  apply tri_bangL';sauto
+                          | [|- seqN _ _ _ _ _] => apply tri_bangL;sauto
+                          end.
 
 Tactic Notation "createWorld" constr(a) := match goal with
                 | [ |- seq _ _ _ _ ] => eapply @tri_bangD' with (i:=a); try solve [intro ;subst;solveSubExp];auto
@@ -722,30 +462,243 @@ Tactic Notation "createWorld" constr(a) := match goal with
                                 end.
 
 Tactic Notation "createWorld" := match goal with
-                | [ |- seq _ _ _ _ ] => eapply @tri_bang';auto
-                | [|- seqN _ _ _ _ _] => eapply @tri_bang;auto
+                | [ |- seq _ _ _ _ ] => eapply @tri_bang';sauto
+                | [|- seqN _ _ _ _ _] => eapply @tri_bang;sauto
                 end.
-                 
-             
-(** Given a rule R (belonging to the theory), this rule introduces R
-  (using [tri_dec3]) and then tries to decompose such formula using
-  [solveLL]. 
-Ltac bipole Rule :=
-  match goal with
-  | [|- seqN _ _ _ (?A :: ?L) (> [] ) ] =>
-    decide3 Rule;
-    tensor [A] L; solveLL
+
+(* Exponential phase*)                
+Check tri_copyK4.
+Tactic Notation "copyK4"  constr(i) constr(P) constr(B) := match goal with
+    | [ |- tri_bangK4' _ _ _ _ _ _ ] => eapply @tri_copyK4' with (b:=i) (F:=P) (B':=B);[solveLT | solveSE | sauto | sauto]
+ | [|- tri_bangK4 _ _ _ _ _ _ _] => eapply @tri_copyK4 with (b:=i) (F:=P) (B':=B);[solveLT | solveSE | sauto | sauto]
+                                                       end;auto.
+
+Tactic Notation "copyUK"  constr(i) constr(P) constr(B) := match goal with
+| [ |- tri_bangK4' _ _ _ _ _ _] => eapply @tri_copyUK' with (b:=i) (F:=P) (B':=B);[solveLT | solveSE | solveSE | sauto | sauto]
+
+| [|- tri_bangK4 _ _ _ _ _ _ _] => eapply @tri_copyUK with (b:=i) (F:=P) (B':=B);[solveLT | solveSE | solveSE | sauto | sauto]
+                                                                     end;auto. 
+                                                       
+Tactic Notation "copyLK"  constr(i) constr(P) constr(B) := match goal with
+ | [ |- tri_bangK4' _ _ _ _ _ _] => eapply @tri_copyLK' with (b:=i) (F:=P) (B':=B);[solveLT | solveSE | solveSE | sauto | sauto]
+ | [|- tri_bangK4 _ _ _ _ _ _ _] => eapply @tri_copyLK with (b:=i) (F:=P) (B':=B);[solveLT | solveSE | solveSE | sauto | sauto]
+                                                       end;auto.   
+                                                                                                            
+   
+Tactic Notation "finishExp"  := match goal with
+   | [ |- tri_bangK4' _ _ _ _ _ _] => eapply @tri_exp';[solveF | sauto]
+   | [|- tri_bangK4 _ _ _ _ _ _ _] => eapply @tri_exp;[solveF | sauto]
+          end.
+     
+                          
+(** This tactic applies as many positive/negative rules as
+  possible. Connectives as exists and tensor are not automatically
+  introduced (due to the decision on the contexts/terms ) *)
+  
+   Ltac negativePhaseReasoning :=
+  try match goal with  
+  | [ |- seq _ _ _ (UP  ((AAnd _ _)::_))] => LLWith 
+  | [ |- seq _ _ _ (UP ((MOr ?F ?G)::_))] => LLPar
+  | [ |- seq _ _ _ (UP ((Quest ?i) ?F :: _))] => LLStoreC
+  | [ |- seq _ _ _ (UP (Bot :: _))] => LLBot
+  | [ |- seq _ _ _ (UP ( (All _) :: _)) ] => let x:= fresh "x" in
+                                              let xp := fresh "properX" in
+                                              apply tri_fx' ; try solveUniform ; intros x xp
+
+ (* Storing formulas *)
+  | [H: positiveLFormula ?F |- seq _ _ _ (UP (?F :: ?M))] => LLStore
+    | [|- seq _ _ _ (UP  (?F::_))] =>
+      match F with
+      | AOr _ _ => LLStore
+      | MAnd _ _  => LLStore
+      | Some _ =>LLStore
+      | (atom _)  => LLStore
+      | (perp _)  => LLStore
+      | One  => LLStore
+      | Zero => LLStore
+      end
+    end.
+
+  Ltac negativePhaseReasoningN :=
+  try match goal with  
+  | [ |- seqN _ _ _ _ (UP  ((AAnd _ _)::_))] => LLWith 
+  | [ |- seqN _ _ _ _ (UP ((MOr ?F ?G)::_))] => LLPar
+  | [ |- seqN _ _ _ _ (UP ((Quest ?i) ?F :: _))] => LLStoreC
+  | [ |- seqN _ _ _ _ (UP (Bot :: _))] => LLBot
+  | [ |- seqN _ _ _ _ (UP ( (All _) :: _)) ] => let x:= fresh "x" in
+                                              let xp := fresh "properX" in
+                                              apply tri_fx' ; try solveUniform ; intros x xp
+
+ (* Storing formulas *)
+  | [H: positiveLFormula ?F |- seqN _ _ _ _ (UP (?F :: ?M))] => LLStore
+    | [|- seqN _ _ _ _ (UP  (?F::_))] =>
+      match F with
+      | AOr _ _ => LLStore
+      | MAnd _ _  => LLStore
+      | Some _ =>LLStore
+      | (atom _)  => LLStore
+      | (perp _)  => LLStore
+      | One  => LLStore
+      | Zero => LLStore
+      end
+    end.
+
+  Ltac positivePhaseReasoning :=
+  try match goal with  
+  | [USI : UnbSignature |- seq _ _ [] (DW  (MAnd _ _))] => LLTensor (@nil oo)  (@nil oo) 
+  | [H: seq ?th ?B ?L (DW ?F) |- seq ?th ?B ?L (DW (AOr ?F ?G))] => LLPlusL 
+  | [H: seq ?th ?B ?L (DW ?G) |- seq ?th ?B ?L (DW (AOr ?F ?G))] => LLPlusR 
+  | [ |- seq _ _ _ (DW (Bang loc _))] => apply tri_bangL';negativePhaseReasoning
+ 
+     (* Change of polarity *)
+    | [H: negativeFormula ?F |- seq _ _ _ (DW  ?F)] => LLRelease;negativePhaseReasoning
+    | [|- seq _ _ _ (DW  ?F)] =>
+      match F with
+      | MOr _ _ => LLRelease;negativePhaseReasoning
+      | All _ =>LLRelease;negativePhaseReasoning
+      | Bot  => LLRelease;negativePhaseReasoning
+      | (atom _)  => LLRelease;negativePhaseReasoning
+      | Top  => LLRelease;negativePhaseReasoning
+      | AAnd _ _  => LLRelease;negativePhaseReasoning
+      | Quest _ _ => LLRelease;negativePhaseReasoning
+      end
+    end.
+ 
+  Ltac positivePhaseReasoningN :=
+  try match goal with  
+  | [USI : UnbSignature |- seqN _ _ _ [] (DW  (MAnd _ _))] => LLTensor (@nil oo)  (@nil oo) 
+  | [H : SetU ?B |- seqN _ _ ?B [] (DW  (MAnd _ _))] => LLTensor (@nil oo)  (@nil oo) 
+
+  | [H: seqN _ ?th ?B ?L (DW ?F) |- seqN _ ?th ?B ?L (DW (AOr ?F ?G))] => LLPlusL 
+  | [H: seqN _ ?th ?B ?L (DW ?G) |- seqN _ ?th ?B ?L (DW (AOr ?F ?G))] => LLPlusR 
+  | [ |- seqN _ _ _ _ (DW (Bang loc _))] => apply tri_bangL;negativePhaseReasoningN
+ 
+     (* Change of polarity *)
+    | [H: negativeFormula ?F |- seqN _ _ _ _ (DW  ?F)] => LLRelease;negativePhaseReasoningN
+    | [|- seqN _ _ _ _ (DW  ?F)] =>
+      match F with
+      | MOr _ _ => LLRelease;negativePhaseReasoningN
+      | All _ =>LLRelease;negativePhaseReasoningN
+      | Bot  => LLRelease;negativePhaseReasoningN
+      | (atom _)  => LLRelease;negativePhaseReasoningN
+      | Top  => LLRelease;negativePhaseReasoningN
+      | AAnd _ _  => LLRelease;negativePhaseReasoningN
+      | Quest _ _ => LLRelease;negativePhaseReasoningN
+      end
+    end.
+ 
+ 
+ 
+Lemma init2Cut (OLS : OLSig) (SI:Signature) i A L th :
+SetU L -> mt i = true ->
+In (i,atom A) L -> seq th L [] (DW (perp A)).
+ Proof with sauto.
+ intros.
+ apply InPermutation in H1...
+ rewrite H1 in H. 
+ init2 i x. inversion H...
+ Qed.
+
+  Ltac solveAxioms :=
+  try
+    match goal with
+   | [H: seq _ _ _ (DW Zero) |- _ ] => inversion H;subst;solveF
+   | [ |- seq _ _ _ (DW One) ] => LLOne
+   | [ |- seq _ _ [One] (UP [])] => LFocus;solveAxioms   
+   | [ |- seq _ _ [] (UP [One]) ] => LLStore;LFocus;solveAxioms
+  
+   | [ |- seq _ _ [Top] (UP [])] => LFocus;LLRelease;solveAxioms   
+   | [ |- seq _ _ _ (UP (Top :: ?M))] => LLTop
+  (* initial rules *)
+   | [ |- seq _ _ [atom ?A] (DW (perp ?A))] => init1
+   | [ |- seq _ _ [perp ?A; atom ?A] (UP [])] => LFocus;solveAxioms   
+   | [ |- seq _ _ [atom ?A; perp ?A] (UP [])] => LFocus (perp A) [atom A];solveAxioms   
+
+   | [ H: mt ?a = true |- seq _ ((?a,atom ?A)::?B) [] (DW (perp ?A))] => init2 a B
+    | [ H: mt ?a = true |- seq _ (?B++[(?a,atom ?A)]) [] (DW (perp ?A))] => init2 a B
+    | [ H: mt ?a = true |- seq _ (?X::?B++[(?a,atom ?A)]) [] (DW (perp ?A))] => init2 a (X::B)
+    | [ H: mt ?a = true |- seq _ (?B++(?a,atom ?A)::?E) [] (DW (perp ?A))] => init2 a (B++E)   
+    | [ H: mt ?a = true |- seq _ (?X::?B++(?a,atom ?A)::?E) [] (DW (perp ?A))] => init2 a (X::B++E)   
+  
+    | [ H: Permutation ((?a,atom _)::?B) ?D |- seq  _ ?D [] (DW (perp ?A))] => init2 a B
+    | [ H: Permutation (?B++[(?a,atom ?A)]) ?D |- seq _ ?D [] (DW (perp ?A))] => init2 a B
+    | [ H: Permutation (?B++(?a,atom ?A)::?E) ?D |- seq _ ?D [] (DW (perp ?A))] => init2 a (B++E)
+
+    | [ H: Permutation ?D ((?a,atom ?A)::?B)  |- seq _ ?D [] (DW (perp ?A))] => init2 a B
+    | [ H: Permutation ?D (?B++[(?a,atom ?A)])  |- seq _ ?D [] (DW (perp ?A))] => init2 a B
+    | [ H: Permutation ?D (?B++(?a,atom ?A)::?E)  |- seq _ ?D [] (DW (perp ?A))] => init2 a (B++E)
+ 
+    | [ H: SetU ?L, Hm: mt ?i = true, HIn: In (?i,atom ?A) ?L |- seq _ ?L [] (DW (perp ?A))] =>  try solve [refine (init2Cut i _ _ _ _ _);auto]
+  
   end.
-Ltac bipole' Rule :=
-  match goal with
-  | [|- seq _ _ (?A :: ?L) (> [] ) ] =>
-    decide3 Rule;
-    tensor [A] L; solveLL
-  end.
-*)
+
+ Ltac solveAxiomsN :=
+  try
+    match goal with
+ 
+   | [ |- seqN _ _ _ _ (DW One) ] => LLOne
+   | [ |- seqN _ _ _  [One] (UP [])] => LFocus;solveAxiomsN   
+   | [ |- seqN _ _ _ _ (UP (Top :: ?M))] => LLTop
+ 
+     | [H: seqN _ _ _ _ (DW Zero) |- _ ] => inversion H;subst;solveF
+
+    (* initial rules *)
+   | [ |- seqN _ _ _ [atom ?A] (DW (perp ?A))] => init1
+   | [ |- seqN _ _ _ [perp ?A; atom ?A] (UP [])] => LFocus;solveAxiomsN   
+   | [ |- seqN _ _ _ [atom ?A; perp ?A] (UP [])] => LFocus (perp A) [atom A];solveAxiomsN   
+
+   | [ H: mt ?a = true |- seqN _ _ ((?a,atom ?A)::?B) [] (DW (perp ?A))] => init2 a B
+    | [ H: mt ?a = true |- seqN _ _ (?B++[(?a,atom ?A)]) [] (DW (perp ?A))] => init2 a B
+    | [ H: mt ?a = true |- seqN _ _ (?X::?B++[(?a,atom ?A)]) [] (DW (perp ?A))] => init2 a (X::B)
+    | [ H: mt ?a = true |- seqN _ _ (?B++(?a,atom ?A)::?E) [] (DW (perp ?A))] => init2 a (B++E)   
+    | [ H: mt ?a = true |- seqN _ _ (?X::?B++(?a,atom ?A)::?E) [] (DW (perp ?A))] => init2 a (X::B++E)   
+  
+    | [ H: Permutation ((?a,atom _)::?B) ?D |- seqN _  _ ?D [] (DW (perp ?A))] => init2 a B
+    | [ H: Permutation (?B++[(?a,atom ?A)]) ?D |- seqN _ _ ?D [] (DW (perp ?A))] => init2 a B
+    | [ H: Permutation (?B++(?a,atom ?A)::?E) ?D |- seqN _ _ ?D [] (DW (perp ?A))] => init2 a (B++E)
+
+    | [ H: Permutation ?D ((?a,atom ?A)::?B)  |- seqN _ _ ?D [] (DW (perp ?A))] => init2 a B
+    | [ H: Permutation ?D (?B++[(?a,atom ?A)])  |- seqN _ _ ?D [] (DW (perp ?A))] => init2 a B
+    | [ H: Permutation ?D (?B++(?a,atom ?A)::?E)  |- seqN _ _ ?D [] (DW (perp ?A))] => init2 a (B++E)
+
+    | [H: tri_bangK4 _ 0 _ _ _ _ _ |- _ ] => inversion H 
+    
+    | [H: seqN _ 0 _ _ (UP ( ?F::_)) |- _ ] =>
+    match F with
+      | Top => idtac
+      | _ => inversion H
+    end
+   
+    | [H: seqN _ 0 _ _ (DW ?F) |- _ ] =>
+    match F with
+      | One => idtac
+      | perp _ => idtac
+      | _ => inversion H
+    end
+ 
+   end.
+
+ Ltac solvell :=
+   match goal with
+   | [ |- seqN _ _ _ _ (UP _) ] =>  negativePhaseReasoningN
+   | [ |- seqN _ _ _ _ (DW _) ] =>  positivePhaseReasoningN
+   end;solveAxiomsN.
+ 
+ Ltac solvell' :=
+   match goal with
+   | [ |- seq _ _ _ (UP _) ] =>  negativePhaseReasoning
+   | [ |- seq _ _ _ (DW _) ] =>  positivePhaseReasoning
+   end;solveAxioms.
+ 
+ Ltac solveLL :=
+   match goal with
+   | [ |- seq _ _ _ _ ] =>  solvell'
+   | [ |- seqN _ _ _ _ _ ] =>  solvell
+   end;auto.
+
 
 (** Erasing some of the (unimportant) hypotheses added by the [solveF] and [solveLL] procedures *)
 
 Ltac CleanContext :=
-  sauto;do 2 simplSignature;cleanF;solveF;sauto.
+  sauto;cleanF;solveF;sauto.
 

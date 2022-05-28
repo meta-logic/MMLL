@@ -1,3 +1,4 @@
+
 (** * Invertibility results for the negative phase
 
 This file proves that exchange is admissible also in the list L in
@@ -18,7 +19,7 @@ Set Implicit Arguments.
 Section InvNPhase .
     Context `{SI : Signature}.
   Context `{OLS: OLSig}.
-  Hint Constructors isFormula  Remove seqN IsPositiveAtom : core .
+  Hint Constructors isFormula  seqN IsPositiveAtom : core .
 
   Variable theory : oo -> Prop .
   Notation " n '|---' B ';' L ';' X " := (seqN theory n B L X) (at level 80).
@@ -33,8 +34,8 @@ Section InvNPhase .
 
   
   Theorem EquivAuxBot :  forall CC LC M M',
-      (|-- CC ; LC ; (> M ++ M') ) ->
-      (|-- CC ;  LC ; (> M ++ Bot :: M') ) .
+      |-- CC ; LC ; (UP (M ++ M') ) ->
+     |-- CC ;  LC ; (UP (M ++ Bot :: M') ) .
   Proof with sauto.
     intros.
     remember (complexityL M) as SizeM.
@@ -52,18 +53,18 @@ Section InvNPhase .
     destruct a; simpl in *; invTri' H0;solveLL; 
       repeat rewrite app_comm_cons.
     all:  try match goal with
-          |  [ |- seq _ _ _ (> ?M ++ bot :: _) ] =>
+          |  [ |- seq _ _ _ (UP (?M ++ Bot :: _)) ] =>
              eapply H with (m:= complexityL M);simpl in *; inversion HeqSizeM; solveF
           end. 
-    assert (Hvar : proper (VAR con 0)) by constructor.
+    assert (Hvar : proper (VAR con 0%nat)) by constructor.
     generalize (ComplexityUniformEq H5 properX Hvar);intro.
     lia.
   Qed.
 
   Theorem EquivAuxWith :  forall F G CC LC M M',
-      (|-- CC ; LC ; (> M ++ [F] ++ M') ) ->
-      (|-- CC ; LC ;(> M ++ [G] ++ M') ) ->
-      (|-- CC ; LC ; (> M ++ (AAnd F G) :: M') ) .
+      |-- CC ; LC ; (UP (M ++ [F] ++ M') ) ->
+      |-- CC ; LC ;(UP (M ++ [G] ++ M') ) ->
+      |-- CC ; LC ; (UP (M ++ (AAnd F G) :: M') ) .
   Proof with sauto.
     intros.
     remember (complexityL M) as SizeM.
@@ -74,7 +75,6 @@ Section InvNPhase .
     induction SizeM using strongind;intros ...
     
     symmetry in HeqSizeM; apply ComplexityL0 in HeqSizeM ...
-    solveLL ...
     
     destruct M as [ | a]; simpl in HeqSizeM.
     inversion HeqSizeM.
@@ -83,18 +83,18 @@ Section InvNPhase .
       repeat rewrite app_comm_cons.
    all:   try solve [
             match goal with
-            |  [ |- seq _ _ _ (> ?M ++ (AAnd _ _) :: _) ] =>
+            |  [ |- seq _ _ _ (UP (?M ++ (AAnd _ _) :: _)) ] =>
                eapply H with (m:= complexityL M);simpl in *; inversion HeqSizeM;solveF;FLLInversionAll;auto
             end] .
     eapply H with (M:= o x:: M) (m:= complexityL (o x:: M));simpl in *; inversion HeqSizeM;solveF;FLLInversionAll;auto.
-    generalize (ComplexityUniformEq H6 properX (proper_VAR con 0));intro...
+    generalize (ComplexityUniformEq H6 properX (proper_VAR con 0%nat));intro...
   Qed.
   
   
   
   Theorem EquivAuxPar : forall F G CC LC M M',
-      (|-- CC ; LC ; (> M ++ [F ; G] ++ M') ) ->
-      (|-- CC ; LC ;(> M ++ (MOr F G) :: M') ) .
+      |-- CC ; LC ; (UP (M ++ [F ; G] ++ M') ) ->
+      |-- CC ; LC ;(UP (M ++ (MOr F G) :: M') ) .
   Proof with sauto.
     intros.
     remember (complexityL M) as SizeM.
@@ -105,7 +105,6 @@ Section InvNPhase .
     induction SizeM using strongind;intros ...
     
     symmetry in HeqSizeM; apply ComplexityL0 in HeqSizeM ...
-    solveLL ...
     
     destruct M as [ | a]; simpl in HeqSizeM.
     inversion HeqSizeM.
@@ -113,16 +112,16 @@ Section InvNPhase .
     destruct a; simpl in *; invTri' H0;solveLL;
       repeat rewrite app_comm_cons;
       match goal with
-      |  [ |- seq _ _ _ (> ?M ++ (MOr F G) :: _) ] =>
+      |  [ |- seq _ _ _ (UP (?M ++ (MOr F G) :: _)) ] =>
          eapply H with (m:= complexityL M);simpl in *; inversion HeqSizeM; solveF
       end.
-    generalize (ComplexityUniformEq H5 properX (proper_VAR con 0));intro...
+    generalize (ComplexityUniformEq H5 properX (proper_VAR con 0%nat));intro...
   Qed.
   
   Theorem EquivAuxStore :
-    forall F CC LC M M', ~ asynchronous  F ->
-                         (|-- CC ; (LC ++ [F]) ;(> M ++ M') ) ->
-                         (|-- CC ; LC ; (> M ++ F :: M') ) .
+    forall F CC LC M M', positiveLFormula  F ->
+                         |-- CC ; (LC ++ [F]) ;(UP (M ++ M') ) ->
+                         |-- CC ; LC ; (UP (M ++ F :: M') ) .
   Proof with sauto.
   
     intros.
@@ -133,7 +132,7 @@ Section InvNPhase .
     revert dependent M'.
     induction SizeM using strongind;intros ...
     - symmetry in HeqSizeM; apply ComplexityL0 in HeqSizeM ...
-      store.
+      LLStore.
       LLExact H0.
     - destruct M as [ | a]; simpl in HeqSizeM.
       inversion HeqSizeM.
@@ -169,15 +168,15 @@ Section InvNPhase .
       -- rewrite app_comm_cons.
          eapply H0 with (m:= complexityL (o x :: M))...
          inversion HeqSizeM;simpl;try lia.       
-         generalize (ComplexityUniformEq H6 properX (proper_VAR con 0));intro...  rewrite <- app_comm_cons...
+         generalize (ComplexityUniformEq H6 properX (proper_VAR con 0%nat));intro...  rewrite <- app_comm_cons...
       -- eapply H0 with (m:= complexityL M)...
          inversion HeqSizeM;try lia. 
   Qed.
   
   
   Theorem EquivAuxQuest : forall a F CC LC M M',
-      (|-- (CC ++ [(a,F)]) ; LC ;(> M ++  M') ) ->
-      (|-- CC ; LC ; (> M ++ [a ? F] ++ M') ) .
+      |--  (a,F)::CC ; LC ;(UP (M ++  M') ) ->
+      |-- CC ; LC ; (UP (M ++ [Quest a F] ++ M') ) .
   Proof with sauto.
     intros.
     remember (complexityL M) as SizeM.
@@ -189,7 +188,6 @@ Section InvNPhase .
     
     symmetry in HeqSizeM; apply ComplexityL0 in HeqSizeM ...
     simpl;solveLL...
-    LLExact H.
   
     destruct M; simpl in HeqSizeM.
     inversion HeqSizeM.
@@ -198,18 +196,21 @@ Section InvNPhase .
       repeat rewrite app_comm_cons;
       try solve [
             match goal with
-            |  [ |- seq _ _ _ (> ?M ++ (Quest _ _) :: _) ] =>
+            |  [ |- seq _ _ _ (UP (?M ++ (Quest _ _) :: _)) ] =>
               eapply H with (m:= complexityL M);simpl in *; inversion HeqSizeM;solveF;FLLInversionAll;auto
             end] .
-    
+        
+       rewrite perm_swap in H4.     
+      eapply H with (m:= complexityL M);simpl in *; inversion HeqSizeM;solveF;FLLInversionAll;auto.
+            
     eapply H with (m:= complexityL (o x :: M));simpl in *; inversion HeqSizeM;solveF;FLLInversionAll;auto.
-    generalize (ComplexityUniformEq H5 properX (proper_VAR con 0));intro...
+    generalize (ComplexityUniformEq H5 properX (proper_VAR con 0%nat));intro...
   Qed.
   
   
   Theorem EquivAuxTop :  forall CC LC M M',
       isFormulaL M ->
-      (|-- CC ; LC ; (> M ++ Top :: M') ) .
+      |-- CC ; LC ; (UP (M ++ Top :: M') ) .
   Proof with sauto.
     intros.
     remember (complexityL M) as SizeM.
@@ -220,17 +221,16 @@ Section InvNPhase .
     induction SizeM using strongind;intros ...
     
     symmetry in HeqSizeM; apply ComplexityL0 in HeqSizeM ...
-    
-    solveLL ...
-    
+   
     destruct M as [ | a]; simpl in HeqSizeM.
-    inversion HeqSizeM.
     
+    inversion HeqSizeM.
+   
     destruct a; simpl in *;solveLL;
       repeat rewrite app_comm_cons;
       try solve [
             match goal with
-            |  [ |- seq _ _ _ (> ?M ++ top :: _) ] =>
+            |  [ |- seq _ _ _ (UP (?M ++ Top :: _)) ] =>
                eapply H with (m:= complexityL M);simpl in *; inversion HeqSizeM; solveF; inversion H0;subst;auto
             end].
     
@@ -240,19 +240,25 @@ Section InvNPhase .
     inversion H3;subst...
     eapply H with (m:= complexityL (a1 :: a2 ::M));simpl in * ; inversion HeqSizeM; solveF; inversion H0;subst;auto.
     inversion H3;subst...
-
-    inversion H0... inversion H3...
-    rewrite <- app_comm_cons. solveLL...
+  
+    rewrite <- app_comm_cons. 
+    
+    LLStore.
+    eapply H with (m:= complexityL M);simpl in *; inversion HeqSizeM; solveF; inversion H0;subst;auto.
+    
+     inversion H0... inversion H3...
+   rewrite <- app_comm_cons. 
+    LLForall.
     eapply H with (M:= o x :: M) (m:= complexityL (o x ::M));simpl in * ; inversion HeqSizeM; solveF; inversion H0;subst;auto.
 
     
-    rewrite (ComplexityUniformEq  H2 properX (proper_VAR con 0));auto.
+    rewrite (ComplexityUniformEq  H2 H1 (proper_VAR con 0%nat));auto.
   Qed.
 
   Theorem EquivAuxForAll : forall FX CC LC M M' ,
       isFormulaL M -> uniform_oo FX ->
-      (forall t, proper t ->  (|-- CC ; LC ; (> M ++ (FX t) ::M') )) ->
-      (|--  CC ; LC ; (> M ++ F{ FX} :: M') ) .
+      (forall t, proper t ->  |-- CC ; LC ; (UP (M ++ (FX t) ::M') )) ->
+      |--  CC ; LC ; (UP (M ++ All FX:: M') ) .
   Proof with sauto.
     intros.
     remember (complexityL M) as SizeM.
@@ -263,7 +269,6 @@ Section InvNPhase .
     induction SizeM using strongind;intros ...
     
     symmetry in HeqSizeM; apply ComplexityL0 in HeqSizeM ...
-    solveLL.
     
     destruct M as [ | a]; simpl in HeqSizeM.
     inversion HeqSizeM.
@@ -274,20 +279,28 @@ Section InvNPhase .
                  generalize (H2 _ H3);intros Hs;invTri' Hs ;solveF]...
 
     
-    eapply H with (M:= a1 :: M)(m:= complexityL (a1 :: M));inversion HeqSizeM;subst... simpl. lia.
+    eapply H with (M:= a1 :: M)(m:= complexityL (a1 :: M));inversion HeqSizeM;subst...  simpl. lia.
     inversion H5... intros. generalize (H2 _ H3);intros Hs;invTri' Hs ;solveF.
 
-    eapply H with (M:= a2 :: M)(m:= complexityL (a2 :: M));inversion HeqSizeM;subst;solveF.
+    eapply H with (M:= a2 :: M)(m:= complexityL (a2 :: M));inversion HeqSizeM;subst... simpl. lia.
     inversion H5... intros. generalize (H2 _ H3);intros Hs;invTri' Hs ;solveF.
 
-    eapply H with (M:= a1 :: a2 :: M)(m:= complexityL (a1 :: a2 :: M));inversion HeqSizeM;subst;solveF.
+    eapply H with (M:= a1 :: a2 :: M)(m:= complexityL (a1 :: a2 :: M));inversion HeqSizeM;subst... simpl. lia.
     inversion H5... intros. generalize (H2 _ H3);intros Hs;invTri' Hs ;solveF.
+    
    inversion H5...
-    solveLL.
-    eapply H with (M:=  o x :: M)(m:= complexityL (o x :: M));inversion HeqSizeM;subst;solveF.
-    generalize (ComplexityUniformEq H4 properX (proper_VAR con 0));intros...
+   LLStore.
+    eapply H with (M:= M)(m:= complexityL (M));inversion HeqSizeM;subst... intros. generalize (H2 _ H3);intros Hs;invTri' Hs ;solveF.
+    inversion H5...
+    
+   LLForall.
+   
+    eapply H with (M:=  o x :: M)(m:= complexityL (o x :: M));inversion HeqSizeM;subst...
+    generalize (ComplexityUniformEq H4 H3 (proper_VAR con 0%nat));intros... simpl...
     intros...
-    generalize (H2 _ H3);intros Hs;invTri' Hs ;solveF.
+    
+    generalize (H2 _ H8);intros Hs. invTri' Hs...
+    apply H14 in H3...
   Qed.
   
 
@@ -347,7 +360,7 @@ Section InvNPhase .
         ++ destruct Heq;subst.
            inversion H0;subst;try(simpl in Heqw; inversion Heqw; subst;simpl;try(lia)).
            +++  (* top *)
-             eapply tri_top'.
+             LLTop.
            +++ (* bottom *)
              eapply IH with (L' :=L') in H7;auto.
              inversion H;subst;auto.
@@ -382,7 +395,7 @@ Section InvNPhase .
              eapply tri_fx';auto;intros.
              generalize (H9 x H2);intro.
              eapply IH with (m:= complexity (FX x) + complexityL L) (L' := FX x :: L') in H4;auto.
-             assert(complexity (FX (VAR con 0)) = complexity (FX x) ).
+             assert(complexity (FX (VAR con 0%nat)) = complexity (FX x) ).
              apply ComplexityUniformEq;auto.          
              constructor.
              lia.
@@ -470,7 +483,6 @@ Section InvNPhase .
             eapply IH with (m:= complexityL (L1 ++ l' :: L2))(L:=L1 ++ l' :: L2) (L' := [l'] ++ L1' ++ L2') in H6;auto .
             apply seqtoSeqN in H6. destruct H6.   
             eapply EquivAuxQuest with (M := l' :: L1');simpl in H2.
-            rewrite Permutation_app_comm. 
             eauto using seqNtoSeq.
             
             inversion Heqw. simpl. lia.
@@ -498,7 +510,7 @@ Section InvNPhase .
             eapply IH with (m:= complexityL(FX x :: L1 ++ l' :: L2)) (L:=FX x :: L1 ++ l' :: L2)  ;auto.
             inversion Heqw.
             simpl. 
-            assert(complexity (FX (VAR con 0)) = complexity (FX x) ).
+            assert(complexity (FX (VAR con 0%nat)) = complexity (FX x) ).
             
             apply ComplexityUniformEq;auto. 
             constructor. lia.
@@ -514,7 +526,7 @@ Section InvNPhase .
             rewrite Permutation_midle. rewrite Heq2. perm.
 
             assert(forall B  L L' M   FX, 
-                      isFormulaL L -> uniform_oo FX ->  (forall x, proper x -> |-- B ; M ; UP (L ++ [FX x]++ L')) ->  |-- B ; M ;  UP (L ++ [F{FX}] ++ L')).
+                      isFormulaL L -> uniform_oo FX ->  (forall x, proper x -> |-- B ; M ; UP (L ++ [FX x]++ L')) ->  |-- B ; M ;  UP (L ++ [All FX] ++ L')).
             intros.
             eapply EquivAuxForAll;auto.
             
@@ -539,16 +551,16 @@ Section InvNPhase .
 
   Generalizable All Variables.
   Global Instance Forall_morph : 
-    Proper ((@Permutation oo) ==> Basics.impl) (isNotAsyncL).
+    Proper ((@Permutation oo) ==> Basics.impl) (Forall positiveLFormula).
   Proof.
-    unfold Proper; unfold respectful; unfold Basics.impl;unfold isNotAsyncL.
+    unfold Proper; unfold respectful; unfold Basics.impl.
     intros.
     rewrite <- H;eauto.
   Qed. 
 
   
   Lemma UpExtension: forall B M L F n,
-      ~ asynchronous F ->
+      positiveLFormula F ->
       (n |--- B; F::M ; UP L) ->
       exists m, m<= S n /\ m |--- B; M ; UP (L ++ [F]).
   Proof with subst;auto.
@@ -619,7 +631,7 @@ Section InvNPhase .
         intros.
         generalize (H7 x H1);intro.
         eapply IH with (m:=complexity (FX x) + complexityL L);auto.
-        assert(complexity (FX (VAR con 0)) = complexity (FX x) ).
+        assert(complexity (FX (VAR con 0%nat)) = complexity (FX x) ).
         
         apply ComplexityUniformEq;auto. 
         
@@ -639,7 +651,7 @@ Section InvNPhase .
   Qed.
   
     Lemma UpExtension': forall B M L F,
-      ~ asynchronous F ->
+      positiveLFormula F ->
       (|-- B; F::M ; UP L) -> |-- B; M ; UP (L ++ [F]).
   Proof with sauto.
   intros.
@@ -649,9 +661,9 @@ Section InvNPhase .
   apply seqNtoSeq in H2...
   Qed.
 
-Lemma UpExtensionInv n F B M L :
+(* Lemma UpExtensionInv n F B M L :
      n |---  B ; M ; (UP (L++[F])) -> |-- B ; F::M; (UP L).
-  Proof with sauto;solveF;solveLL.
+  Proof with sauto;solveF;try solveLL.
   intros.
   
   revert dependent F. 
@@ -659,7 +671,7 @@ Lemma UpExtensionInv n F B M L :
   induction n using strongind;intros...
   + inversion H...
     apply ListConsApp in H4...
-    decide1 top M.
+    LFocus. Print positiveFormula. constructor. 
   + inversion H0... 
     -
     apply ListConsApp in H5...
@@ -741,7 +753,7 @@ Lemma UpExtensionInvN n F B M L :
     decide1 (F{ FX}) M.
     apply H6 in properX...
  Qed. 
- 
+  
   Lemma UpExtensionInv' F B M L : 
        |--  B ; M ; (UP (L++[F])) -> |-- B ; F::M; (UP L).
   Proof with sauto.
@@ -750,11 +762,11 @@ Lemma UpExtensionInvN n F B M L :
   destruct H.
   apply UpExtensionInv in H... 
   Qed.
- 
+ *)
 
-Lemma UpExtensionInv2 n F B M L1 L2 :
-   ~ asynchronous F ->  n |---  B ; M ; (UP (L1++[F]++L2)) -> |-- B ; F::M; (UP (L1++L2)).
-  Proof with sauto;solveF;solveLL.
+(* Lemma UpExtensionInv2 n F B M L1 L2 :
+   positiveLFormula F ->  n |---  B ; M ; (UP (L1++[F]++L2)) -> |-- B ; F::M; (UP (L1++L2)).
+  Proof with sauto;solveF;try solveLL.
   intros.
   apply UpExtensionInv'.
   
@@ -795,5 +807,5 @@ Lemma UpExtensionInv2 n F B M L1 L2 :
     rewrite app_comm_cons in properX.
     eapply H in properX...
  Qed. 
- 
+ *) 
 End InvNPhase.
