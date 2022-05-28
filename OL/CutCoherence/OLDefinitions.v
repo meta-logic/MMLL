@@ -152,23 +152,13 @@ Section PositiveAtoms.
     Qed.
 
     Lemma IsPositiveAtomNotAsync :
-      forall N, IsPositiveAtomFormulaL N ->  isNotAsyncL  N.
+      forall N, IsPositiveAtomFormulaL N ->  Forall positiveLFormula  N.
       
       induction N;simpl;auto;intros.
-      apply Forall_forall; intros x Hx; inversion Hx.
       inversion H;subst.
-      change  (a :: N) with ( [a] ++ N).
-      apply Forall_app;split;auto.
-      
-      2:{ apply IHN;auto. }
-      
-      inversion H2;subst;auto.
-      apply Forall_forall; intros x Hx;inversion Hx;subst;auto.
-      intro Hc;inversion Hc.
-      inversion H1.
-      apply Forall_forall; intros x Hx;inversion Hx;subst;auto.
-      intro Hc;inversion Hc.
-      inversion H1.
+      apply Forall_cons. 
+      inversion H2;subst;solveF.
+      apply IHN;auto.
     Qed.
 
     Lemma IsPositiveIsFormula :
@@ -197,29 +187,30 @@ Section PositiveAtoms.
       eauto using PermuteMap.
     Qed.
     
-    Lemma RemoveNotPos1 F M L: ~ IsPositiveAtom F -> IsPositiveAtomFormulaL M -> Remove F M L -> False.
+    Lemma RemoveNotPos1 F M L: ~ IsPositiveAtom F -> IsPositiveAtomFormulaL L -> Permutation (F::M) L -> False.
 Proof with sauto.
   intros.
-  apply Remove_Permute in H1...
   destruct L...
+  checkPermutationCases H1.
   inversion H0...
   inversion H3...
-  rewrite H1 in H0.
+  rewrite H2 in H0.
   inversion H0...
-  inversion H4...
+  inversion H6... inversion H7...
 Qed. 
 
-Lemma RemoveNotPos2 (i:subexp) F M L: ~ IsPositiveAtom F -> IsPositiveAtomFormulaL (second M) -> Remove (i,F) M L -> False.
+Lemma RemoveNotPos2 (i:subexp) F M L: ~ IsPositiveAtom F -> IsPositiveAtomFormulaL (second L) -> Permutation ((i,F)::M) L -> False.
 Proof with sauto.
   intros.
-  apply Remove_Permute in H1...
   destruct L...
+  checkPermutationCases H1.
   inversion H0...
   inversion H3...
-  eapply Permutation_map with (f:=snd) in H1. 
-  rewrite H1 in H0.
+  eapply Permutation_map with (f:=snd) in H2. 
+   simpl in H0.
+  rewrite H2 in H0.
   inversion H0...
-  inversion H4...
+  inversion H6... inversion H7...
 Qed. 
 
 Lemma InUNotPos (i:subexp) F L: ~ IsPositiveAtom F -> IsPositiveAtomFormulaL (second L) -> In (i, F) L -> False.
@@ -246,31 +237,31 @@ Section OLInferenceRules.
   Inductive Side := Left | Right .
 
   (** Encoding of inference rules for units *)
-  Record ruleCte :=
+  Record ruleCte : Set := mkCte
     {
-      rc_rightBody : oo ; (* body of the right rule *)
-      rc_leftBody : oo  (* body of the left rule *)
+      rc_rightBody : oo ; 
+      rc_leftBody : oo  
     } .
 
   (** Encoding of inference rules for unary connectives *)
-  Record ruleUnary := 
+  Record ruleUnary : Set := mkUnary
     {
       ru_rightBody : uexp -> oo; 
       ru_leftBody : uexp ->  oo 
     }.
   
   (** Encoding of inference rules for binary connectives *)
-  Record ruleBin := 
+  Record ruleBin : Set := mkBin 
     {
       rb_rightBody : uexp -> uexp -> oo; 
       rb_leftBody : uexp -> uexp -> oo 
     }.
 
   (** Encoding of inference rules for quantifiers *)
-  Record ruleQ := 
+  Record ruleQ : Set := mkQ 
     {
-      rq_rightBody : (uexp -> uexp) -> oo; (* body of the right rule *)
-      rq_leftBody :  (uexp -> uexp) -> oo (* body of the left rule *)
+      rq_rightBody : (uexp -> uexp) -> oo; 
+      rq_leftBody :  (uexp -> uexp) -> oo 
     }.
 
   
@@ -494,48 +485,55 @@ Proof with sauto.
  apply IHL...
 Qed.
  
- Lemma setK4CEncodeM4 i L : m4 i = true -> SetK4 i (CEncode i L).
-Proof with sauto;SLSolve.
+ Lemma setK4CEncodeM4 i L : m4 i = true -> SetK4 (CEncode i L).
+Proof with sauto.
  induction L;simpl;intros...
- simpl...
+ apply Forall_cons...
+ apply IHL...
+ Qed.
+ 
+ Lemma LtXCEncode i L : LtX i (CEncode i L).
+Proof with sauto.
+ induction L;simpl;intros...
+ apply Forall_cons...
+ solveSignature1.
  Qed.
      
-Lemma setK4CEncode i L : SetK4 i (CEncode loc L) -> L = [].
+Lemma setK4CEncode L : SetK4 (CEncode loc L) -> L = [].
+Proof with sauto.
+ induction L;simpl;intros...
+ inversion H...
+ solveSignature1.
+Qed.
+
+ Lemma LtXCEncodeLoc i L : LtX i (CEncode loc L) -> i = loc \/ L = [].
 Proof with sauto.
  induction L;simpl;intros...
  inversion H...
  assert(i=loc).
  apply locAlone'...
- subst.
- rewrite loc4 in H0...
-Qed.
-
+ subst...
+ Qed.
  
-Lemma setKCEncode i L : SetK i (CEncode loc L) -> L=[] \/ i = loc.
-Proof with sauto.
- induction L;simpl;intros...
- inversion H...
- assert(i=loc).
- apply locAlone'...
- right...
-Qed.
+(* Lemma setKCEncode i L : SetK i (CEncode loc L) -> L=[] \/ i = loc.
+ *)
 
-Lemma setK4DCEncode i j L : md i = true -> md j = false -> SetK4 i (CEncode j L) -> L = [].
+Lemma setK4DCEncode i j L : md i = true -> md j = false -> LtX i (CEncode j L) -> L = [].
 Proof with sauto.
  induction L;simpl;intros...
  inversion H1...
  assert(md j = true).
  apply mdClosure with (x:=i)...
- rewrite H4 in H0...
+ rewrite H2 in H0...
 Qed.
 
-Lemma setKDCEncode i j L : md i = true -> md j = false -> SetK i (CEncode j L) -> L = [].
+Lemma setKDCEncode i j L : md i = true -> md j = false -> LtX i (CEncode j L) -> L = [].
 Proof with sauto.
  induction L;simpl;intros...
  inversion H1...
  assert(md j = true).
  apply mdClosure with (x:=i)...
- rewrite H4 in H0...
+ rewrite H2 in H0...
 Qed.
 
 Lemma setTCEncode i L : mt i = true -> SetT (CEncode i L).
@@ -821,17 +819,17 @@ Qed.
   Theorem OLInPermutation: forall L F,
       In (u| F |) (REncode L) ->
       exists L', Permutation L (F:: L').
-    induction L;intros.
-    inversion H.
+   Proof with sauto.
+    induction L;intros...
+    inversion H...
     simpl in H.
-    inversion H.
-    inversion H0;subst.
+    destruct H.
+    inversion H... 
     eexists;eauto.
-    apply IHL in H0.
-    CleanContext;sauto.
-    exists L;auto.
+    apply IHL in H...
     exists (a:: x).
-    rewrite H0;perm.
+    rewrite H...
+    
   Qed.
 
 Lemma MapREncodeEqual: forall L L', (REncode L) = (REncode L') -> L = L'.
@@ -953,18 +951,16 @@ Qed.
   Theorem OLInPermutationL: forall L F,
       In (d| F |) (LEncode L) ->
       exists L', Permutation L (F:: L').
-    induction L;intros.
+    Proof with sauto.  
+    induction L;intros...
     inversion H.
     simpl in H.
-    inversion H.
-    inversion H0;subst.
+    destruct H.
+    inversion H...
     eexists;eauto.
-    apply IHL in H0.
-    CleanContext;sauto.
-    exists L;auto.
+    apply IHL in H...
     exists (a:: x).
-    rewrite H0;perm.
-  Qed.
+    rewrite H...   Qed.
 
 Theorem OLInPermutationL': forall L x F,
      Permutation (LEncode L) (d| F |:: LEncode x) ->
@@ -1063,21 +1059,22 @@ Theorem checkEncodeCasesU L L' x F :
     apply Forall_app;auto.
   Qed.
 
- Lemma Remove_LEncode F D D' : Remove F D D' -> Remove (d| F|) (LEncode D) (LEncode D').
+ Lemma Remove_LEncode F D D' : Permutation (F ::D') D -> Permutation ((d| F|)::(LEncode D')) (LEncode D).
  Proof with sauto.
- intros.
- change (d| F |) with ((fun x : uexp => d| x |) F).
- apply Remove_Map...
+ intros...
+ eapply Permutation_map with (f:=(fun x : uexp => d| x |)) in H.
+  simpl in H...
+
  Qed.
  
- Lemma Remove_REncode F D D' : Remove F D D' -> Remove (u| F|) (REncode D) (REncode D').
+ Lemma Remove_REncode F D D' : Permutation (F ::D') D -> Permutation ((u| F|)::(REncode D')) (REncode D).
  Proof with sauto.
  intros.
- change (u| F |) with ((fun x : uexp => u| x |) F).
- apply Remove_Map...
+ eapply Permutation_map with (f:=(fun x : uexp => u| x |)) in H.
+  simpl in H...
  Qed.
  
- Lemma Loc_no4  X : forall j L1 L2 ,  SetK4 j X ->
+ Lemma Loc_no4  X : forall j L1 L2 ,  SetK4 X ->
  Permutation (CEncode j L1 ++ CEncode loc L2) X ->
  Permutation (CEncode j L1) X /\ L2 = [].
  Proof with sauto.
@@ -1098,7 +1095,7 @@ Theorem checkEncodeCasesU L L' x F :
   rewrite <- Permutation_cons_append...
   apply perm_skip...
   eapply IHX with (L2:=L2)...
-  SLSolve.
+  solveSE.
   rewrite <- H1...
  + 
    
@@ -1106,29 +1103,30 @@ Theorem checkEncodeCasesU L L' x F :
   apply destructCEncode in H1...
   apply map_eq_cons in H4...
   inversion H...
-  SLSolve.
+  solveSignature1.
  - checkPermutationCases H0.
  + 
   rewrite Permutation_cons_append in H1.
   apply destructCEncode in H1...
   eapply IHX with (L1:=x0) (j:=j)...
-  SLSolve.
+  solveSE.
   rewrite <- H1...
  +  
   rewrite Permutation_cons_append in H1.
   apply destructCEncode in H1...
   apply map_eq_cons in H4...
   inversion H...
-  SLSolve.   
+  solveSignature1.   
   Qed.
   
-  Lemma SetK4_Loc i X : forall Y L, SetK4 i X -> Permutation (CEncode loc L) (X ++ Y) -> X = [].
-Proof with sauto;SLSolve.
+  Lemma SetK4_Loc X : forall Y L, SetK4 X -> Permutation (CEncode loc L) (X ++ Y) -> X = [].
+Proof with sauto.
  induction X;simpl;intros...
  rewrite Permutation_cons_append in H0.
  apply destructCEncode in H0...
  apply map_eq_cons in H3...
  inversion H...
+ solveSignature1.
  Qed.
  
 End OLEncodings.

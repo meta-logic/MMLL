@@ -133,7 +133,7 @@ Section OLSyntax.
       lengthUexp M1 n1 -> lengthUexp M2 n2 ->
       lengthUexp (t_bin lab M1 M2) (S (n1 + n2))
   | l_tall : forall (lab:quantifiers) (M:uexp -> uexp) (n:nat),
-      uniform M -> lengthUexp (M (Var 0)) n -> lengthUexp (t_quant lab M) (S n).
+      uniform M -> lengthUexp (M (Var 0%nat)) n -> lengthUexp (t_quant lab M) (S n).
 
   (** Some results regarding the length of formulas *)
 
@@ -172,7 +172,7 @@ Section OLSyntax.
     intros;subst;constructor;auto.
   Qed.
 
-  Lemma lengthAll : forall lab FX n, uniform FX -> isOLFormula (t_quant lab FX) -> lengthUexp (FX (Var 0)) n -> lengthUexp  (t_quant lab  FX) (S n).
+  Lemma lengthAll : forall lab FX n, uniform FX -> isOLFormula (t_quant lab FX) -> lengthUexp (FX (Var 0%nat)) n -> lengthUexp  (t_quant lab  FX) (S n).
     intros;subst.
     inversion H0;simpl;subst;constructor;auto.
   Qed.
@@ -213,18 +213,18 @@ Section OLSyntax.
     apply ext_eq_S_Symmetric...
     assert (ext_eq M M0).
     eapply ext_eq_trans;eauto.
-    assert (proper (Var 0)) by constructor.
+    assert (proper (Var 0%nat)) by constructor.
     
     assert (n = n0).
-    eapply H with (F:= M0 (Var 0))...
+    eapply H with (F:= M0 (Var 0%nat))...
     
-    assert(isOLFormula (FX (Var 0))).
+    assert(isOLFormula (FX (Var 0%nat))).
     apply H4 ...
     
-    generalize (H8 (Var 0) H13);intro...
+    generalize (H8 (Var 0%nat) H13);intro...
     rewrite H15...
     
-    generalize (H10 (Var 0) H13);intro...
+    generalize (H10 (Var 0%nat) H13);intro...
     rewrite H14 in H9...
     lia.
   Qed.
@@ -263,11 +263,11 @@ Section OLSyntax.
     - inversion H0...
       generalize (LengthFormula H1 H3);lia.
     - inversion H0...
-      assert (n1 = 0) by lia.
+      assert (n1 = 0%nat) by lia.
       generalize (LengthFormula H2 H8);intro. lia.
     -  inversion H0 ...
        generalize (lbindEq  H6  H1 H4);intro.
-       assert (proper (Var 0)). constructor.
+       assert (proper (Var 0%nat)). constructor.
        generalize (H3 _ H5);intro. rewrite H8 in H7.
        apply H2 in H5.
        generalize (LengthFormula H5 H7 );lia.

@@ -15,62 +15,98 @@ Context {USI : UnbSignature}.
 
 
  (** Allowing contraction and weakening on the left side of the sequent *)
-  Definition POS F a := (perp (down F)) ** (a ? (atom (down F))).
+  Definition POS F a := MAnd (perp (down F)) (Quest a (atom (down F))).
   (** Allowing contraction and weakening on the right side of the sequent *)
-  Definition NEG F a := (perp (up F)) ** (a ? atom (up F)).
+  Definition NEG F a := MAnd (perp (up F)) (Quest a (atom (up F))).
 
 Definition hasPos th a:= (forall OO: uexp, isOLFormula OO -> th (POS OO a)).
 Definition hasNeg th a:= (forall OO: uexp, isOLFormula OO -> th (NEG OO a)).
 
 Lemma PosF : forall a (th : oo -> Prop) F D M, 
 isOLFormula F -> hasPos th a ->
-seq th ((CEncode a [d| F |])++D ) (M) (> []) -> 
-seq th D (d| F | :: M) (> []).
+seq th ((CEncode a [d| F |])++D ) (M) (UP []) -> 
+seq th D (d| F | :: M) (UP []).
 Proof with sauto.
  intros. 
- decide3 (POS F a)...
-  tensor [d| F |] M.
+ TFocus (POS F a).
+ inversion H1...
+  LLTensor [d| F |] M.
  Qed.    
 
-Lemma NegF : forall a (th : oo -> Prop) F D M, 
-isOLFormula F -> hasNeg th a ->
-seq th ((CEncode a [u| F |])++D ) (M) (> []) -> 
-seq th D (u| F | :: M) (> []).
+Lemma PosFS : 
+forall a b (th : oo -> Prop) F D M, 
+isOLFormula F -> hasPos th a -> mt b = true ->
+seq th ((a, d| F |)::D ) M (UP []) -> 
+seq th ((b, d| F |)::D ) M (UP []).
 Proof with sauto.
  intros. 
- decide3 (NEG F a)...
-  tensor [u| F |] M.
+ TFocus (POS F a).
+ inversion H2...
+  LLTensor (@nil oo) M.
+  solveLL.
+  apply weakening...
+  apply allU.
+ Qed.
+ 
+ 
+Lemma NegF : forall a (th : oo -> Prop) F D M, 
+isOLFormula F -> hasNeg th a ->
+seq th ((CEncode a [u| F |])++D ) (M) (UP []) -> 
+seq th D (u| F | :: M) (UP []).
+Proof with sauto.
+ intros. 
+ TFocus (NEG F a).
+ inversion H1.
+  LLTensor [u| F |] M.
  Qed. 
  
+Lemma NwgFS : 
+forall a b (th : oo -> Prop) F D M, 
+isOLFormula F -> hasNeg th a -> mt b = true ->
+seq th ((a, u| F |)::D ) M (UP []) -> 
+seq th ((b, u| F |)::D ) M (UP []).
+Proof with sauto.
+ intros. 
+ TFocus (NEG F a).
+ inversion H2...
+  LLTensor (@nil oo) M.
+  solveLL.
+  apply weakening...
+  apply allU.
+ Qed.
 
 Lemma PosSetP L : forall a (th : oo -> Prop) D M, 
 isOLFormulaL L -> hasPos th a ->
-seq th (CEncode a (LEncode L)++D ) (M) (> []) -> 
-seq th D (M++LEncode L) (> []).
+seq th (CEncode a (LEncode L)++D ) (M) (UP []) -> 
+seq th D (M++LEncode L) (UP []).
 Proof with sauto.
   induction L;intros...
   simpl in *...
   inversion H...
   simpl in *...
   
-  decide3 (POS a a0)...
-  tensor [d| a |] (M ++ LEncode L)...
+  TFocus (POS a a0)...
+  inversion H1...
+  LLTensor [d| a |] (M ++ LEncode L)...
+  solveLL.
     eapply IHL with (a:=a0)...
     LLExact H0.
  Qed.    
 
 Lemma NegSetP L : forall a (th : oo -> Prop) D M, 
 isOLFormulaL L -> hasNeg th a ->
-seq th (CEncode a (REncode L)++D ) (M) (> []) -> 
-seq th D (M++REncode L) (> []).
+seq th (CEncode a (REncode L)++D ) (M) (UP []) -> 
+seq th D (M++REncode L) (UP []).
 Proof with sauto.
   induction L;intros...
   simpl in *...
   inversion H...
   simpl in *...
   
-  decide3 (NEG a a0)...
-  tensor [u| a |] (M ++ REncode L)...
+  TFocus (NEG a a0).
+  inversion H1.
+  LLTensor [u| a |] (M ++ REncode L)...
+  solveLL.
     eapply IHL with (a:=a0)...
     LLExact H0.
  Qed.
@@ -79,8 +115,8 @@ Theorem PosNegSetT : forall a b (th:oo->Prop) D L1 L2,
 isOLFormulaL L1 -> isOLFormulaL L2 ->
 hasNeg th b ->
 hasPos th a ->
-seq th (D ++ CEncode a (LEncode L1) ++ CEncode b (REncode L2)) [] (> []) ->
-seq th D (LEncode L1++REncode L2) (> []).
+seq th (D ++ CEncode a (LEncode L1) ++ CEncode b (REncode L2)) [] (UP []) ->
+seq th D (LEncode L1++REncode L2) (UP []).
 Proof with sauto.
   intros.
   apply NegSetP with (a:=b)...
@@ -93,8 +129,8 @@ Qed.
 Lemma PosNegSetT' : forall (th:oo->Prop) a D L1 L2,  
 hasNeg th a -> hasPos th a ->
 IsPositiveAtomFormulaL L1 -> IsPositiveAtomFormulaL L2 ->
-seq th (CEncode a L1++CEncode a L2 ++D) [] (> []) ->
-seq th D (L1++L2) (> []).
+seq th (CEncode a L1++CEncode a L2 ++D) [] (UP []) ->
+seq th D (L1++L2) (UP []).
 Proof with sauto.
   intros.
   assert(IsPositiveAtomFormulaL L1) by auto.
@@ -136,8 +172,8 @@ Qed.
 Lemma LinearToClassic: forall (th:oo->Prop) a D L,  
 hasPos th a -> hasNeg th a -> 
 IsPositiveAtomFormulaL L -> 
-seq th (CEncode a L++D) [] (> []) ->
-seq th D (L) (> []).
+seq th (CEncode a L++D) [] (UP []) ->
+seq th D (L) (UP []).
 Proof with sauto.
   intros.
   assert(IsPositiveAtomFormulaL L) by auto.
@@ -161,6 +197,29 @@ Proof with sauto.
   perm.
 Qed.
 
+Lemma WeakPosNeg: forall (th:oo->Prop) a D M N,  
+hasPos th a -> hasNeg th a -> 
+IsPositiveAtomFormulaL N -> 
+seq th D M (UP []) ->
+seq th D (M++N) (UP []).
+Proof with sauto.
+  intros.
+  specialize (posDestruct' H) as HC...
+  rewrite H1.
+  rewrite app_assoc.
+  apply NegSetP with (a:=a)...
+  rewrite H1 in H...
+  apply PositiveAtomREOLFormula.
+  OLSolve.
+  apply weakeningGen...
+  apply PosSetP with (a:=a)...
+  rewrite H1 in H...
+  apply PositiveAtomLEOLFormula.
+  OLSolve.
+  apply weakeningGen...
+Qed.  
+ 
+  
 End OLPOSNEG.
 
 Tactic Notation "PosNeg"  constr(j) := 
@@ -181,3 +240,4 @@ Tactic Notation "PosNegAll"  constr(i) constr(j) :=
      | [ |- seq _ _ _ _ ] =>  eapply PosNegSetT with (a:=i) (b:=j);auto
      | [ |- seq _ _ _ _ ] =>  eapply PosNegSetT with (a:=i) (b:=j);auto
 end.
+

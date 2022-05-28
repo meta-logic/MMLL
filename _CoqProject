@@ -2,13 +2,16 @@
 
 # Miscellaneous and Utilities 
 Misc/Hybrid.v
+Misc/Database.v
 Misc/Permutations.v
 Misc/UtilsTactics.v
 Misc/Utils.v
 
 # Specification Logic
 # Focused First-order MMLL
+SL/Signature.v
 SL/Syntax.v
+SL/Locations.v
 SL/Sequent.v
 SL/FLLTacticsPre.v
 SL/StructuralRules.v
@@ -16,6 +19,8 @@ SL/FLLTactics.v
 SL/InvNegativePhase.v
 SL/InvPositivePhase.v
 SL/CutElimination.v
+SL/FLLReasoning.v
+
 
 
 ## Object Logics: Applications
@@ -25,8 +30,5 @@ OL/CutCoherence/OLSyntax.v
 OL/CutCoherence/OLDefinitions.v
 OL/CutCoherence/OLTactics.v
 OL/CutCoherence/OLPosNeg.v
-OL/CutCoherence/OLCut.v
 OL/CutCoherence/Bipoles.v
-#OL/CutCoherence/LK.v
-#OL/CutCoherence/LJ.v
-#OL/CutCoherence/KT4.v
+OL/CutCoherence/LK/LKBipoles.v
