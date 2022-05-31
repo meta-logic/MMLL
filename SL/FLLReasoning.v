@@ -177,7 +177,7 @@ Lemma BipoleReasoning {USI: UnbSignature} n B D F G:   seqN th n B D (DW (MAnd (
     
  Qed.
     
- Theorem FocusingBang' {Unb: UnbSignature}:
+ Theorem FocusingBangU {Unb: UnbSignature}:
     forall n a A D G th, mt a = true -> 
     seqN th n G D (DW (Bang a (atom A ))) ->
       exists m, n = S (S m) /\ D = [] /\ 
@@ -193,6 +193,26 @@ Lemma BipoleReasoning {USI: UnbSignature} n B D F G:   seqN th n B D (DW (MAnd (
     split... 
     lia.
  Qed.
+ 
+ 
+ Theorem FocusingBang' {Unb: UnbSignature}:
+    forall n a A D G, mt a = true -> m4 a = true ->
+    seqN th n G D (DW ((! a) (atom A))) ->
+      exists m C4 CN, n = S (S (S m)) + length C4  /\ D = [] /\ Permutation G (C4++CN) /\ SetK4 C4 /\ SetT C4 /\ LtX a C4 /\
+                 seqN th m C4 [atom A] (UP []).
+  Proof with sauto.
+    intros.
+    inversion H1...
+    solveF. solveSignature1.
+    eapply InvSubExpPhaseUTK4 in H8... 
+    2: apply allU.
+    inversion H12...
+    
+    eexists n, x, x0.
+    split;[| split;eauto].
+    rewrite <- NatComp in H2...
+    lia. Qed.
+    
  
   Theorem FocusingPar :
     forall n A B D G,
