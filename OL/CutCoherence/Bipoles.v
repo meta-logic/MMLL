@@ -40,7 +40,7 @@ Class QuBody : Set
          isOLFormula F -> 
          isOLFormula G->
          seq (RCUT (max n m)) [] [] (UP [dual (rb_rightBody F G) ; dual (rb_leftBody F G)])
-  }.
+  }.  
 
  Class UnCutCoherent `(Un : UnBody) {RCUT} :=    
    {   UBCut_coherent n F:  

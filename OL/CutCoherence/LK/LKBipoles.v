@@ -323,10 +323,6 @@ Inductive buildTheory : oo ->  Prop :=
   | oothc_negC : forall OO , mt i = true -> isOLFormula OO -> LKTheoryCut n (NEG OO i) 
   | oothc_cutln : forall OO, CUTLN n (CUTL OO) -> LKTheoryCut n (CUTL OO).
   
-  
- (*  | oothc_cutcn : forall OO, CUTCN (a:=i) n (CUTC i OO) -> LKTheoryCut n (CUTC i OO).
- *)
- 
  Lemma CuteRuleNBound {SIU: UnbSignature}: forall h n B L X ,  seqN (CUTLN n) h B L X ->
                                              forall m, n<=m -> seq (CUTLN m) B L X .
   Proof with solveF.
@@ -379,59 +375,6 @@ Inductive buildTheory : oo ->  Prop :=
     lia. solveSignature1.
   Qed.
   
- (* Lemma CuteRuleCNBound {SIU: UnbSignature}: forall h i n B L X ,  seqN (CUTCN (a:=i) n) h B L X ->
-                                             forall m, n<=m -> seq (CUTCN (a:=i) m) B L X .
-  Proof with solveF.
-    induction h using strongind ; intros.
-    inversion H ...
-    init2 i0 C. 
-    inversion H0;solveF;
-      repeat match goal with
-             | [ Hs : seqN (CUTCN n) ?h ?B1 ?N1 ?X1 |- _] =>
-               let Hs1 := fresh in
-               assert (Hs1 : seq (CUTCN (a:=i) m) B1 N1 X1) by
-                   (
-                     eapply H  with (m:= h) (n:= n) ;solveF
-                   );clear Hs
-             end;try solveLL;auto.
-    -         
-    rewrite H3. 
-    LLTensor M N B0 D.
-    - 
-    LFocus F ;eauto.
-    -
-    UFocus i0 F;eauto ...
-    -
-    BFocus i0 F;eauto ...
-    -
-    TFocus F;eauto ...
-    inversion H3...
-    apply @ctn with (m:= m0)...
-    -
-    LLExists t.
-    -
-    apply H4 in properX...
-    eapply H  with (m:= h) (n:= n) ;solveF.
-    - 
-   apply InvSubExpPhaseU in H4...
-   2:{ apply allU. }
-   createWorld.
-    eapply @GenK4RelU' with (C4:=x) (CK:=x0) (CN:=x1)...
-    eapply H  with (m:= h) (n:= n) ;solveF.
-    eapply HeightGeq. exact H14.
-    lia.              
-    - 
-   apply InvSubExpPhaseU in H3...
-   2:{ apply allU. }
-   createWorld i0.
-    eapply @GenK4RelU' with (C4:=x) (CK:=x0) (CN:=x1)...
-    solveSignature1.
-    eapply H  with (m:= h) (n:= n) ;solveF.
-    eapply HeightGeq. exact H14.
-    lia. solveSignature1.
-  Qed.
- 
-  *)
   
   Lemma CuteRuleN : forall n F, CUTLN n F ->
                                              forall m, n<=m -> CUTLN m F.
@@ -442,17 +385,6 @@ Inductive buildTheory : oo ->  Prop :=
     (transitivity n);auto.
   Qed.
 
-(* 
-Lemma CuteRuleCN : forall n i F, CUTCN (a:=i) n F ->
-                                             forall m, n<=m -> CUTCN (a:=i) m F.
-  Proof with sauto.
-    intros.
-    inversion H...
-    econstructor;eauto.
-    (transitivity n);auto.
-  Qed.
- *)
-
   Lemma CuteRuleNBound' {USI: UnbSignature}: forall n B L X ,
       seq (CUTLN n)  B L X ->
       forall m, n<=m -> seq (CUTLN m) B L X .
@@ -460,14 +392,6 @@ Lemma CuteRuleCN : forall n i F, CUTCN (a:=i) n F ->
     apply seqtoSeqN in H. destruct H.
     eapply CuteRuleNBound;eauto.
   Qed.
-  (* 
-  Lemma CuteRuleCNBound' {USI: UnbSignature}: forall i n B L X ,
-      seq (CUTCN (a:=i) n)  B L X ->
-      forall m, n<=m -> seq (CUTCN (a:=i) m) B L X .
-    intros.
-    apply seqtoSeqN in H. destruct H.
-    eapply CuteRuleCNBound;eauto.
-  Qed. *)
   
  (** There are no (object logic) formulas of size 0 *)
   Lemma CuteRuleN0 : forall F, ~ (CUTLN 0 F).
@@ -477,15 +401,6 @@ Lemma CuteRuleCN : forall n i F, CUTCN (a:=i) n F ->
     generalize (LengthFormula H H0); intro.
     lia.
   Qed.
-  
- (*  Lemma CuteRuleCN0 : forall i F, ~ (CUTCN (a:=i) 0 F).
-  Proof with solveF.
-    intros i F Hn.
-    inversion Hn...
-    generalize (LengthFormula H H0); intro.
-    lia.
-  Qed.
-  *) 
   
  Definition LK i := LKTheory (i:=i).
  Definition LKC i n := LKTheoryCut (i:=i) n.
@@ -524,9 +439,7 @@ Lemma CutRuleNBound {SIU: UnbSignature}: forall h i n B L X ,  seqN (LKC i n) h 
     inversion H3...
     eapply oothc_cutln.
      eapply CuteRuleN;eauto.
- (*   apply oothc_cutcn.
-    eapply CuteRuleCN;eauto.
-   *)  -
+    -
     LLExists t.
     -
     apply H4 in properX.
@@ -573,12 +486,7 @@ Lemma CutRuleNBound {SIU: UnbSignature}: forall h i n B L X ,  seqN (LKC i n) h 
     assert (m =  0%nat) by lia;subst.
     generalize (LengthFormula H3 H4);intro.
     lia.
-(*  *
-    inversion H0;sauto... 
-    assert (m =  0%nat) by lia;subst.
-    generalize (LengthFormula H3 H4);intro.
-    lia.
- *)  Qed.
+  Qed.
    
   Lemma TheoryEmb1 : forall n i F  ,  
   LK i F -> (LKC i n) F.
@@ -594,14 +502,6 @@ Proof.
     apply oothc_cutln;auto.
   Qed.
   
-   
- (*  Lemma TheoryEmb3 : forall n i F  , ((CUTCN (a:=i) n) F) -> (LKC i n) F.
-Proof.
-    intros.
-    inversion H;subst.
-    eapply oothc_cutcn;auto.
-  Qed.
-  *)
  End CutCohBipoles.
 
 Global Hint Constructors  LKTheoryCut LKTheory  : core.

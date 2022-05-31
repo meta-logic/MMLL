@@ -220,7 +220,18 @@ Proof with sauto.
 Qed.  
  
   
-End OLPOSNEG.
+  Lemma WeakPosNegAll: forall (th:oo->Prop) a D M,  
+hasPos th a -> hasNeg th a -> 
+IsPositiveAtomFormulaL M -> 
+seq th D [] (UP []) ->
+seq th D M (UP []).
+Proof with sauto.
+  intros.
+  rewrite <- (app_nil_l M).
+  eapply WeakPosNeg with (a:=a)...
+  Qed.
+ 
+ End OLPOSNEG.
 
 Tactic Notation "PosNeg"  constr(j) := 
   match goal with

@@ -69,7 +69,7 @@ Section OLSyntax.
   Definition t_cons (lab :constants)  := CON (oo_cons lab) .
   
   (* Unary connectives *)
-  Definition t_ucon (lab : uconnectives) F  := APP (CON ( (oo_un lab ))) F .
+  Definition t_ucon (lab : uconnectives) : uexp -> uexp := fun M1:uexp => APP (CON ( (oo_un lab ))) M1 .
 
   (** Binnary connectives *)
   Definition t_bin (lab : connectives) : uexp -> uexp -> uexp  :=

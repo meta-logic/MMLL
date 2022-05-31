@@ -1,4 +1,5 @@
 Require Import MMLL.SL.FLLTactics.
+Require Import MMLL.SL.CutElimination.
 
 Set Implicit Arguments.
 
@@ -135,20 +136,63 @@ Lemma BipoleReasoning {USI: UnbSignature} n B D F G:   seqN th n B D (DW (MAnd (
     split;eauto.
   Qed.
  
- (* Theorem FocusingBang :
-    forall n a A D G,
-    seqN th n G D (DW ((! a) (atom A))) ->
-      exists m , n =   S (S m)  /\
-                 seqN th m ((a,atom A)::G) D (UP []).
+ 
+ Theorem FocusingBangPar {Unb: UnbSignature}:
+    forall n a A B D G, mt a = true -> m4 a = true ->
+    seqN th n G D (DW ((! a) ((atom A) ⅋ ( atom B)))) ->
+      exists m C4 CN, n =  S (S (S (S (S m)))) + length C4  /\ D = [] /\ Permutation G (C4++CN) /\ SetK4 C4 /\ SetT C4 /\ LtX a C4 /\
+                 seqN th m C4 [atom B; atom A] (UP []).
   Proof with sauto.
     intros.
-    inversion H...
-    inversion H5...
+    inversion H1...
+    solveF. solveSignature1.
+    eapply InvSubExpPhaseUTK4 in H8... 
+    2: apply allU.
+    inversion H12...
+    inversion H15...
+    inversion H19...
     2: solveF.
-    eexists n.
-    split;eauto.
-  Qed.
-  *)
+    
+    eexists n, x, x0.
+    split;[| split;eauto].
+    rewrite <- NatComp in H2...
+    lia. Qed.
+ 
+ Theorem FocusingBang {Unb: UnbSignature}:
+    forall n a A C D G th, mt a = true -> m4 a =true ->
+    seqN th n ((loc,C)::G) D (DW (Bang a (atom A ))) ->
+      exists m X1 X2, n = (S m) + length X1 +2 /\ Permutation G (X1++X2) /\ SetT X1 /\ SetK4 X1 /\ LtX a X1 /\ D = [] /\ 
+                  ( seqN th m X1 [atom A] (UP [])).
+  Proof with sauto.
+    intros.
+    assert(D=[]).
+    { inversion H1... solveF. }
+    subst.
+    apply InvBangTNLoc in H1...
+    inversion H4...
+    eexists n0, x, x0.
+    split;auto.
+    lia.
+    split;auto.
+    
+ Qed.
+    
+ Theorem FocusingBang' {Unb: UnbSignature}:
+    forall n a A D G th, mt a = true -> 
+    seqN th n G D (DW (Bang a (atom A ))) ->
+      exists m, n = S (S m) /\ D = [] /\ 
+                  ( seqN th m G [atom A] (UP [])).
+  Proof with sauto.
+    intros.
+    assert(D=[]).
+    { inversion H0... solveF. }
+    subst.
+    apply InvBangTN in H0...
+    inversion H0...
+    eexists n0.
+    split... 
+    lia.
+ Qed.
  
   Theorem FocusingPar :
     forall n A B D G,
