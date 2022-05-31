@@ -70,14 +70,14 @@ Global Instance SimpleOLSig : OLSyntax:=
  
  Instance TT_BODY : CteBody := {
     cte := TT;
-    rc_rightBody := CteRulesDefs TOPZERO Right;
-    rc_leftBody := CteRulesDefs TOPZERO Left
+    rc_rightBody := CteRulesDefs ZEROTOP Right;
+    rc_leftBody := CteRulesDefs ZEROTOP Left
   }.
   
  Instance FF_BODY : CteBody := {
     cte := FF;
-    rc_rightBody := CteRulesDefs ZEROTOP Right;
-    rc_leftBody := CteRulesDefs ZEROTOP Left
+    rc_rightBody := CteRulesDefs TOPZERO Right;
+    rc_leftBody := CteRulesDefs TOPZERO Left
   }.
   
  Instance AND_BODY : BinBody := {
@@ -260,47 +260,47 @@ Defined.
 End CutCoherence.
 
   Inductive buildTheoryCons : oo ->  Prop := 
-  | cteTTR : isOLFormula (t_cons cte) -> 
+  | cteTTR : isOLFormula (t_cons TT_BODY.(cte)) -> 
         buildTheoryCons (CteBipole TT_BODY Right)
-  | cteTTL : isOLFormula (t_cons cte) -> 
+  | cteTTL : isOLFormula (t_cons TT_BODY.(cte)) -> 
         buildTheoryCons (CteBipole TT_BODY Left)
-  | cteFFR : isOLFormula (t_cons cte) -> 
+  | cteFFR : isOLFormula (t_cons FF_BODY.(cte)) -> 
         buildTheoryCons (CteBipole FF_BODY Right)
-  | cteFFL : isOLFormula (t_cons cte) -> 
+  | cteFFL : isOLFormula (t_cons FF_BODY.(cte)) -> 
         buildTheoryCons (CteBipole FF_BODY Left).
  
 Inductive buildTheory : oo ->  Prop :=  
   | bconANDR : forall F G, 
-          isOLFormula ( t_bin con F G) ->
+          isOLFormula ( t_bin AND_BODY.(con) F G) ->
           buildTheory  (BinBipole AND_BODY Right F G) 
   | bconANDL : forall F G, 
-          isOLFormula ( t_bin con F G) ->
+          isOLFormula ( t_bin AND_BODY.(con) F G) ->
           buildTheory  (BinBipole AND_BODY Left F G)          
   | bconORR : forall F G, 
-          isOLFormula ( t_bin con F G) ->
+          isOLFormula ( t_bin OR_BODY.(con) F G) ->
           buildTheory  (BinBipole OR_BODY Right F G) 
   | bconORL : forall F G, 
-          isOLFormula ( t_bin con F G) ->
+          isOLFormula ( t_bin OR_BODY.(con) F G) ->
           buildTheory  (BinBipole OR_BODY Left F G)           
   | bconIMPR : forall F G, 
-          isOLFormula ( t_bin con F G) ->
+          isOLFormula ( t_bin IMP_BODY.(con) F G) ->
           buildTheory  (BinBipole IMP_BODY Right F G) 
   | bconIMPL : forall F G, 
-          isOLFormula ( t_bin con F G) ->
+          isOLFormula ( t_bin IMP_BODY.(con) F G) ->
           buildTheory  (BinBipole IMP_BODY Left F G) .          
   
   Inductive buildTheoryBind : oo ->  Prop := 
   | bqALLR : forall FX, uniform FX -> 
-              isOLFormula (t_quant qt FX) -> 
+              isOLFormula (t_quant ALL_BODY.(qt) FX) -> 
               buildTheoryBind  (QuBipole ALL_BODY Right FX)
   | bqALLL : forall FX, uniform FX -> 
-              isOLFormula (t_quant qt FX) -> 
+              isOLFormula (t_quant ALL_BODY.(qt) FX) -> 
               buildTheoryBind  (QuBipole ALL_BODY Left FX)
   | bqSOMER : forall FX, uniform FX -> 
-              isOLFormula (t_quant qt FX) -> 
+              isOLFormula (t_quant SOME_BODY.(qt) FX) -> 
               buildTheoryBind  (QuBipole SOME_BODY Right FX)
   | bqSOMEL : forall FX, uniform FX -> 
-              isOLFormula (t_quant qt FX) -> 
+              isOLFormula (t_quant SOME_BODY.(qt) FX) -> 
               buildTheoryBind  (QuBipole SOME_BODY Left FX).
   
  (** A theory containing only the logical rules and init *)

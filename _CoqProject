@@ -33,5 +33,6 @@ OL/CutCoherence/OLPosNeg.v
 OL/CutCoherence/Bipoles.v
 OL/CutCoherence/LK/LKBipoles.v
 OL/CutCoherence/LK/LKCut.v
+OL/CutCoherence/LK/LKAdequacy.v
 OL/CutCoherence/KT4/KT4Bipoles.v
 OL/CutCoherence/KT4/KT4Cut.v

@@ -67,14 +67,14 @@ Global Instance SimpleOLSig : OLSyntax:=
  
  Instance TT_BODY : CteBody := {
     cte := TT;
-    rc_rightBody := CteRulesDefs TOPZERO Right;
-    rc_leftBody := CteRulesDefs TOPZERO Left
+    rc_rightBody := CteRulesDefs ZEROTOP Right;
+    rc_leftBody := CteRulesDefs ZEROTOP Left
   }.
   
  Instance FF_BODY : CteBody := {
     cte := FF;
-    rc_rightBody := CteRulesDefs ZEROTOP Right;
-    rc_leftBody := CteRulesDefs ZEROTOP Left
+    rc_rightBody := CteRulesDefs TOPZERO Right;
+    rc_leftBody := CteRulesDefs TOPZERO Left
   }.
   
  Instance AND_BODY : BinBody := {

@@ -6,6 +6,7 @@ Export ListNotations.
 Export LLNotations.
 Set Implicit Arguments.
 
+ 
 Ltac OLfold := 
 repeat
 match goal with
@@ -89,11 +90,19 @@ match goal with
  end;OLfold.
 
 
-
-Lemma Asas (SI:Signature) (OL: OLSyntax) A L:  
-isOLFormulaL (A::L) -> IsPositiveAtomFormula (u| A |). 
-intros. OLSolve.
-Abort.
+Ltac solveQF :=
+  match goal with
+   [ H1 : isOLFormula (t_quant ?qt ?FX), 
+     H2 : proper ?x |- isOLFormula (?FX ?x)] =>
+                inversion H1;subst;OLSolve;
+                match goal with
+       [ H : lbind 0%nat _ = lbind 0%nat ?FX |-
+          isOLFormula (?FX ?x)] =>
+                apply lbindEq in H;sauto;
+               try rewrite <- H;sauto
+              end  
+                
+   end.  
  
  (** During the proof of cut-elimination, there are many
           subgoals related to [IsPositiveAtomFormulaL] predicates and
