@@ -2301,10 +2301,11 @@ Theorem KT4CutStep:
       simpl. createWorld. solveSignature1. eapply @GenK4RelUT' with (C4:=x2) (CK:=[]) (CN:=x3)...
                 solveSignature1.
         simpl...
+        
        LLStore.
        
        apply H in H13...
-       srewrite H5 in isFL.
+       srewrite H7 in isFL.
        rewrite map_app in isFL.
        apply Forall_app in isFL...
        
@@ -2321,7 +2322,7 @@ Theorem KT4CutStep:
        LLStore.
        
        apply H in H14...
-       srewrite H7 in isFL.
+       srewrite H8 in isFL.
        rewrite map_app in isFL.
        apply Forall_app in isFL...
       ++ 

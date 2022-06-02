@@ -376,4 +376,21 @@ Ltac finishExponential :=  match goal with
          destruct H as [c H];CleanContext |  try solve[auto | intro;subst;solveSubExp] ]
     end.
 
+  Ltac LLSwapL H :=
+        let Hs := type of H in 
+        match Hs with
+        |  (seqN _ _ _ (?F :: ?G :: ?L) _) =>
+           apply exchangeLCN with (LC':= (G :: F :: L)) in H;[|perm]
+        |  (seq  _ _ (?F :: ?G :: ?L) _) =>
+           apply exchangeLC with (LC':= (G :: F :: L)) in H;[|perm]
+        end.
+
+  Ltac LLSwapC H :=
+        let Hs := type of H in 
+        match Hs with
+        |  (seqN _ _ (?F :: ?G :: ?L) _ _) =>
+           apply exchangeCCN with (CC':= (G :: F :: L)) in H;[|perm]
+        |  (seq  _ (?F :: ?G :: ?L) _ _) =>
+           apply exchangeCC with (CC':= (G :: F :: L)) in H;[|perm]
+        end.
 

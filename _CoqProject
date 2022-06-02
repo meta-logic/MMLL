@@ -36,3 +36,4 @@ OL/CutCoherence/LK/LKCut.v
 OL/CutCoherence/LK/LKAdequacy.v
 OL/CutCoherence/KT4/KT4Bipoles.v
 OL/CutCoherence/KT4/KT4Cut.v
+OL/CutCoherence/KT4/KT4Adequacy.v

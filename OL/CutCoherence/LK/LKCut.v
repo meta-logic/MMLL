@@ -70,23 +70,6 @@ Tactic Notation "Bipole"  constr(B) constr(S) constr(FX) :=
      | SOME => TFocus (QuBipole SOME_BODY S FX)
   end.
   
-  Ltac LLSwapL H :=
-        let Hs := type of H in 
-        match Hs with
-        |  (seqN _ _ _ (?F :: ?G :: ?L) _) =>
-           apply exchangeLCN with (LC':= (G :: F :: L)) in H;[|perm]
-        |  (seq  _ _ (?F :: ?G :: ?L) _) =>
-           apply exchangeLC with (LC':= (G :: F :: L)) in H;[|perm]
-        end.
-
-  Ltac LLSwapC H :=
-        let Hs := type of H in 
-        match Hs with
-        |  (seqN _ _ (?F :: ?G :: ?L) _ _) =>
-           apply exchangeCCN with (CC':= (G :: F :: L)) in H;[|perm]
-        |  (seq  _ (?F :: ?G :: ?L) _ _) =>
-           apply exchangeCC with (CC':= (G :: F :: L)) in H;[|perm]
-        end.
 
 Lemma exchangeSwap n th L F A B C: Permutation A (B ::C)
  -> seqN th n L (F :: A) (UP []) -> seqN th n L (B :: F :: C) (UP []).

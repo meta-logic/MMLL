@@ -159,9 +159,9 @@ Lemma BipoleReasoning {USI: UnbSignature} n B D F G:   seqN th n B D (DW (MAnd (
     lia. Qed.
  
  Theorem FocusingBang {Unb: UnbSignature}:
-    forall n a A C D G th, mt a = true -> m4 a =true ->
+    forall n a A C D G, mt a = true -> m4 a =true ->
     seqN th n ((loc,C)::G) D (DW (Bang a (atom A ))) ->
-      exists m X1 X2, n = (S m) + length X1 +2 /\ Permutation G (X1++X2) /\ SetT X1 /\ SetK4 X1 /\ LtX a X1 /\ D = [] /\ 
+      exists m X1 X2, n = S (S (S m)) + length X1 /\ Permutation G (X1++X2) /\ SetT X1 /\ SetK4 X1 /\ LtX a X1 /\ D = [] /\ 
                   ( seqN th m X1 [atom A] (UP [])).
   Proof with sauto.
     intros.
@@ -176,9 +176,9 @@ Lemma BipoleReasoning {USI: UnbSignature} n B D F G:   seqN th n B D (DW (MAnd (
     split;auto.
     
  Qed.
-    
+
  Theorem FocusingBangU {Unb: UnbSignature}:
-    forall n a A D G th, mt a = true -> 
+    forall n a A D G, mt a = true -> 
     seqN th n G D (DW (Bang a (atom A ))) ->
       exists m, n = S (S m) /\ D = [] /\ 
                   ( seqN th m G [atom A] (UP [])).
@@ -193,13 +193,13 @@ Lemma BipoleReasoning {USI: UnbSignature} n B D F G:   seqN th n B D (DW (MAnd (
     split... 
     lia.
  Qed.
- 
+
  
  Theorem FocusingBang' {Unb: UnbSignature}:
     forall n a A D G, mt a = true -> m4 a = true ->
     seqN th n G D (DW ((! a) (atom A))) ->
-      exists m C4 CN, n = S (S (S m)) + length C4  /\ D = [] /\ Permutation G (C4++CN) /\ SetK4 C4 /\ SetT C4 /\ LtX a C4 /\
-                 seqN th m C4 [atom A] (UP []).
+      exists m C4 CN, n = S (S (S m)) + length C4  /\  Permutation G (C4++CN) /\  SetT C4 /\ SetK4 C4 /\ LtX a C4 /\
+ D = [] /\                seqN th m C4 [atom A] (UP []).
   Proof with sauto.
     intros.
     inversion H1...
@@ -213,6 +213,26 @@ Lemma BipoleReasoning {USI: UnbSignature} n B D F G:   seqN th n B D (DW (MAnd (
     rewrite <- NatComp in H2...
     lia. Qed.
     
+ Theorem FocusingBangSet {Unb: UnbSignature}:
+    forall n a A C D G, mt a = true -> m4 a =true ->
+    seqN th n (Loc C++G) D (DW (Bang a (atom A ))) ->
+      exists m X1 X2, n = S (S (S m)) + length X1 /\ Permutation G (X1++X2) /\ SetT X1 /\ SetK4 X1 /\ LtX a X1 /\ D = [] /\ 
+                  ( seqN th m X1 [atom A] (UP [])).
+  Proof with sauto.
+     induction C;   intros.
+    eapply FocusingBang'...
+    simpl in H1.
+    rewrite Permutation_cons_append in H1.
+    rewrite app_assoc_reverse in H1.
+    specialize (IHC _ _ H H0 H1)...
+    checkPermutationCases H5.
+    2: exists x, x0, x2...
+    
+    rewrite <- Permutation_cons_append in H3.
+    rewrite H3 in H6.
+    inversion H6...
+    solveSignature1.
+  Qed.
  
   Theorem FocusingPar :
     forall n A B D G,
