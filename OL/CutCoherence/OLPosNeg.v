@@ -219,7 +219,6 @@ Proof with sauto.
   apply weakeningGen...
 Qed.  
  
-  
   Lemma WeakPosNegAll: forall (th:oo->Prop) a D M,  
 hasPos th a -> hasNeg th a -> 
 IsPositiveAtomFormulaL M -> 

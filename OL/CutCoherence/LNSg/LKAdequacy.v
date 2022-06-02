@@ -8,7 +8,7 @@ this system.
 
 Require Import MMLL.OL.CutCoherence.OLTactics.
 Require Import MMLL.OL.CutCoherence.OLPosNeg.
-Require Import MMLL.OL.CutCoherence.LK.LKBipoles.
+Require Import MMLL.OL.CutCoherence.LNSg.LKBipoles.
 Require Import MMLL.SL.FLLReasoning.
 
 Require Import Coq.Init.Nat.

@@ -1,5 +1,5 @@
 Require Export MMLL.Misc.Hybrid.
-Require Export MMLL.OL.CutCoherence.KT4.KT4Bipoles.
+Require Export MMLL.OL.CutCoherence.LNSkt4.KT4Bipoles.
 Import MMLL.Misc.Permutations.
 Require Import MMLL.SL.FLLReasoning.
 Require Import MMLL.SL.InvPositivePhase.
