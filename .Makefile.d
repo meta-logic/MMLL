@@ -61,6 +61,18 @@ OL/CutCoherence/OLPosNeg.vos OL/CutCoherence/OLPosNeg.vok OL/CutCoherence/OLPosN
 OL/CutCoherence/Bipoles.vo OL/CutCoherence/Bipoles.glob OL/CutCoherence/Bipoles.v.beautified OL/CutCoherence/Bipoles.required_vo: OL/CutCoherence/Bipoles.v OL/CutCoherence/OLTactics.vo OL/CutCoherence/OLPosNeg.vo
 OL/CutCoherence/Bipoles.vio: OL/CutCoherence/Bipoles.v OL/CutCoherence/OLTactics.vio OL/CutCoherence/OLPosNeg.vio
 OL/CutCoherence/Bipoles.vos OL/CutCoherence/Bipoles.vok OL/CutCoherence/Bipoles.required_vos: OL/CutCoherence/Bipoles.v OL/CutCoherence/OLTactics.vos OL/CutCoherence/OLPosNeg.vos
+OL/CutCoherence/LK/LKBipoles.vo OL/CutCoherence/LK/LKBipoles.glob OL/CutCoherence/LK/LKBipoles.v.beautified OL/CutCoherence/LK/LKBipoles.required_vo: OL/CutCoherence/LK/LKBipoles.v Misc/Hybrid.vo OL/CutCoherence/Bipoles.vo
+OL/CutCoherence/LK/LKBipoles.vio: OL/CutCoherence/LK/LKBipoles.v Misc/Hybrid.vio OL/CutCoherence/Bipoles.vio
+OL/CutCoherence/LK/LKBipoles.vos OL/CutCoherence/LK/LKBipoles.vok OL/CutCoherence/LK/LKBipoles.required_vos: OL/CutCoherence/LK/LKBipoles.v Misc/Hybrid.vos OL/CutCoherence/Bipoles.vos
+OL/CutCoherence/LK/LKCut.vo OL/CutCoherence/LK/LKCut.glob OL/CutCoherence/LK/LKCut.v.beautified OL/CutCoherence/LK/LKCut.required_vo: OL/CutCoherence/LK/LKCut.v Misc/Hybrid.vo OL/CutCoherence/LK/LKBipoles.vo SL/FLLReasoning.vo SL/InvPositivePhase.vo
+OL/CutCoherence/LK/LKCut.vio: OL/CutCoherence/LK/LKCut.v Misc/Hybrid.vio OL/CutCoherence/LK/LKBipoles.vio SL/FLLReasoning.vio SL/InvPositivePhase.vio
+OL/CutCoherence/LK/LKCut.vos OL/CutCoherence/LK/LKCut.vok OL/CutCoherence/LK/LKCut.required_vos: OL/CutCoherence/LK/LKCut.v Misc/Hybrid.vos OL/CutCoherence/LK/LKBipoles.vos SL/FLLReasoning.vos SL/InvPositivePhase.vos
+OL/CutCoherence/LK/LKAdequacy.vo OL/CutCoherence/LK/LKAdequacy.glob OL/CutCoherence/LK/LKAdequacy.v.beautified OL/CutCoherence/LK/LKAdequacy.required_vo: OL/CutCoherence/LK/LKAdequacy.v OL/CutCoherence/OLTactics.vo OL/CutCoherence/OLPosNeg.vo OL/CutCoherence/LK/LKBipoles.vo SL/FLLReasoning.vo Misc/Permutations.vo
+OL/CutCoherence/LK/LKAdequacy.vio: OL/CutCoherence/LK/LKAdequacy.v OL/CutCoherence/OLTactics.vio OL/CutCoherence/OLPosNeg.vio OL/CutCoherence/LK/LKBipoles.vio SL/FLLReasoning.vio Misc/Permutations.vio
+OL/CutCoherence/LK/LKAdequacy.vos OL/CutCoherence/LK/LKAdequacy.vok OL/CutCoherence/LK/LKAdequacy.required_vos: OL/CutCoherence/LK/LKAdequacy.v OL/CutCoherence/OLTactics.vos OL/CutCoherence/OLPosNeg.vos OL/CutCoherence/LK/LKBipoles.vos SL/FLLReasoning.vos Misc/Permutations.vos
 OL/CutCoherence/KT4/KT4Bipoles.vo OL/CutCoherence/KT4/KT4Bipoles.glob OL/CutCoherence/KT4/KT4Bipoles.v.beautified OL/CutCoherence/KT4/KT4Bipoles.required_vo: OL/CutCoherence/KT4/KT4Bipoles.v Misc/Hybrid.vo OL/CutCoherence/Bipoles.vo
 OL/CutCoherence/KT4/KT4Bipoles.vio: OL/CutCoherence/KT4/KT4Bipoles.v Misc/Hybrid.vio OL/CutCoherence/Bipoles.vio
 OL/CutCoherence/KT4/KT4Bipoles.vos OL/CutCoherence/KT4/KT4Bipoles.vok OL/CutCoherence/KT4/KT4Bipoles.required_vos: OL/CutCoherence/KT4/KT4Bipoles.v Misc/Hybrid.vos OL/CutCoherence/Bipoles.vos
+OL/CutCoherence/KT4/KT4Cut.vo OL/CutCoherence/KT4/KT4Cut.glob OL/CutCoherence/KT4/KT4Cut.v.beautified OL/CutCoherence/KT4/KT4Cut.required_vo: OL/CutCoherence/KT4/KT4Cut.v Misc/Hybrid.vo OL/CutCoherence/KT4/KT4Bipoles.vo SL/FLLReasoning.vo SL/InvPositivePhase.vo
+OL/CutCoherence/KT4/KT4Cut.vio: OL/CutCoherence/KT4/KT4Cut.v Misc/Hybrid.vio OL/CutCoherence/KT4/KT4Bipoles.vio SL/FLLReasoning.vio SL/InvPositivePhase.vio
+OL/CutCoherence/KT4/KT4Cut.vos OL/CutCoherence/KT4/KT4Cut.vok OL/CutCoherence/KT4/KT4Cut.required_vos: OL/CutCoherence/KT4/KT4Cut.v Misc/Hybrid.vos OL/CutCoherence/KT4/KT4Bipoles.vos SL/FLLReasoning.vos SL/InvPositivePhase.vos
