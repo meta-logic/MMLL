@@ -22,7 +22,6 @@ SL/CutElimination.v
 SL/FLLReasoning.v
 
 
-
 ## Object Logics: Applications
 # OL/Examples.v
 # Encoding inference systems and cut-coherent conditions
@@ -31,9 +30,15 @@ OL/CutCoherence/OLDefinitions.v
 OL/CutCoherence/OLTactics.v
 OL/CutCoherence/OLPosNeg.v
 OL/CutCoherence/Bipoles.v
-OL/CutCoherence/LK/LKBipoles.v
-OL/CutCoherence/LK/LKCut.v
-OL/CutCoherence/LK/LKAdequacy.v
-OL/CutCoherence/KT4/KT4Bipoles.v
-OL/CutCoherence/KT4/KT4Cut.v
-OL/CutCoherence/KT4/KT4Adequacy.v
+
+OL/CutCoherence/LNSg/LKBipoles.v
+OL/CutCoherence/LNSg/LKCut.v
+OL/CutCoherence/LNSg/LKAdequacy.v
+
+OL/CutCoherence/LNSi/LJBipoles.v
+OL/CutCoherence/LNSi/LJCut.v
+OL/CutCoherence/LNSi/LJAdequacy.v
+
+OL/CutCoherence/LNSkt4/KT4Bipoles.v
+OL/CutCoherence/LNSkt4/KT4Cut.v
+OL/CutCoherence/LNSkt4/KT4Adequacy.v

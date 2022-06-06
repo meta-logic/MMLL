@@ -2552,7 +2552,8 @@ Proof with sauto;try solveLL.
       2:{ exact H0. }
       perm.
   Qed.  
-    
+  
+   
   Lemma ContractionLoc : forall n i F B L X, 
    mt i = true -> u i = true -> seqN theory n ((loc,F)::(i,F)::B) L X -> 
    seqN theory n ((i,F)::B) L X.
