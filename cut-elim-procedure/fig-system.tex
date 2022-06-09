@@ -1,0 +1,144 @@
+
+%!TEX root = main.tex
+% !TEX spellcheck = en-US
+\begin{figure}
+	\hrule
+	\vspace{.15cm}
+	
+	\noindent
+\resizebox{\textwidth}{!}{	
+	$
+	\small
+	\begin{aligned}[c]
+	\textbf{Negative rules:\qquad}
+	\end{aligned}
+	\begin{aligned}[c]
+	\begin{array}{c}
+   \infer[\top]{\unfoc{\Theta}{\Gamma}{\top, L}}{}
+  \qquad
+	\infer[\bot]{\unfoc{\Theta}{\Gamma}{\bot, L}}{\unfoc{\Theta}{\Gamma}{L}}
+	\qquad
+	\infer[\lpar]{\unfoc{\Theta}{\Gamma}{F\lpar G, L}}{\unfoc{\Theta}{\Gamma}{F,G, L}}\qquad
+	\infer[\store]{\unfoc{\Theta}{\Gamma}{S, L}}{\unfoc{\Theta}{\Gamma,S}{L}}
+	\\\\
+	\infer[\with]{\unfoc{\Theta}{\Gamma}{ F \with G, L}}
+	{\unfoc{\Theta}{\Gamma}{ F, L} &
+		\unfoc{\Theta}{\Gamma}{ G, L}}
+	\qquad
+	\infer[\forall]{\unfoc{\Theta}{\Gamma}{\forall x. F, L}}{\unfoc{\Theta}{\Gamma}{ F[y/x], L}}
+	\qquad
+	\infer[\store_\mathsf{s}]{\unfoc{\Theta}{\Gamma}{\nquest{i} F, L}}{\unfoc{\Theta,i:F}{\Gamma}{L}}
+	\end{array}
+	\end{aligned}
+	$}
+	
+\vspace{.3cm}
+\hrule
+\vspace{.3cm}
+	\resizebox{\textwidth}{!}{
+	$
+	\begin{aligned}[c]
+	\textbf{Positive rules:\qquad}
+	\end{aligned}
+	\begin{aligned}[c]
+	\begin{array}{c}
+	\infer[\tensor]{\foc{\Theta^u,\Theta_1^l, \Theta_2^l}{\Gamma_1,\Gamma_2}{F \tensor G}}{\foc{\Theta^u,\Theta_1^l}{\Gamma_1}{ F} &
+		 \foc{\Theta^u,\Theta_2^l}{\Gamma_2}{ G}}
+	\quad
+	\infer[\oplus_1]{\foc{\Theta}{\Gamma}{F_1\oplus F_2}}{\foc{\Theta}{\Gamma}{F_1}} 
+	\quad 
+	\infer[\oplus_2]{\foc{\Theta}{\Gamma}{F_1\oplus F_2}}{\foc{\Theta}{\Gamma}{F_2}} 
+	\\\\
+%		\infer[\one]{\mathcal{E}\lns[i]\foc{\Psi}{\Gamma}{\one}}{}
+\quad
+	\infer[\exists]{\foc{\Theta}{\Gamma}{\exists x. F}}{\foc{\Theta}{\Gamma}{F[t/x]}} 
+%	\qquad
+%	\infer[\quest]{\unfoc{\Theta,G}{\Gamma}{\cdot}~\lnse\unfoc{\Upsilon}{\cdot}{F}}{ \unfoc{\Theta}{\Gamma}{\cdot}~\lnse\unfoc{\Upsilon,G}{\cdot}{F}}
+%	\qquad
+%	\infer[\bang]{\Escr\lns\foc{\Theta}{\Gamma}{\bang F}}{\unfoc{\Theta}{\Gamma}{\cdot}\,\lnse \unfoc{\cdot}\cdot{F}}
+		\quad
+		   \infer[\one]{\foc{\Theta}{\cdot}{\one}}{}
+%	\infer[\top]{\mathcal{E}\lns\foc{\Theta}{\Gamma}{\top}}{}
+\end{array}
+\end{aligned}
+	$
+	}
+	\vspace{.3cm}
+\hrule
+\vspace{.3cm}
+
+	
+	\resizebox{\textwidth}{!}{
+	$
+	\small
+	\begin{aligned}[c]
+	\textbf{Structural:\quad} 
+	\end{aligned}
+	\begin{aligned}[c]
+	\begin{array}{c}
+	\infer[\mathsf{I_l}]{\foc{\Theta^u}{A}{A^\perp}}{}
+	\qquad
+	\infer[\mathsf{l_s}]{\foc{\Theta^u, i:A}{\cdot}{A^\perp}}{}
+	\\\\
+%	\infer[\mathsf{I_2}]{\mathcal{G}\lns[i]\foc{\Theta,A}{\Gamma}{A^\perp}}{}
+%	\\\\
+	\infer[\mathsf{D_l}]{\unfoc{\Theta}{\Gamma, P}{\cdot}}{\foc{\Theta}{\Gamma}{P}}
+	\qquad
+	\infer[\mathsf{D^u_s}]{\unfoc{\Theta,i:P_a}{\Gamma}{\cdot}}{\foc{\Theta,i:P_a}{\Gamma}{P_a}}  
+	\quad
+		\infer[\mathsf{D^l_s}]{\unfoc{\Theta,i:P_a}{\Gamma}{\cdot}}{\foc{\Theta}{\Gamma}{P_a}}  
+	\qquad
+%	\infer[\mathsf{R_{\re}}]{\Gscr~\lns[i]e\unfoc{\Theta}{\cdot}{F}}{\Gscr\lns[i]\unfoc{\Theta}{\cdot}{F}}
+%	\qquad
+	\infer[\mathsf{R_n}]{\foc{\Theta}{\Gamma}{N}}{\unfoc{\Theta}{\Gamma}{N}}\\
+	\end{array}
+	\end{aligned}
+	$
+	}
+	\vspace{.3cm}
+\hrule
+\vspace{.3cm}
+
+\resizebox{\textwidth}{!}{
+$
+	\small
+	\begin{aligned}[c]
+	\textbf{Modal:} 
+	\end{aligned}
+	\begin{aligned}[c]
+	\begin{array}{c}
+	\infer[\nbang{i}]{\foc{\Theta}{\cdot}{\nbang{i} F}}{\unfoc{\Theta}{\cdot}{\cdot}\,\lnse[i] \unfoc{\cdot}\cdot{F}} 
+\qquad
+\infer[\mathsf{R_{\re}}]{\unfoc{\Theta^u}{\cdot}{\cdot}\lnse[i]\unfoc{\Upsilon}{\cdot}{L}}{\unfoc{\Upsilon}{\cdot}{L}}
+\qquad
+\infer[{\mathsf{D_d}}]{\unfoc{\Theta}{\cdot}{\cdot}}{\unfoc{\Theta}{\cdot}{\cdot}\,\lnse[i] \unfoc{\cdot}\cdot{\cdot}}   
+\qquad
+\infer[\mathsf{\nbang{\lclassic}{}}]{\foc{\Theta^u}{\cdot}{\nbang{\lclassic}{F}}}{\unfoc{\Theta^u}{\cdot}{{F}}}
+\\\\
+\infer[\nquest{i}_{\4}]{\unfoc{\Theta,j:F}{\Gamma}{\cdot}~\lnse[i]\unfoc{\Upsilon}{\cdot}{L}}{ \unfoc{\Theta}{\Gamma}{\cdot}~\lnse[i]\unfoc{\Upsilon,j+:F}{\cdot}{L}}
+\quad
+	\infer[\nquest{i}_{\mathsf{kl}}]{\unfoc{\Theta,j:F}{\cdot}{\cdot}~\lnse[i]\unfoc{\Upsilon}{\cdot}{L}}{ \unfoc{\Theta}{\cdot}{\cdot}~\lnse[i]\unfoc{\Upsilon}{\cdot}{L,F}}
+	\quad
+		\infer[\nquest{i}_{\mathsf{ku}}]{\unfoc{\Theta,j:F}{\cdot}{\cdot}~\lnse[i]\unfoc{\Upsilon}{\cdot}{L}}{ \unfoc{\Theta}{\cdot}{\cdot}~\lnse[i]\unfoc{\Upsilon,\lclassic:F}{\cdot}{L}}
+
+	\end{array}
+	\end{aligned}
+$}\\
+	\hrule
+	\caption{End-active focused system $\LNS_\FALL$. 
+	$\Theta^u$ (resp. $\Theta^l$) contains only unbounded (resp. linear) subexponentials.
+	In  $\mathsf{l_s}$ and $\mathsf{I_l}$, $A$ is atomic. In $\forall$, $y$ is fresh. In $\store$, $S$ is a literal or a positive formula. In $\mathsf{\mathsf{R_n}}$, $N$ is a negative formula.
+	In $\mathsf{D_l}$, $P$ is positive, and in $\mathsf{D^u_s}, \mathsf{D^l_s}$, $P_a$ is not atomic.   
+In $\mathsf{D^u_s}, \mathsf{D^l_s}$ and $\mathsf{l_s}$,  $\T \in \mathcal{U}(i)$.  
+In all question-marked rules   $i\preceq j$. Moreover, 
+$i\neq \lclassic$ in $\nbang{i}{}$; 
+ $\D\in \mathcal{U}(i)$ in $\mathsf{D_d}$; 
+ $\4 \in \mathcal{U}(j)$ in $?^i_\4$;
+  $\{\4,\C,\W\} \cap \mathcal{U}(j) = \emptyset$ in $?^i_\mathsf{kl}$;
+  $\4 \not\in \mathcal{U}(i)$ and 
+  $\U \subseteq \mathcal{U}(i)$ in 
+  $?^i_\mathsf{ku}$ and in $\mathsf{D^u_s}$. 
+%$\Escr$ is either an empty list or a sequent of the form $\unfoc{\Theta}{\cdot}{\cdot}$. 
+}\label{system:ALLF}
+%\vspace{-0.065cm}
+\end{figure}   
