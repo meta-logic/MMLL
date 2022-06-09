@@ -1,0 +1,296 @@
+
+{\footnotesize	
+	\vspace{0.3cm}	
+	
+\begin{center}
+	$	\infer[cut_2]{\unfoc{\Kcal}{\Gamma,\Delta}{L}}{
+	\deduce{\unfoc{\Kcal_1}{\Gamma}{\cutF,L}}{}
+	&
+	\deduce{\foc{\Kcal_2}{\Delta}{\cutF^\perp}}{}
+}$
+\end{center}
+
+	\vspace{0.3cm}	
+}
+
+
+{\footnotesize
+
+	\vspace{0.3cm}
+	\begin{minipage}{0.4\textwidth}
+		\begin{prooftree}
+			\AxiomC{}
+			\noLine
+			\UnaryInf$\fCenter\Kcal : \Gamma\Uparrow L$
+			\UnaryInf$\fCenter\Kcal : \Gamma \Uparrow \bot, L$
+			
+			\AxiomC{}
+			\UnaryInfC{$\fCenter\Kcal^u : \cdot \Downarrow 1$}
+			\BinaryInfC{$\vdash\Kcal :\Gamma\Uparrow L$}
+		\end{prooftree}
+	\end{minipage}
+	\begin{minipage}{0.2\textwidth}
+		\begin{center}
+			$\rightsquigarrow$
+		\end{center}
+	\end{minipage}
+	\begin{minipage}{0.3\textwidth}
+		\begin{prooftree}
+			\AxiomC{}
+			\noLine
+			\UnaryInfC{$\vdash\Kcal:\Gamma\Uparrow L$}
+		\end{prooftree}
+	\end{minipage}
+	\vspace{0.3cm}
+	
+		\vspace{0.3cm}
+	\begin{minipage}{0.5\textwidth}
+		\begin{prooftree}
+			\AxiomC{[$\Sigma_1$]}
+			\noLine
+			\UnaryInf$\fCenter\Kcal_1:\Gamma\Uparrow P,Q,L$
+			\UnaryInf$\fCenter\Kcal_1:\Gamma\Uparrow P \parr Q, L$
+			\AxiomC{[$\Sigma_2$]}
+			\noLine
+			\UnaryInfC{$\vdash\Kcal'_2:\Delta_{P}\Downarrow P^{\bot}$}
+			\AxiomC{[$\Sigma_3$]}
+			\noLine
+			\UnaryInfC{$\vdash\Kcal''_2:\Delta_{Q}\Downarrow Q^{\bot}$}
+			\BinaryInfC{$\vdash\Kcal_2:\Delta\Downarrow P^{\bot}\otimes Q^{\bot}$}
+			\BinaryInfC{$\vdash\Kcal:\Gamma,\Delta\Uparrow L $}
+		\end{prooftree}
+	\end{minipage}
+
+	\begin{minipage}{0.5\textwidth}
+		\begin{center}
+			$\rightsquigarrow$
+		\end{center}
+	\end{minipage}
+	\begin{minipage}{0.4\textwidth}
+		\begin{prooftree}
+			\AxiomC{}
+			\noLine
+			\UnaryInfC{[$\Sigma_1$]}
+			\AxiomC{}
+			\noLine
+			\UnaryInfC{[$\Sigma_2$]}
+			\BinaryInfC{$\vdash\Kcal',\Theta_2:\Gamma,\Delta_{P} \Uparrow Q,L$}
+			\AxiomC{}
+			\noLine
+			\UnaryInfC{[$\Sigma_3$]}
+			\BinaryInfC{$\vdash\Kcal:\Gamma,\Delta\Uparrow L$}
+		\end{prooftree}
+	\end{minipage}
+	\vspace{0.3cm}
+	
+	\vspace{0.3cm}
+\begin{minipage}{0.4\textwidth}
+	\begin{prooftree}
+		\AxiomC{}
+		\noLine
+		\UnaryInfC{$\fCenter\Kcal_1:\Gamma\Uparrow P,L$}
+		\AxiomC{}
+		\noLine
+		\UnaryInfC{$\vdash\Kcal_1:\Gamma \Uparrow Q,L$}
+		\BinaryInfC{$\fCenter\Kcal_1:\Gamma\Uparrow P \with Q,L$}
+		\AxiomC{}
+		\noLine
+		\UnaryInf$\fCenter\Kcal_2:\Delta \Downarrow  P^{\bot}$
+		\UnaryInf$\fCenter\Kcal_2:\Delta \Downarrow P^{\bot} \oplus Q^{\bot}$
+		\BinaryInfC{$\vdash\Kcal:\Gamma,\Delta\Uparrow L$}
+	\end{prooftree}
+\end{minipage}
+
+\begin{minipage}{0.5\textwidth}
+	\begin{center}
+		$\rightsquigarrow$
+	\end{center}
+\end{minipage}
+\begin{minipage}{0.4\textwidth}
+	\begin{prooftree}
+		\AxiomC{}
+		\noLine
+		\UnaryInfC{$\vdash\Kcal_1:\Gamma \Uparrow P,L$}
+		\AxiomC{}
+		\noLine
+		\UnaryInfC{$\vdash\Kcal_2:\Delta\Downarrow P^{\bot}$}
+		\BinaryInfC{$\vdash\Kcal:\Gamma,\Delta\Uparrow L$}
+	\end{prooftree}
+\end{minipage}
+\vspace{0.3cm}	
+
+
+	\vspace{0.3cm}
+\begin{minipage}{0.5\textwidth}
+	\begin{prooftree}
+		\AxiomC{}
+		\noLine		
+		\UnaryInf$\fCenter\Kcal_1:\Gamma\Uparrow P[c/x],L$
+		\UnaryInf$\fCenter\Kcal_1:\Gamma\Uparrow \forall x.P,L$
+		\AxiomC{}
+		\noLine
+		\UnaryInf$\fCenter\Kcal_2:\Delta \Downarrow  P^{\bot}[t/x]$
+		\UnaryInf$\fCenter\Kcal_2:\Delta \Downarrow \exists  x.P^{\bot}$
+		\BinaryInfC{$\vdash\Kcal:\Gamma,\Delta\Uparrow L$}
+	\end{prooftree}
+\end{minipage}
+
+\begin{minipage}{0.5\textwidth}
+	\begin{center}
+		$\rightsquigarrow$
+	\end{center}
+\end{minipage}
+\begin{minipage}{0.4\textwidth}
+	\begin{prooftree}
+		\AxiomC{}
+		\noLine
+		\UnaryInfC{$\fCenter\Kcal_1:\Gamma\Uparrow P[c/x],L$}
+		\AxiomC{}
+		\noLine		
+		\UnaryInfC{$\fCenter\Kcal_2:\Delta \Downarrow  P^{\bot}[t/x]$}	
+		\BinaryInfC{$\vdash\Kcal:\Gamma,\Delta\Uparrow L$}
+	\end{prooftree}
+\end{minipage}
+\vspace{0.3cm}
+
+\vspace{0.3cm}
+\begin{tcolorbox}
+\begin{minipage}{0.5\textwidth}
+	\vspace{0.3cm}	
+	\begin{prooftree}
+		\AxiomC{}
+		\noLine
+		\UnaryInf$\fCenter\Kcal_1,H_i : \Gamma\Uparrow L$
+		\UnaryInf$\fCenter\Kcal_1 : \Gamma\Uparrow \nquest{i} H, L$
+		\AxiomC{}
+		\noLine
+		\UnaryInf$\fCenter\Kcal_2 : \cdot\Downarrow \nbang{i} H$
+		\BinaryInfC{$\vdash\Kcal : \Gamma\Uparrow L $}
+	\end{prooftree}
+	\vspace{0.3cm}	
+\end{minipage}
+\begin{minipage}{0.1\textwidth}
+	\begin{center}
+		$\rightsquigarrow$
+	\end{center}
+\end{minipage}
+\begin{minipage}{0.2\textwidth}
+	\begin{prooftree}
+		\AxiomC{}
+		\noLine
+		\UnaryInf$\fCenter\Kcal_1,H_i : \Gamma\Uparrow L$
+		\AxiomC{}
+		\noLine
+		\UnaryInf$\fCenter\Kcal_2 : \cdot\Downarrow \nbang{i} H$
+		\RightLabel{$\cut_3$}
+		\BinaryInfC{$\vdash\Kcal : \Gamma\Uparrow L $}
+	\end{prooftree}
+\end{minipage}
+\vspace{0.3cm}
+
+\vspace{0.3cm}	
+\begin{minipage}{0.4\textwidth}
+\begin{prooftree}
+	\AxiomC{}
+	\noLine
+		\UnaryInf$\fCenter \Kcal_1 : H,\Gamma\Uparrow L$
+	\UnaryInf$\fCenter \Kcal_1:\Gamma\Uparrow H, L$
+	\AxiomC{}
+	\noLine
+	\UnaryInfC{$\fCenter \Kcal_2:\Delta\Uparrow H^{\bot}$}
+	\UnaryInfC{$\fCenter \Kcal_2:\Delta\Downarrow H^{\bot}$}
+	\BinaryInfC{$\vdash \Kcal:\Gamma,\Delta\Uparrow L $}
+\end{prooftree}
+\vspace{0.3cm}	
+	\end{minipage}
+	\begin{minipage}{0.15\textwidth}
+		\begin{center}
+			$\rightsquigarrow$
+		\end{center}
+	\end{minipage}
+	\begin{minipage}{0.15\textwidth}
+\begin{prooftree}
+	\AxiomC{}
+	\noLine
+	\UnaryInf$\fCenter \Kcal_1:H,\Gamma\Uparrow L$
+	\AxiomC{}
+	\noLine
+	\UnaryInfC{$\fCenter \Kcal_2:\Delta\Downarrow H^{\bot}$}
+	\RightLabel{$\cut_1$}
+	\BinaryInfC{$\vdash \Kcal:\Gamma,\Delta\Uparrow L $}
+\end{prooftree}
+	\end{minipage}
+
+
+\vspace{0.6cm}	
+\begin{minipage}{0.4\textwidth}
+	\begin{prooftree}
+		\AxiomC{}
+		\noLine
+		\UnaryInf$\fCenter \Kcal_1 :A^{+},\Gamma\Uparrow L$
+		\UnaryInf$\fCenter \Kcal_1:\Gamma\Uparrow A^{+}, L$
+		\AxiomC{}
+		\UnaryInfC{$\fCenter \Kcal_2:A^{+}\Downarrow A^{-}$}
+		\BinaryInfC{$\vdash \Kcal_1:\Gamma,A^{+}\Uparrow L $}
+	\end{prooftree}
+	\vspace{0.3cm}	
+\end{minipage}
+
+\vspace{0.6cm}	
+\begin{minipage}{0.4\textwidth}
+	\begin{prooftree}
+		\AxiomC{}
+		\noLine
+		\UnaryInf$\fCenter \Kcal_1 : A^+,\Gamma\Uparrow L$
+		\UnaryInf$\fCenter \Kcal_1:\Gamma\Uparrow A^+, L$
+		\AxiomC{}
+		\UnaryInfC{$\fCenter \Kcal_2,A^+_i:\cdot\Downarrow A^{-}$}
+		\BinaryInfC{$\vdash \Kcal,A^+_i:\Gamma\Uparrow L $}
+	\end{prooftree}
+	\vspace{0.3cm}	
+\end{minipage}
+\begin{minipage}{0.15\textwidth}
+	\begin{center}
+		$\rightsquigarrow$
+	\end{center}
+\end{minipage}
+\begin{minipage}{0.15\textwidth}
+	\begin{prooftree}
+		\AxiomC{}
+		\noLine
+		\UnaryInfC{$\vdash \Kcal_1:\Gamma,A^+\Uparrow L $}
+		\RightLabel{$\A_l$}
+		\UnaryInfC{$\vdash \Kcal,A^+_i:\Gamma\Uparrow L $}
+	\end{prooftree}
+\end{minipage}
+
+\vspace{0.6cm}	
+\begin{minipage}{0.4\textwidth}
+	\begin{prooftree}
+		\AxiomC{}
+		\noLine
+		\UnaryInf$\fCenter \Kcal_1,A^+_i : A^+,\Gamma\Uparrow L$
+		\UnaryInf$\fCenter \Kcal_1,A^+_i:\Gamma\Uparrow A^+, L$
+		\AxiomC{}
+		\UnaryInfC{$\fCenter \Kcal_2,A^+_i:\cdot\Downarrow A^{-}$}
+		\BinaryInfC{$\vdash \Kcal,A^+_i:\Gamma\Uparrow L $}
+	\end{prooftree}
+	\vspace{0.3cm}	
+\end{minipage}
+\begin{minipage}{0.15\textwidth}
+	\begin{center}
+		$\rightsquigarrow$
+	\end{center}
+\end{minipage}
+\begin{minipage}{0.15\textwidth}
+	\begin{prooftree}
+		\AxiomC{}
+		\noLine
+		\UnaryInfC{$\vdash \Kcal_1,A^+_i:\Gamma,A^+\Uparrow L $}
+		\RightLabel{$\A_c$}
+		\UnaryInfC{$\vdash \Kcal,A^+_i:\Gamma\Uparrow L $}
+	\end{prooftree}
+\end{minipage}
+
+\end{tcolorbox}
+	\vspace{0.3cm}}

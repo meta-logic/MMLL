@@ -1,0 +1,214 @@
+
+\documentclass[12pt]{article}
+ 
+\usepackage[margin=0.8in]{geometry} 
+\usepackage{packages}
+\usepackage{ amsmath,amsthm,amssymb, hyperref, bussproofs}
+ \usepackage{stmaryrd}
+ \usepackage{proof}
+ \usepackage{multicol, multirow}
+ \usepackage{cmll}
+ \usepackage{hyperref}
+ \usepackage{tcolorbox}
+ \usepackage{pdflscape}
+\usepackage{tikz}
+\usetikzlibrary{matrix}
+\usepackage{mycommands}
+\usepackage{cancel}
+ 
+\begin{document}
+ 
+\title{\textit{Assignment}\\
+    {\large \textbf{Cut Elimination in LL with Multimodalities}}}%
+\author{Bruno Xavier \& Carlos Olarte}
+ 
+\maketitle
+ 
+  	\begin{center}
+ 		$
+ 		\begin{array}{ccc ccc}
+ 			
+ 			\infer[cut_1]{\unfoc{\Kcal}{\Gamma,\Delta}{L_1,L_2}}{
+ 				\deduce{\unfoc{\Kcal_1}{\Gamma,\cutF}{L_1}}{}
+ 				&
+ 				\deduce{\unfoc{\Kcal_2}{\Delta}{\cutF^\perp,L_2}}{}
+ 			}
+ 			\quad
+ 			\infer[cut_2]{\unfoc{\Kcal}{\Gamma,\Delta}{L}}{
+ 				\deduce{\unfoc{\Kcal_1}{\Gamma}{\cutF,L}}{}
+ 				&
+ 				\deduce{\foc{\Kcal_2}{\Delta}{\cutF^\perp}}{}
+ 			}
+ 			\\\\
+ 			\infer[\cut_3]{\unfoc{\Kcal}{\Gamma}{L}}{
+ 				\deduce{\unfoc{\Kcal_1,\cutF_i}{\Gamma}{L}}{}
+ 				&
+ 				\deduce{\foc{\Kcal_2}{\cdot}{\nbang{i}\cutF^\perp}}{}
+ 			}
+ 			\\\\
+ 			\infer[cut_4]{\unfoc{\Kcal}{\Gamma}{F}}{
+ 				\deduce{\foc{\Kcal_1,\cutF_i}{\Gamma}{F}}{}
+ 				&
+ 				\deduce{\foc{\Kcal_2}{\cdot}{\nbang{i} \cutF^\perp}}{}
+ 			}
+ 			\qquad
+ 			\infer[\cut_5]{\unfoc{\Kcal}{\Gamma,\Delta}{L_1,L_2,L_3}}{
+ 				\deduce{\unfoc{\Kcal_1}{\Gamma}{L_1,\cutF,L_2}}{}
+ 				&
+ 				\deduce{\unfoc{\Kcal_2}{\Delta}{\cutF^\perp,L_3}}{}
+ 			}
+ 			\qquad
+ 		\end{array}$
+ 		
+ 	\end{center}		
+ 	
+ 	Where $\cutF$ is the cut-formula, $\fF$ is a formula, $\Gamma$ and $\Delta$ are multisets of formulas, $\Kcal_1$ and $\Kcal_2$ are indexed contexts of formulas, and $\fL$ is a list of formulas. 
+ 
+    Moreover, $\Kcal_1$, $\Kcal_2$ and $\Kcal$ have the same unbounded formulas and the linear formulas in $\Kcal$ are the multiset union of the linear formulas in $\Kcal_1$ and $\Kcal_2$.  
+    
+\newpage
+\section{Exponential Rules}
+{\footnotesize
+	\begin{multicols}{2}[]
+		{	
+			
+			\begin{tcolorbox}
+				$i \preceq j$, $4 \notin \mathcal{U}(j)$ and $j$ is unbounded 
+				\begin{prooftree}
+					\AxiomC{}
+					\noLine
+					\UnaryInfC{$\Theta;\cdot\Uparrow\cdot\lns{i}\fCenter \Upsilon,\textcolor{red}{F_{c}}; \cdot\Uparrow L $}
+					\RightLabel{[$\wn_{Ku}$]}
+					\UnaryInfC{$\Theta, \textcolor{red}{F_j};\cdot\Uparrow\cdot\lns{i}\fCenter \Upsilon ; \cdot\Uparrow L $}
+				\end{prooftree}
+			\end{tcolorbox}
+			
+			\begin{tcolorbox}
+				$i \preceq j$, $4 \notin \mathcal{U}(j)$ and $j$ is linear
+				\begin{prooftree}
+					\AxiomC{}
+					\noLine
+					\UnaryInfC{$\Theta;\cdot\Uparrow\cdot\lns{i}\fCenter \Upsilon; \cdot\Uparrow L,\textcolor{red}{F} $}
+					\RightLabel{[$\wn_{Kl}$]}
+					\UnaryInfC{$\Theta, \textcolor{red}{F_j};\cdot\Uparrow\cdot\lns{i}\fCenter \Upsilon ; \cdot\Uparrow L $}
+				\end{prooftree}
+			\end{tcolorbox}
+		}
+	\end{multicols}
+	
+	\begin{tcolorbox}
+		$i \preceq j$ and $4 \in \mathcal{U}(j)$
+		\begin{prooftree}
+			\AxiomC{}
+			\noLine
+			\UnaryInfC{$\Theta;\cdot\Uparrow\cdot\lns{i}\fCenter \Upsilon,\textcolor{red}{F_{j+}}; \cdot\Uparrow L $}
+			\RightLabel{[$\wn_{K4}$] }
+			\UnaryInfC{$\Theta, \textcolor{red}{F_j};\cdot\Uparrow\cdot\lns{i}\fCenter \Upsilon ; \cdot\Uparrow L $}
+		\end{prooftree}
+	\end{tcolorbox}
+	
+	\begin{multicols}{2}[]
+		{
+			\begin{tcolorbox}
+				$\Theta$ is unbounded and $\forall j \in\Theta, i \npreceq j$
+				\begin{prooftree}
+					\AxiomC{}
+					\noLine
+					\UnaryInfC{$\fCenter \Upsilon ; \cdot\Uparrow L $}
+					\RightLabel{[$R_{r}$]}
+					\UnaryInfC{$\Theta;\cdot\Uparrow\cdot\lns{i}\fCenter \Upsilon ; \cdot\Uparrow L $}
+				\end{prooftree}
+			\end{tcolorbox}
+			\begin{tcolorbox}
+				$\Theta$ is unbounded
+				\begin{prooftree}
+					\AxiomC{}
+					\noLine
+					\UnaryInfC{$\fCenter \Theta ; \cdot\Uparrow P $}
+					\RightLabel{[$\nbang{c}$]}
+					\UnaryInfC{$\fCenter \Theta ; \cdot\Downarrow \nbang{lc} P $}
+				\end{prooftree}
+			\end{tcolorbox}
+		}
+	\end{multicols}
+	
+	\begin{multicols}{2}[]
+		{
+			\begin{tcolorbox}
+				
+				\begin{prooftree}
+					\AxiomC{}
+					\noLine
+					\UnaryInfC{$\Theta;\cdot\Uparrow\cdot\lns{i}\fCenter \cdot ; \cdot\Uparrow F $}
+					\RightLabel{[$\nbang{i}$]}
+					\UnaryInfC{$\Theta;\cdot\Downarrow\nbang{i} F$}
+				\end{prooftree}
+			\end{tcolorbox}
+			\begin{tcolorbox}
+				\begin{prooftree}
+					\AxiomC{}
+					\noLine
+					\UnaryInfC{$\Theta;\cdot\Uparrow\cdot\lns{i}\fCenter \cdot ; \cdot\Uparrow\cdot$}
+					\RightLabel{[$D \in \mathcal{U}(i)$]}
+					\UnaryInfC{$\Theta;\cdot\Uparrow\cdot$}
+				\end{prooftree}
+			\end{tcolorbox}
+		}
+	\end{multicols}
+}
+
+\begin{itemize}
+	\item The subexponential $c$ is not related with anyone
+	\item $\mathcal{U}(c)=\{K,U,T\}$
+	\item Let $\Theta$ be a subexp. context, $\mathcal{F}(\Theta)$ is all formulas in $\Theta$ 
+	\item Let $\Theta$ be a subexp context, $\Theta^u$ (resp. $\Theta^l$) is the unbounded (resp. linear) context in $\Theta$
+	\item Note that $\Theta\equiv\Theta^u,\Theta^l$ with $\Theta^u\cap\Theta^l=\emptyset$
+	\item  $\Upsilon_{_a\preceq}$ means that $\forall b:subexp, b \in \Upsilon \implies a \preceq b$
+	
+	\item  $\Upsilon^Z$ means that $\forall i:subexp, i \in \Upsilon \implies Z\in\mathcal{U}(i)$ 
+	\item  $\Upsilon^{\bcancel{Z}}$ means that $\forall i:subexp, i \in \Upsilon \implies Z\notin\mathcal{U}(i)$ 
+
+\end{itemize}
+
+
+\section{Height-Preserving Lemmas}
+
+\begin{theorem}[$\W$]
+If $U\in\mathcal{U}(j)$ and	$\fCenter\Theta;\Delta;\Updownarrow X$ then $\fCenter F_j,\Theta;\Delta;\Updownarrow X$
+\end{theorem}
+
+\begin{theorem}[$\C$]
+	If $U\in\mathcal{U}(j)$ and	$\fCenter F_j,F_j,\Theta;\Delta;\Updownarrow X$ then $\fCenter F_j,\Theta;\Delta;\Updownarrow X$
+\end{theorem}
+
+\begin{theorem}[$\C_c$]
+	If $\{U,T\}\subseteq\mathcal{U}(j)$ and	$\fCenter F_c,F_j,\Theta;\Delta;\Updownarrow X$ then $\fCenter F_j,\Theta;\Delta;\Updownarrow X$
+\end{theorem}
+
+\begin{theorem}[$\A_c$]
+	If $\{U,T\}\subseteq\mathcal{U}(j)$ and	$\fCenter F_j,\Theta;F,\Delta;\Updownarrow X$ then $\fCenter F_j,\Theta;\Delta;\Updownarrow X$
+\end{theorem}
+
+
+\begin{theorem}[$\A_l$]
+	If $T\in\mathcal{U}(j)$ and	$\fCenter \Theta;F,\Delta;\Updownarrow X$ then $\fCenter F_j,\Theta;\Delta;\Updownarrow X$
+\end{theorem}
+
+\newpage
+\section{Elimination of $\cut_1$}
+\input{cut1.tex}
+\newpage
+\section{Elimination of $\cut_2$}
+\input{cut2.tex}
+\newpage
+\section{Elimination of $\cut_3$}
+\input{cut3.tex}
+\newpage
+\section{Elimination of $\cut_4$}
+\input{cut4.tex}
+\newpage
+\section{Elimination of $\cut_5$}
+\input{cut5.tex}
+
+
+\end{document}

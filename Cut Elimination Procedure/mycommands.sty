@@ -1,0 +1,554 @@
+%!TEX root = main.tex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% Basic Definitions and Macros 
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% Authors: Bjorn Lelmann, Elaine Pimentel
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Enviroments 
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}[section] 
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{corollary}{Corollary}[section] 
+\newtheorem{example}{Example}[section] 
+%\newtheorem{proposition}{Proposition}[section] 
+%\newtheorem{remark}{\bf Remark}[section] 
+\newtheorem{notation}{Notation}[section]
+\newtheorem{req}{Requirement}[section]
+
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\blue}[1]{{\color{blue}{#1}}}
+\newcommand{\green}[1]{{\color{green!20!black}{#1}}}
+
+%Object logic syntax
+\newcommand{\connectives}{\mathcal{C}}
+
+%General purposes macros
+
+\newcommand\eg{\hbox{\textit{e.g.}}}
+\newcommand\ie{\hbox{\textit{i.e.}}}
+\newcommand{\etal}{\emph{et al.}}
+\newcommand\lra{\longrightarrow}
+\newcommand\Ra{\Rightarrow}
+\newcommand{\tup}[1]{\langle#1\rangle}
+\newcommand{\nat}{\mathbb{N}}
+
+
+
+%Logics
+\newcommand{\LJF}{\mathsf{LJF}}
+\newcommand{\LKF}{\mathsf{LKF}}
+\newcommand\SELL{\mathsf{SELL}}
+\newcommand\SELLF{\mathsf{SELLF}}
+\newcommand\MALL{\mathsf{MALL}}
+\newcommand\FLe{\mathsf{FLe}}
+\newcommand\FLew{\mathsf{FLew}}
+\newcommand\FLec{\mathsf{FLec}}
+\newcommand\Ltac{$\mathsf{L_{tac}}$}
+
+
+%Other macros
+\newcommand\sv{\mathtt{SV}}
+\long\def\hide#1\endhide{}
+
+
+%Special arrows
+%\newcommand\ra\rightarrow
+\newcommand\rimp{\Leftarrow}
+
+\newcommand\iimp{\supset}
+\newcommand\cimp{\ra}
+
+
+%Linear constants
+\newcommand\ffC{\texttt{f}}
+\newcommand\ttC{\texttt{t}}
+\newcommand\zero{0}
+\newcommand\one{1}
+\newcommand\bottom{\perp}
+\newcommand\bang{\mathop{!}}
+\newcommand\quest{\mathord{?}}
+\newcommand\limp{\mathbin{-\hspace{-0.70mm}\circ}}
+\newcommand\tensor\otimes
+%\newcommand\with{\mathbin{\&}}
+%\newcommand\parr{\bindnasrepma}
+\newcommand\lpar{\bindnasrepma}
+\newcommand\bla{\mathrel{\mbox{$\circ\!-$}}}
+\newcommand\lforall{\forall_{l}}
+\newcommand\lexists{\exists_{l}}
+\newcommand\plus{\oplus}
+\newcommand\Lpar{\mathlarger{\mathlarger\lpar}}
+
+%Andreoli's focusing system
+
+\newcommand{\Up}[3]{#1;#2\Uparrow #3}
+\newcommand{\Down}[3]{#1;#2\Downarrow #3}
+\newcommand{\nng}[1]{#1^\perp}
+\newcommand\llfDash{\vdash}
+\newcommand{\Exp}{\mathsf{Exp}}
+
+\newcommand{\FS}[3]{\vdash #1 : #2 ~ \Downarrow #3}
+\newcommand{\UFS}[3]{\vdash #1 : #2 ~ \Uparrow #3}
+\newcommand{\fcut}{F_{c}}
+
+%%encodings
+\newcommand{\ltype}{\texttt{o}}
+\newcommand{\wtype}{\texttt{w}}
+\newcommand{\fotype}{\texttt{d}}
+\newcommand{\htype}{\texttt{h}}
+\newcommand{\lF}[1]{\lfloor \mathsf{#1} \rfloor}
+\newcommand{\rF}[1]{\lceil \mathsf{#1} \rceil}
+\newcommand{\BlF}[1]{\textbf{\texttt{B}}\lfloor\!\!| #1 |\!\!\rfloor}
+\newcommand{\BrF}[1]{\textbf{\texttt{B}}\lceil\!\!| #1 |\!\!\rceil}
+\newcommand{\ElF}[1]{\textbf{\texttt{E}}\lfloor\!\!| #1 |\!\!\rfloor}
+\newcommand{\ErF}[1]{\textbf{\texttt{E}}\lceil\!\!| #1 |\!\!\rceil}
+\newcommand{\os}{[\![}
+%\newcommand{\cs}{]\!]}
+\newcommand{\ElrF}[1]{\textbf{\texttt{E}}\os #1 \cs}
+\newcommand{\SlrF}{\textbf{\texttt{S}}}
+\newcommand{\theory}{\mathcal{T}}
+\newcommand{\theoryC}{\mathcal{T}^{\texttt{C}}}
+\newcommand{\cL}{\mathcal{L}}
+
+%Atomic predicates
+\newcommand\atomic[1]{{\hbox{\sl atomic}}(#1)}
+\newcommand\formula[1]{{\hbox{\sl formula}}(#1)}
+\newcommand\rght[1]{\lceil \mathsf{#1} \rceil}
+\newcommand\lft[1]{\lfloor \mathsf{#1} \rfloor}
+\newcommand\ngp[1]{#1^\perp}
+
+
+\newcommand\Uset{\mathcal{U}}
+\newcommand\Iset{\mathcal{I}}
+\newcommand\Lset{\mathcal{L}}
+\newcommand\Sset{\mathcal{S}}
+
+%FLL rules
+\newcommand\initl{\mathsf{I}_l}
+\newcommand\initc{\mathsf{I}_c}
+\newcommand\decl{\mathsf{D}}
+\newcommand\decll{\mathsf{D}_l}
+\newcommand\decc{\mathsf{D}_c}
+\newcommand\dect{\mathsf{D}_t}
+
+\newcommand\rel{\mathsf{R_n}}
+\newcommand\invrel{\mathsf{R_p}}
+\newcommand\Ax{\mathsf{A}}
+\newcommand\Bx{\mathsf{B}}
+\newcommand\fB{\mathsf{B}}
+\newcommand\fP{\mathsf{P}}
+\newcommand\fF{\mathsf{F}}
+\newcommand\fG{\mathsf{G}}
+\newcommand\fH{\mathsf{H}}
+\newcommand\fQ{\mathsf{Q}}
+\newcommand\fL{\mathsf{L}}
+\newcommand\fM{\mathsf{M}}
+\newcommand\fN{\mathsf{N}}
+\newcommand\fX{\mathsf{X}}
+
+
+
+%Cal
+\def\Ascr{{\cal A}}
+\def\Bscr{{\cal B}}
+\def\Cscr{{\cal C}}
+\def\Dscr{{\cal D}}
+\def\Escr{{\cal E}}
+\def\Fscr{{\cal F}}
+\def\Gscr{{\cal G}}
+\def\Hscr{{\cal H}}
+\def\Iscr{{\cal I}}
+\def\Jscr{{\cal J}}
+\def\Kscr{{\cal K}}
+\def\Lscr{{\mathcal L}}
+\def\Mscr{{\cal M}}
+\def\Nscr{{\cal N}}
+\def\Oscr{{\cal O}}
+\def\Pscr{{\cal P}}
+\def\Qscr{{\cal Q}}
+\def\Rscr{{\cal R}}
+\def\Sscr{{\cal S}}
+\def\Tscr{{\cal T}}
+\def\Uscr{{\cal U}}
+\def\Vscr{{\cal V}}
+\def\Wscr{{\cal W}}
+\def\Xscr{{\cal X}}
+\def\Yscr{{\cal Y}}
+\def\Zscr{{\cal Z}}
+
+
+% SELL
+\newcommand{\nbang}[1]{\hbox{$\bang^{#1}$}}
+\newcommand{\nquest}[1]{\hbox{$\quest^{#1}$}}
+
+% Nested systems
+\newcommand{\weak}{\mathsf{weak}}
+\newcommand{\cont}{\mathsf{cont}}
+\newcommand{\lns}[1][]{\mathbin{\!/\mkern-5mu/^{#1}\!}}
+%\newcommand{\lnse}[1][]{\mathbin{\!\backslash\mkern-5mu\backslash^{#1}\!}}
+\newcommand{\lnse}[1][]{\lns[#1]}
+\newcommand{\lnsm}[1][]{\mathbin{\!/\mkern-5mu/^{#1}_{\m}\!}}
+%\newcommand{\lnsb}[1][]{\mathbin{\!/\mkern-5mu/^{#1}_{\mathsf{b}}\!}}
+\newcommand{\lnset}[1][]{\mathbin{\!\backslash\mkern-5mu\backslash^{#1}_{\te}\!}}
+\newcommand{\tw}{\mathsf{tw}}
+\newcommand{\te}{\mathsf{p}}
+\newcommand{\re}{\mathsf{r}}
+
+%\newcommand{\seql}[2]{\vdash #1;#2}
+\newcommand{\seql}[1]{#1} % OLD: \newcommand{\seql}[1]{\vdash #1}
+
+\newcommand{\lnsb}[1][]{\mathbin{\!\backslash\mkern-5mu\backslash^{#1}\!}}
+
+
+\newcommand{\lnsr}[1][]{\mathbin{\!\backslash\mkern-5mu\backslash^{#1}\!}}
+
+\newcommand{\lnsrm}[1][]{\mathbin{\!\backslash\mkern-5mu\backslash^{#1}_{\m}\!}}
+
+\newcommand\KD{\mathtt{KD}}
+\newcommand\LNSKD{\textbf{LNS}_{KD}}
+
+% Joao's macros
+\newcommand{\ineg}{{\smallsmile}}
+\newcommand{\uneg}{{\smallfrown}}
+\newcommand{\narb}{{-}}
+\newcommand{\wnarb}{\scalebox{1}{$\mathrlap{\Circle}\textcolor{black}{\narb}$}}
+\newcommand{\wnarbi}{{\scalebox{1}{$\mathrlap{\Circle}\textcolor{black}{{\narb_1}}$}}}
+\newcommand{\wnarbii}{{\scalebox{1}{$\mathrlap{\Circle}\textcolor{black}{{\narb_{2}}}$}}}
+\newcommand{\wsmile}{\scalebox{1}{$\mathrlap{\Circle}\textcolor{black}{\smallsmile}$}}
+\newcommand{\wfrown}{\scalebox{1}{$\mathrlap{\Circle}\textcolor{black}{\smallfrown}$}}
+
+
+% Bjorn macros
+
+\DeclareSymbolFont{symbolsC}{U}{txsyc}{m}{n}
+\DeclareMathSymbol{\boxright}{\mathrel}{symbolsC}{128}
+\DeclareMathSymbol{\boxRight}{\mathrel}{symbolsC}{136}
+
+\newcommand{\2}{\mathsf{.2}}
+\newcommand{\3}{\mathsf{.3}}
+\newcommand{\4}{\mathsf{4}}
+\newcommand{\5}{\mathsf{5}}
+\newcommand{\U}{\mathsf{U}}
+\newcommand{\lrsa}{\leftrightsquigarrow}
+%\newcommand{\Ax}{\mathcal{A}}
+\newcommand{\bp}[2]{\langle #1;#2 \rangle}
+\newcommand{\C}{\mathsf{C}}
+\newcommand{\A}{\mathsf{A}}
+\newcommand{\Ex}{\mathsf{Ex}}
+\newcommand{\Cg}{\mathsf{Cg}}
+\newcommand{\cim}{>}
+\newcommand{\CK}{\mathsf{CK}}
+\newcommand{\cless}{\preccurlyeq}
+\newcommand{\close}{\mathsf{close}}
+\newcommand{\conc}{{+\!\!+}}
+\newcommand{\cond}{\mathsf{cond}}
+\newcommand{\ConL}{\mathsf{C}_L}
+\newcommand{\ConR}{\mathsf{C}_R}
+\newcommand{\WkL}{\mathsf{W}_L}
+\newcommand{\WkR}{\mathsf{W}_R}
+
+\newcommand{\CR}{\mathfrak{C}}
+\newcommand{\cutr}[1]{\rho(#1)}
+\newcommand{\cut}{\mathsf{cut}}
+\newcommand{\cutC}{\mathsf{cutC}}
+\newcommand{\cutN}{\mathsf{cutN}}
+\newcommand{\cutF}{\mathsf{C}}
+
+\newcommand{\clause}{\mathcal{C}}
+\newcommand{\PosR}{\mathsf{Pos}}
+\newcommand{\NegR}{\mathsf{Neg}}
+
+\newcommand{\posR}{\mathsf{pos}}
+\newcommand{\negR}{\mathsf{neg}}
+%\newcommand{\Cut}{\mathsf{Cut}}
+\newcommand{\cl}{\mathsf{c}}
+\newcommand{\Cl}{\mathsf{CL}}
+\newcommand{\cls}{\mathtt{close}}
+\newcommand{\Con}{\mathsf{Con}}
+\newcommand{\con}[1]{\!\left\{#1\right\}}
+\newcommand{\crel}[2]{\langle #1,#2 \rangle}
+\newcommand{\D}{\mathsf{D}}
+\newcommand{\defs}{:=}
+\newcommand{\Deriv}[1]{\mathcal{#1}}
+\newcommand{\Diam}{\lozenge}
+\newcommand{\dm}{\cdot}
+\newcommand{\dpt}[1]{\operatorname{\mathsf{dp}}\left( #1 \right)}
+\newcommand{\dptf}[1]{\operatorname{\mathsf{dp}}_{\mathcal{S}}\left( #1 \right)}
+\newcommand{\eex}{\mathsf{EEX}}
+\newcommand{\entails}{\vdash}
+\newcommand{\es}{\emptyset}
+\newcommand{\fa}{\forall}
+%\newcommand{\e}{\mathsf{e}}
+\newcommand{\EC}{\mathsf{EC}}
+\newcommand{\EEC}{\mathsf{EEC}}
+\newcommand{\EW}{\mathsf{EW}}
+\newcommand{\ex}{\exists}
+%\newcommand{\F}{\mathsf{F}}
+\newcommand{\FALL}{\mathsf{FSLL}}
+\newcommand\FIL{\textbf{FIL}}
+\newcommand{\FLNS}{\mathsf{FLNS}}
+\newcommand{\Fml}{\mathcal{F}}
+\newcommand{\forcef}{\Vdash^{\forall}}
+\newcommand{\forces}{\Vdash}
+\newcommand\Fun{\mathtt{Fun}}
+%\newcommand{\G}{\mathsf{G}}
+\newcommand{\Gr}{\mathsf{G}}
+\newcommand\Gtcp{\mathsf{G3cp}}
+\newcommand\GtE{\mathsf{G3E}}
+\newcommand\Gtip{\mathsf{G3ip}}
+\newcommand\GtI{\mathsf{G3I}}
+\newcommand\GtM{\mathsf{G3M}}
+\newcommand\Gtmm{\mathsf{G3MM}}
+\newcommand{\hd}[1]{\operatorname{\mathsf{hd}}\left( #1 \right)}
+\newcommand{\hearts}{\heartsuit}
+\newcommand{\hilb}{\mathcal{H}}
+\newcommand{\Hilb}{\mathcal{H}}
+\newcommand{\HS}{\mathsf{H}}
+\newcommand{\Hyp}{\mathcal{HS}}
+\newcommand{\I}{\mathsf{I}}
+\newcommand{\ibox}[1]{{\square_{#1}}}% alternatively: {{\left[#1\right]}}
+\newcommand{\id}{\mathtt{id}}
+\newcommand{\ii}{\mathsf{i}}
+\newcommand{\Int}{\mathsf{int}}
+\newcommand{\init}{\mathsf{init}}
+\newcommand{\IW}{\mathsf{IW}}
+\newcommand{\J}{\mathsf{J}}
+\newcommand{\K}{\mathsf{K}}
+\newcommand{\lab}{\!:\!}
+\newcommand{\lan}{\langle}
+\newcommand{\Land}{\bigwedge}
+\newcommand{\lift}{\mathtt{lift}}
+\newcommand{\lnes}[1]{/\!\!/\, #1 }
+\newcommand{\lo}{\mathop{<_{\mathsf{lex}}}}
+\newcommand{\lowe}{\mathtt{lower}}
+\newcommand{\Lor}{\bigvee}
+\newcommand{\Lift}{\mathsf{Lift}}
+\newcommand\LJ{\mathsf{LJ}}
+\newcommand\LK{\mathsf{LK}}
+\newcommand{\LL}{\mathsf{LL}}
+\newcommand{\OL}{\mathsf{OL}}
+\newcommand{\SL}{\mathsf{SL}}
+\newcommand{\LLF}{\mathsf{LLF}}
+\newcommand{\FLL}{\mathsf{FLL}}
+\newcommand{\LLL}{\mathsf{LLL}}
+\newcommand{\LLS}{\mathsf{LbLNS}}
+\newcommand{\LLNS}{\mathsf{LbNS}}
+\newcommand\LmLJ{\mathsf{LL}_{\textbf{mLJ}}}
+\newcommand{\LNS}{\mathsf{LNS}}
+\newcommand{\ALL}{\mathsf{ALL}}
+\newcommand{\LS}{\mathsf{LS}}
+\newcommand{\LTS}{\mathsf{LTS}}
+\newcommand{\logic}{\mathcal{L}}
+%\newcommand{\lp}{\mathsf{loop}}
+\newcommand{\lrarr}{\leftrightarrow}
+\newcommand{\lresfml}{\mathcal{F}_\ell}
+\newcommand{\m}{\mathsf{m}}
+%\newcommand{\M}{\mathsf{M}}
+\newcommand{\mcut}{\mathsf{mcut}}
+\newcommand{\mint}{\text{m-}\mathsf{G3i}}
+\newcommand\mLJ{\mathsf{mLJ}}
+\newcommand{\Mon}{\mathsf{Mon}}
+\newcommand{\mrk}[1]{\mathsf{mrk}\left(#1\right)}
+\newcommand{\MS}{\mathsf{MS}}
+\newcommand{\nd}{\mathtt{nd}}
+\newcommand{\nes}[1]{\left[#1\right]}
+\newcommand{\nesh}[1]{\mathcal{S}\left\{#1\right\}}
+\newcommand{\nese}[1]{\left[#1\right]^\e}
+\newcommand{\nesi}[1]{\left\langle#1\right\rangle}
+\newcommand{\nesm}[1]{\left[#1\right]^\m}
+\newcommand{\nmodels}{\not\models}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\NS}{\mathsf{NS}}
+\newcommand{\Ob}{\mathcal{O}}
+\newcommand{\ov}{\overline}
+% \newcommand{\Per}{\mathcal{P}}
+\newcommand{\PP}{\mathsf{P}}
+%\newcommand{\pf}[1]{\mathop{\mathsf{PF}}\left(#1\right)}
+\newcommand{\PInt}{\mathsf{pInt}}
+\newcommand{\Pow}[1]{\mathfrak{P}\left(#1\right)}
+\newcommand{\Prem}{\mathcal{P}}
+\newcommand{\Prop}{\mathsf{Prop}}
+\newcommand{\pspace}{\mathsf{PSPACE}}
+\newcommand{\ran}{\rangle}
+\newcommand{\rarr}{\rightarrow}
+\newcommand{\res}{\upharpoonright}
+%\newcommand{\Res}{\mathcal{C}}
+\newcommand{\rresfml}{\mathcal{F}_r}
+\newcommand{\Rules}{\mathcal{R}}
+\newcommand{\SC}{\mathsf{SC}}
+\newcommand{\SDML}{\mathsf{SDML}}
+\newcommand{\seq}{\vdash}
+\newcommand{\Seq}{\mathcal{S}}
+\newcommand{\Sf}{\mathsf{S4}}
+\newcommand{\SFALL}{\mathsf{SFLL}}
+\newcommand{\SLL}{\mathsf{SLL}}
+\newcommand{\store}{\mathsf{store}}
+\newcommand{\select}{\mathsf{select}}
+\newcommand{\Sfi}{\mathsf{S5}}
+\newcommand{\sse}{\subseteq}
+\newcommand{\T}{\mathsf{T}}
+\newcommand{\TB}{\mathsf{TB}}
+\newcommand{\tl}[1]{\operatorname{\mathsf{tl}}\left( #1 \right)}
+\newcommand{\tlns}[4][]{/\!\!/^{#1} \left[ #2 ; #3 ; #4 \right] }%{\left[#1\right]}
+\newcommand{\tsc}{\mathsf{C\text{-}2SC}}
+\newcommand{\tset}[2]{[\![#1]\!]_{#2}}
+\newcommand{\upset}[2][]{{\uparrow^{#1}\!\!({#2})}}
+\newcommand{\Var}{\mathsf{Var}}
+\newcommand{\Vee}{\bigvee}
+\newcommand{\W}{\mathsf{W}}
+\newcommand{\wdg}{\wedge}
+\newcommand{\Wdg}{\bigwedge}
+\newcommand\world[2]{#1:#2}
+\newcommand\wff{\textit{wff}_{\mathcal{L}}}
+
+\newcommand\sequentialize[1]{#1^{\texttt{S}}}
+
+%% Adequacy
+\newcommand{\FCP}{{\bf FCP}}
+\newcommand{\FCD}{{\bf FCD}}
+
+
+%Focusing
+
+\newcommand{\FNS}{\mathsf{FLLS}}
+\newcommand{\FOS}{\mathsf{FOS}}
+% Focusing
+
+\def\fCenter{\mbox{\ $\vdash$\ }}
+
+\newcommand{\unfoch}[3]{\mathsf{\vdash #1;\colorbox{green!20}{$#2$} \Uparrow #3}} % unfocused
+\newcommand{\foch}[3]{\mathsf{\vdash #1;\colorbox{green!20}{$#2$} \Downarrow \, #3}} % unfocused
+
+\newcommand{\unfoc}[3]{\mathsf{\vdash #1;#2 \Uparrow #3}} % unfocused
+\newcommand{\foc}[3]{\mathsf{\vdash #1;#2\Downarrow \, #3}} %focused
+\newcommand{\focX}[3]{\mathsf{\vdash #1 ; #2 : #3}} %focused
+
+\newcommand{\unfocn}[4]{\mathsf{\vdash_{#1} #2;#3 \Uparrow #4}} % unfocused
+\newcommand{\focn}[4]{\mathsf{\vdash_{#1} #2;#3\Downarrow \, #4}} %focused
+\newcommand{\focXn}[4]{\mathsf{\vdash_{#1} #2;#3 : #4}} %focused
+
+%Saving space with equations
+\newcommand{\myequation}[1]{
+\noindent\begin{minipage}[c]{\textwidth}
+  \centering{#1}
+\end{minipage}  
+}
+
+% Sequents
+\newcommand{\tsid}[2]{\mathsf{#1\vdash #2}} % two-sided
+\newcommand{\mon}[1]{\mathsf{\vdash #1}} % monadic
+\newcommand{\dya}[2]{\mathsf{\vdash #1;#2}} % dyadic
+
+\newcommand{\dyan}[3]{\mathsf{\vdash_{#1} #2;#3}} % dyadic
+
+\newcommand{\Lbipole}[3]{\mathsf{\exists #1. \lF{#2}^\perp \tensor \lF{#3}}}
+\newcommand{\Lbipolec}[3]{\mathsf{\exists #1. \lF{#2}^\perp \tensor \quest\lF{#3}}}
+\newcommand{\Rbipole}[3]{\mathsf{\exists #1. \rF{#2}^\perp \tensor \rF{#3}}}
+\newcommand{\Rbipolec}[3]{\mathsf{\exists #1. \rF{#2}^\perp \tensor \quest\rF{#3}}}
+
+
+%\newcommand{\m}[1]{\mathsf{#1}}
+% \newcommand{\bm}[1]{\mathbf{#1}}
+\newcommand{\f}[1]{\framebox{#1}}
+\newcommand{\DD}{\mathcal{D}}
+\newcommand{\EE}{\mathcal{E}}
+\newcommand{\FF}{\mathcal{F}}
+\newcommand{\palign}[1]{\raisebox{-0.75em}{#1}}
+\newcommand{\ih}[1]{\mbox{i.h.}(#1)}
+%\newcommand{\ul}{\mathtt{\_}}
+\newcommand{\mi}[1]{\mbox{\it #1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\CC}{\mathcal{C}}
+\newcommand{\against}{\mathrel{\#}}
+\newcommand{\phantomdots}{\makebox[0pt][l]{$\ldots$}}
+\newcommand{\up}{{\uparrow}}
+\newcommand{\down}{{\downarrow}}
+\newcommand{\uscore}{\mbox{\tt\char`\_}}
+
+%\newcommand{\lft}[1]{{}^<{#1}}
+\newcommand{\rgt}[1]{{#1}{}^>}
+\newcommand{\mL}{{\mathchoice{\m{L}}{\m{L}}{\scriptscriptstyle\m{L}}{\scriptscriptstyle\m{L}}}}
+\newcommand{\mO}{{\mathchoice{\m{O}}{\m{O}}{\scriptscriptstyle\m{O}}{\scriptscriptstyle\m{O}}}}
+
+% judgments of linear logic
+\newcommand{\eph}{\mathit{eph}}
+\newcommand{\pers}{\mathit{pers}}
+\newcommand{\lax}{\mathit{lax}}
+\newcommand{\jtrue}{\mathit{true}}
+\newcommand{\um}[1]{\underline{\m{#1}}}
+
+%\newcommand{\seq}{\vdash}
+\newcommand{\cfseq}{\Rightarrow}
+\newcommand{\cseq}{\rightarrow}
+\newcommand{\semi}{\mathrel{;}}
+\newcommand{\lequiv}{\mathrel{\dashv\vdash}}
+%\newcommand{\cut}{\m{cut}}
+\newcommand{\cutbang}{\m{cut}{!}}
+\newcommand{\cutlax}{\m{cut}{\{\,\}}}
+%\newcommand{\id}{\m{id}}
+\newcommand{\defeq}{\triangleq}
+\newcommand{\vvdash}{\mathrel{\vdash\kern-0.8ex\vdash}}
+\newcommand{\setdiff}{-} % \mathbin{\backslash}
+\newcommand{\at}{{@}}
+\newcommand{\limplies}{\supset}
+\newcommand{\tr}[1]{{[\![}#1{]\!]}}
+\newcommand{\nt}{{\sim}}
+\newcommand{\vset}{{\scriptstyle \bullet}}
+
+% symbols of linear logic
+\newcommand{\lolli}{\multimap}
+%\newcommand{\tensor}{\otimes}
+%\newcommand{\with}{\mathbin{\binampersand}}
+\newcommand{\paar}{\mathbin{\bindnasrepma}}
+%\newcommand{\one}{\mathbf{1}}
+%\newcommand{\zero}{\mathbf{0}}
+%\newcommand{\bang}{{!}}
+%\newcommand{\whynot}{{?}}
+% \oplus, \top, \bot
+% \newcommand{\bilolli}{\multimapboth} % in txfonts
+% \newcommand{\lif}{\multimapinv} % in txfonts
+\newcommand{\bilolli}{\mathrel{\raisebox{1pt}{\ensuremath{\scriptstyle\circ}}{\!\lolli}}}
+\newcommand{\lif}{\mathrel{\raisebox{1pt}{\ensuremath{\scriptstyle\circ}}{\!-}}}
+\newcommand{\aff}{{@}}
+
+% symbols of linear lambda-calculus
+\newcommand{\pair}[2]{\langle #1, #2\rangle}
+\newcommand{\llet}{\m{let}\;}
+\newcommand{\iin}{\mathrel{\m{in}}}
+\newcommand{\ccase}{\m{case}\;}
+\newcommand{\oof}{\mathrel{\m{of}}}
+\newcommand{\unit}{\langle\,\rangle}
+\newcommand{\abort}{\m{abort}}
+
+% ordered logic
+\newcommand{\gnab}{\mbox{!`}}
+\newcommand{\fuse}{\bullet}
+% next three are obsolete
+% \newcommand{\esuf}{\circ}
+% \newcommand{\rimp}{\twoheadrightarrow}
+% \newcommand{\limp}{\rightarrowtail}
+
+%Special arrows
+\newcommand\ra\rightarrow
+
+
+
+\newcommand{\lover}{\mathbin{/}}
+\newcommand{\lunder}{\mathbin{\backslash}}
+\newcommand{\twist}{\mathbin{\circ}}
+
+
+\newcommand{\Kcal}{\mathcal{K}}
+\newcommand{\Ocal}{\mathcal{O}}
+
+\newcommand{\Kop}[1]{\mathcal{K}[#1]}
+\newcommand{\Kope}[2]{\hbox{$\Kcal#1_{#2}$}}
+\newcommand{\icon}[2]{\hbox{$#1:#2$}}
+
+
+\newcommand{\ELL}{\mathsf{ELL}}
+\newcommand{\lclassic}{\texttt{c}}
