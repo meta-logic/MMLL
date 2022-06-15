@@ -22,7 +22,7 @@ the terms of GNU Lesser General Public License (see the COPYING file).
 
 ## Getting Started
 
-The project was tested in Coq 8.13.2 No extra library is needed for compilation. 
+The project was tested in Coq 8.15. No extra library is needed for compilation. 
 
 ### Building 
 
@@ -54,7 +54,9 @@ two-level system and then, we have:
 
 For this reason, the project is divided in two main subdirectories, namely,  SL
 and OL plus an additional one (Misc) for some miscellaneous definitions and
-results. 
+results. There is an additional [TEX/PDF](./cut-elim-procedure) with the needed
+proof transformations to prove cut-admissibility of the focused system for 
+MMLL. 
 
 
 ### Misc
@@ -78,7 +80,7 @@ specify the indices for the subexponentials and the axioms assumed for each of
 them.
 
 
-#### LL/Sequent
+#### SL/Sequent
 
 Definition of sequents and linear nested sequents. 
 
@@ -105,6 +107,12 @@ can be switched.
 #### SL/CutElimination
 The proof of the cut-elimination theorem for the focused system.
 
+### Object Logics
+
+The directory [OL](./OL/CutCoherence) contains examples showing how to use 
+object logics as MMLL theories. For the moment, there are specifications
+for the linear system for classical, (multi-conclusion) intuitionistic
+logic and the modal logic S4. 
 
 ## References
 [1] Björn Lellmann: Linear Nested Sequents, 2-Sequents and Hypersequents. TABLEAUX 2015: 135-150
