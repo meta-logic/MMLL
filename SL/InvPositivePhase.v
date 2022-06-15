@@ -154,6 +154,36 @@ Section Absorption.
     + LLExists t.
   Qed.
 
+
+     Lemma AbsorptionC'
+     : forall th i Gamma Delta F X,
+       u i = true ->
+       mt i = true ->
+       seq th ((i, F) :: Gamma) (F :: Delta) X ->
+       seq th ((i, F) :: Gamma) Delta X.
+ Proof.
+      intros *. 
+      intros Hui Hti Hyp.
+      apply seqtoSeqN in Hyp.
+      destruct Hyp as [n Hyp].
+      apply AbsorptionC in Hyp;auto.
+      apply seqNtoSeq in Hyp;auto.
+ Qed.       
+          
+Lemma AbsorptionL'
+     : forall th i Gamma Delta F X,
+       mt i = true ->
+       seq th Gamma (F :: Delta) X ->
+       seq th ((i, F) :: Gamma) Delta X.
+ Proof.
+      intros *. 
+      intros Hti Hyp.
+      apply seqtoSeqN in Hyp.
+      destruct Hyp as [n Hyp].
+      apply AbsorptionL with (i:=i) in Hyp;auto.
+      apply seqNtoSeq in Hyp;auto.
+ Qed.     
+ 
 Lemma AbsorptionCSet : forall th n C Gamma Delta X,
   SetT C -> SetU C -> seqN th n (C++Gamma) (Delta++ (second C))  X ->
       seqN th n (C ++ Gamma) Delta  X.

@@ -467,7 +467,7 @@ Tactic Notation "createWorld" := match goal with
                 end.
 
 (* Exponential phase*)                
-Check tri_copyK4.
+
 Tactic Notation "copyK4"  constr(i) constr(P) constr(B) := match goal with
     | [ |- tri_bangK4' _ _ _ _ _ _ ] => eapply @tri_copyK4' with (b:=i) (F:=P) (B':=B);[solveLT | solveSE | sauto | sauto]
  | [|- tri_bangK4 _ _ _ _ _ _ _] => eapply @tri_copyK4 with (b:=i) (F:=P) (B':=B);[solveLT | solveSE | sauto | sauto]

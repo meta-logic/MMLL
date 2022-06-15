@@ -10,7 +10,7 @@ Context {OLS : OLSig}.
 Context {SI : Signature}.
 
  Variable th : oo -> Prop.
-
+ 
 Lemma BipoleReasoning {USI: UnbSignature} n B D F G:   seqN th n B D (DW (MAnd (perp F) G)) -> (exists m M, n = S m /\  seqN th m B M (DW G) /\ Permutation D (atom F :: M)) \/ (exists m i C, n = S m /\ seqN th m B D (DW G) /\ mt i = true /\Permutation ((i,atom F) :: C) B). 
  Proof with sauto.
    intros.
