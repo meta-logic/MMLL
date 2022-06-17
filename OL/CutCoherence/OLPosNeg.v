@@ -229,6 +229,54 @@ Proof with sauto.
   rewrite <- (app_nil_l M).
   eapply WeakPosNeg with (a:=a)...
   Qed.
+
+Lemma LinearToClassic2 a b (th:oo->Prop) M MR ML N L :
+hasPos th a -> hasNeg th b -> 
+IsPositiveAtomFormulaL M ->
+Permutation M (LEncode ML++REncode MR ) ->
+seq th (CEncode a (LEncode ML) ++ CEncode b (REncode MR)++L) N (UP [])  
+ -> seq th L (M ++ N) (UP []) .
+Proof with sauto.
+   intros Hpos Hneg isFM HP Hyp.
+   eapply exchangeLC with (LC:=(N++LEncode ML) ++ REncode MR).
+   rewrite HP...
+   rewrite HP in isFM...
+   apply NegSetP with (a:=b)...
+   apply PositiveAtomREOLFormula.
+   OLSolve.
+   apply PosSetP with (a:=a)...
+   apply PositiveAtomLEOLFormula.
+   OLSolve.
+ Qed.              
+  
+Lemma LinearToClassicAll a b (th:oo->Prop)  M MR ML N NR NL L :
+hasPos th a -> hasNeg th b ->
+IsPositiveAtomFormulaL M ->
+IsPositiveAtomFormulaL N ->
+Permutation M (LEncode ML++REncode MR ) ->
+Permutation N (LEncode NL++REncode NR) ->
+
+seq th(CEncode a (LEncode (ML++NL)) ++ CEncode b (REncode (MR++NR))++L) [] (UP [])  
+ -> seq th L (M ++ N) (UP []) .
+Proof with sauto.
+   intros Hpos Hneg isFM isFN HPM HPN Hyp.
+   eapply exchangeLC with (LC:=LEncode (ML ++ NL) ++REncode (MR ++ NR)).
+   rewrite !LEncodeApp.
+   rewrite !REncodeApp.
+   rewrite HPM, HPN...
+   rewrite HPM in isFM...
+   rewrite HPN in isFN...
+   apply NegSetP with (a:=b)...
+   apply PositiveAtomREOLFormula.
+   rewrite REncodeApp.
+   OLSolve;OLSolve.
+   rewrite <- (app_nil_l  (LEncode (ML ++ NL))).
+   apply PosSetP with (a:=a)...
+   apply PositiveAtomLEOLFormula.
+   rewrite LEncodeApp. 
+   OLSolve;OLSolve.
+    Qed.              
+
  
  End OLPOSNEG.
 
