@@ -31,13 +31,14 @@ OL/CutCoherence/OLTactics.v
 OL/CutCoherence/OLPosNeg.v
 OL/CutCoherence/Bipoles.v
 
+OL/CutCoherence/LNSi/LJBipoles.v
+OL/CutCoherence/LNSi/LJInv.v
+OL/CutCoherence/LNSi/LJCut.v
+OL/CutCoherence/LNSi/LJAdequacy.v
+
 OL/CutCoherence/LNSg/LKBipoles.v
 OL/CutCoherence/LNSg/LKCut.v
 OL/CutCoherence/LNSg/LKAdequacy.v
-
-OL/CutCoherence/LNSi/LJBipoles.v
-OL/CutCoherence/LNSi/LJCut.v
-OL/CutCoherence/LNSi/LJAdequacy.v
 
 OL/CutCoherence/LNSkt4/KT4Bipoles.v
 OL/CutCoherence/LNSkt4/KT4Cut.v

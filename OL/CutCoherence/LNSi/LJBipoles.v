@@ -224,7 +224,7 @@ Inductive buildTheory {i: subexp}: oo ->  Prop :=
   | ooth_consC : forall OO, buildTheoryCons OO ->  LJTheory OO
   | ooth_rulesC : forall OO, buildTheory (i:=a) OO ->  LJTheory OO
   | ooth_initC : forall OO, isOLFormula OO -> LJTheory (RINIT OO)
- | ooth_posC : forall OO,  isOLFormula OO ->  LJTheory (POS OO loc) 
+ | ooth_posC : forall OO,  isOLFormula OO ->  LJTheory (POS OO a) 
 
    | ooth_negC : forall OO, isOLFormula OO -> LJTheory (NEG OO loc) 
 .          
@@ -234,7 +234,7 @@ Inductive buildTheory {i: subexp}: oo ->  Prop :=
   | oothc_consC : forall OO, buildTheoryCons OO ->  LJTheoryCut n OO
   | oothc_rulesC : forall OO, buildTheory (i:=a) OO ->  LJTheoryCut n OO
   | oothc_initC : forall OO, isOLFormula OO -> LJTheoryCut n (RINIT OO)
- | oothc_posC : forall OO, isOLFormula OO -> LJTheoryCut n (POS OO loc) 
+ | oothc_posC : forall OO, isOLFormula OO -> LJTheoryCut n (POS OO a) 
   | oothc_negC : forall OO, isOLFormula OO -> LJTheoryCut n (NEG OO loc) 
   | oothc_cutln : forall OO, CUTLN n (CUTL OO) -> LJTheoryCut n (CUTL OO).
   
@@ -417,20 +417,33 @@ Proof.
     apply oothc_cutln;auto.
   Qed.
   
-    Inductive LJTheory' {a:subexp} : oo -> Prop :=
-  | ooth_consC' : forall OO, buildTheoryCons OO ->  LJTheory' OO
-  | ooth_rulesC' : forall OO, buildTheory (i:=a) OO ->  LJTheory' OO
-  | ooth_initC' : forall OO, isOLFormula OO -> LJTheory' (RINIT OO)
- | ooth_posC' : forall OO,  isOLFormula OO ->  LJTheory' (POS OO a) 
 
-   | ooth_negC' : forall OO, isOLFormula OO -> LJTheory' (NEG OO loc) 
-.          
+ 
+Lemma LJHasNeg a: hasNeg (LJ a) loc.  
+Proof with auto.
+  intro;intros...
+Qed.
 
-Definition LJ' i := LJTheory' (a:=i).
- 
- 
+Lemma LJHasPos a: hasPos (LJ a) a.  
+Proof with auto.
+  intro;intros...
+Qed.
+
+Lemma LJCHasNeg a n: hasNeg (LJC a n) loc.  
+Proof with auto.
+  intro;intros...
+Qed.
+
+Lemma LJCHasPos a n: hasPos (LJC a n) a.  
+Proof with auto.
+  intro;intros...
+Qed.
+
+
  End CutCohBipoles.
 
-Global Hint Constructors  LJTheoryCut LJTheory LJTheory' : core.
+Global Hint Resolve  LJHasNeg LJCHasNeg:core.
+Global Hint Resolve  LJHasPos LJCHasPos:core.
+Global Hint Constructors  LJTheoryCut LJTheory  : core.
 Global Hint Unfold RINIT CUTL CUTC  : core.
-Global Hint Unfold LJ LJ' LJC : core.
+Global Hint Unfold LJ LJC : core.
